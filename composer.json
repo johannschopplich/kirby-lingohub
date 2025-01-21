@@ -1,0 +1,49 @@
+{
+  "name": "johannschopplich/kirby-lingohub",
+  "description": "Lingohub integration for Kirby CMS",
+  "type": "kirby-plugin",
+  "version": "0.1.0",
+  "keywords": [
+    "deployment",
+    "vercel",
+    "kirby"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/johannschopplich/kirby-lingohub#readme",
+  "authors": [
+    {
+      "name": "Johann Schopplich",
+      "email": "hello@johannschopplich.com",
+      "homepage": "https://johannschopplich.com"
+    }
+  ],
+  "require": {
+    "getkirby/composer-installer": "^1"
+  },
+  "require-dev": {
+    "getkirby/cms": "^4",
+    "vlucas/phpdotenv": "^5"
+  },
+  "scripts": {
+    "dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php -S localhost:8000 -t playground/public vendor/getkirby/cms/router.php"
+    ],
+    "csfix": "@php tools/phpcs/vendor/bin/php-cs-fixer fix",
+    "dist": "composer install --no-dev --optimize-autoloader"
+  },
+  "autoload": {
+    "psr-4": {
+      "JohannSchopplich\\": "src/classes/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    }
+  },
+  "extra": {
+    "kirby-cms-path": false
+  }
+}

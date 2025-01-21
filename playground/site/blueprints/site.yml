@@ -1,0 +1,9 @@
+title: Playground
+
+buttons:
+  - preview
+  - languages
+
+sections:
+  pages:
+    type: pages

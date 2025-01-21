@@ -1,0 +1,10 @@
+/* Hide Panel navigation and topbar */
+.k-panel {
+  --main-start: 0;
+}
+
+.k-panel-menu,
+.k-panel-menu-proxy,
+.k-topbar {
+  display: none;
+}

@@ -1,0 +1,48 @@
+title: Page
+
+buttons:
+  - preview
+  - settings
+  - languages
+  - lingohub
+  - status
+
+tabs:
+  blocks:
+    label: Blocks
+    columns:
+      - width: 1/1
+        sections:
+          lingohubStatus:
+            type: lingohub-status
+      - width: 2/3
+        fields:
+          blocks01:
+            label: Blocks Field
+            type: blocks
+            fieldsets:
+              - heading
+              - text
+              - quote
+              - structure
+
+  objectFields:
+    label: Object & Structure Fields
+    columns:
+      - width: 2/3
+        fields:
+          object01:
+            type: object
+            label: Object Field
+            fields:
+              text:
+                type: textarea
+              structure:
+                type: structure
+                label: Structure Field
+                fields:
+                  text:
+                    type: textarea
+          tags01:
+            type: tags
+            label: Tags Field

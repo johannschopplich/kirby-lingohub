@@ -1,0 +1,19 @@
+title: Notes
+
+columns:
+  - width: 1/1
+    sections:
+      notes:
+        type: pages
+        label: Notes
+        layout: cards
+        create: note
+        image:
+          query: page.cover.toFile
+          cover: true
+          back: white
+
+  - width: 2/3
+    fields:
+      text:
+        type: blocks

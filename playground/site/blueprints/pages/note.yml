@@ -1,0 +1,18 @@
+title: Note
+
+buttons:
+  - preview
+  - settings
+  - languages
+  - lingohub
+  - status
+
+columns:
+  - width: 1/1
+    sections:
+      lingohubStatus:
+        type: lingohub-status
+  - width: 2/3
+    fields:
+      text:
+        type: blocks
