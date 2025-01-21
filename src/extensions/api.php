@@ -1,8 +1,8 @@
 <?php
 
-use Kirby\Cms\App;
 use JohannSchopplich\Lingohub\Content;
 use JohannSchopplich\Lingohub\Model;
+use Kirby\Cms\App;
 
 return [
     'routes' => fn (App $kirby) => [

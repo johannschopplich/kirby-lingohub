@@ -13,7 +13,9 @@ use Kirby\Form\Form;
 
 final class Model
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public static function resolveModelFields(ModelWithContent $model): array
     {

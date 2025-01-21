@@ -20,7 +20,8 @@ final class Content
         $this->model = Model::resolveModel($modelId);
     }
 
-    public function uploadTranslation(string $languageCode) {
+    public function uploadTranslation(string $languageCode)
+    {
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
@@ -31,7 +32,8 @@ final class Content
         );
     }
 
-    public function downloadTranslation(string $languageCode, array $options = []) {
+    public function downloadTranslation(string $languageCode, array $options = [])
+    {
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
@@ -89,7 +91,11 @@ final class Content
 
             // Handle text-like fields
             if (in_array($fields[$key]['type'], ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'], true)) {
-                $result[$fieldKey] = $value;
+                if ($fields[$key]['type'] === 'writer' && is_string($value)) {
+                    $result[$fieldKey] = $this->stripWriterTags($value);
+                } else {
+                    $result[$fieldKey] = $value;
+                }
             }
 
             // Handle structure fields
@@ -179,8 +185,12 @@ final class Content
             }
 
             // Direct assignment for simple field types
-            if (empty($parts) && in_array($fields[$fieldName]['type'], ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'], true)) {
-                $result[$fieldName] = $value;
+            if (empty($parts)) {
+                if ($fields[$fieldName]['type'] === 'writer') {
+                    $result[$fieldName] = $this->restoreWriterTags($value);
+                } elseif (in_array($fields[$fieldName]['type'], ['list', 'tags', 'text', 'textarea', 'markdown'], true)) {
+                    $result[$fieldName] = $value;
+                }
                 continue;
             }
 
@@ -284,5 +294,34 @@ final class Content
         if (empty($parts)) {
             $object[$fieldName] = $value;
         }
+    }
+
+    private function stripWriterTags(string $content): string
+    {
+        // First handle multiple paragraphs
+        $content = str_replace('</p><p>', "\n\n", $content);
+
+        // Then strip any remaining `p` tags
+        $content = preg_replace('/^<p>|<\/p>$/', '', $content);
+
+        return trim($content);
+    }
+
+    private function restoreWriterTags(string $content): string
+    {
+        // Split content by double newlines
+        $segments = explode("\n\n", $content);
+
+        // If we have multiple segments, wrap each in `p` tags
+        if (count($segments) > 1) {
+            $segments = array_map(
+                fn ($segment) => '<p>' . trim($segment) . '</p>',
+                $segments
+            );
+            return implode('', $segments);
+        }
+
+        // For single segments, just wrap in `p` tags
+        return '<p>' . trim($content) . '</p>';
     }
 }

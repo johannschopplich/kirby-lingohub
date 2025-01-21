@@ -3,8 +3,8 @@ title: Note
 buttons:
   - preview
   - settings
-  - languages
   - lingohub
+  - languages
   - status
 
 columns:

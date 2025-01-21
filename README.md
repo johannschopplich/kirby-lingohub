@@ -96,13 +96,14 @@ title: Note
 buttons:
   - preview
   - settings
-  - languages
+  # Add the Lingohub button to the page view
   - lingohub
+  - languages
   - status
 ```
 
 > [!NOTE]
-> Kirby 4 does not support custom view buttons, but the `lingohub` button has been backported. It is always placed after the language dropdown.
+> Kirby 4 does not support custom view buttons, but the `lingohub` button has been backported. It is always placed before the language dropdown.
 
 Finalize your blueprints by adding the necessary translation configuration to each field, e.g. `translate: false` if a field should not be translated. The plugin will skip these fields when uploading content to Lingohub.
 
@@ -144,9 +145,9 @@ The dialog contains the following fields:
 
 Submit the form to download the translations. The page will be updated with the new translations.
 
-## Sections
+## Features
 
-### Translation Status Table
+### Translation Status Table Section
 
 ![Kirby Lingohub status section](./.github/kirby-lingohub-status-section.png)
 

@@ -3,8 +3,8 @@ title: Page
 buttons:
   - preview
   - settings
-  - languages
   - lingohub
+  - languages
   - status
 
 tabs:
