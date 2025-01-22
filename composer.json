@@ -4,8 +4,9 @@
   "type": "kirby-plugin",
   "version": "0.1.0",
   "keywords": [
-    "deployment",
-    "vercel",
+    "lingohub",
+    "service",
+    "translations",
     "kirby"
   ],
   "license": "MIT",

@@ -2,7 +2,7 @@
 
 # Kirby Lingohub
 
-The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby.
+The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including nested data structures like blocks and structures.
 
 > [!NOTE]
 > For this plugin to work, you need to have a Lingohub account and a project set up. You can create a free account at [Lingohub](https://lingohub.com/).
@@ -147,6 +147,18 @@ Submit the form to download the translations. The page will be updated with the 
 
 ## Features
 
+### `translateExternalOnly` Blueprint Field Option
+
+The `translateExternalOnly` option allows you to mark fields that should only be translatable using the external translation service (i.e. Lingohub). For these fields, only the source language is editable. In translations, these fields cannot be edited. Admins can always edit the fields, independent of this setting. Set it to `true` when editors should only edit translations in Lingohub, and when the Lingohub translation memory is important to you.
+
+```yml
+fields:
+  title:
+    label: Text
+    type: blocks
+    translateExternalOnly: true
+```
+
 ### Translation Status Table Section
 
 ![Kirby Lingohub status section](./.github/kirby-lingohub-status-section.png)
@@ -186,14 +198,6 @@ Some special rules apply when uploading content to Lingohub:
 - Upload all pages to Lingohub in bulk, including translations if they already exist.
 - Download all pages from Lingohub in bulk. Configure which pages to process using a filter: e.g. only pages with a certain status or language.
 - Iterate through all pages in Kirby and check if new translations are available in Lingohub. If so, download them.
-
-## GEHT NICHT
-
-- User sets which [status in Lingohub](https://help.lingohub.com/en/articles/6683154-manage-localization-with-statuses) the existing translations should have after uploading to lingohub. (GEHT NICHT!)
-
-## TODO
-
-- add "translate_only_externally: true" to all fields that should only be translatable using the external translation service (i.e. Lingohub). For these fields, only the source language is editable. In translations, these fields cannot be edited. Admins can always edit the fields, independent of this setting. Set it to true, when editors that should only edit translations in Lingohub, when the Lingohub translation memory is important to you.
 
 ## License
 

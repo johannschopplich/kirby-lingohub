@@ -9,8 +9,11 @@ export function legacyViewButtonMixin(Vue) {
   Vue.mixin({
     mounted() {
       if (this.$options.name !== "k-header") return;
-      if (!window.panel.multilang) return;
-      if (window.panel.view.path === "site") return;
+
+      const { panel } = window;
+
+      if (!panel.multilang) return;
+      if (panel.view.path === "site") return;
 
       const buttonGroup = this.$children.find(
         (child) => child.$options.name === "k-button-group",
