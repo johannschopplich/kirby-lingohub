@@ -153,7 +153,7 @@ The `translateExternalOnly` option allows you to mark fields that should only be
 
 ```yml
 fields:
-  title:
+  text:
     label: Text
     type: blocks
     translateExternalOnly: true
