@@ -21,19 +21,9 @@ const isApproved = ref(false);
 const dropdownContent = ref();
 const currentLanguageResourceFile = ref();
 
-watch(
-  () => panel.language.code,
-  () => {
-    loadLingohubData();
-  },
-);
-
-watch(
-  () => panel.view.path,
-  () => {
-    loadLingohubData();
-  },
-);
+// Re-fetch Lingohub data when the language or Panel path changes
+watch(() => panel.language.code, loadLingohubData);
+watch(() => panel.view.path, loadLingohubData);
 
 (async () => {
   const context = await usePluginContext();
@@ -77,8 +67,8 @@ async function loadLingohubData() {
 
   isApproved.value =
     defaultLanguageResourceFile && currentLanguageResourceFile.value
-      ? defaultLanguageResourceFile.statuses.APPROVED ===
-        currentLanguageResourceFile.value.statuses.APPROVED
+      ? currentLanguageResourceFile.value.statuses.APPROVED >=
+        defaultLanguageResourceFile.statuses.APPROVED
       : undefined;
   isLoading.value = false;
 }
