@@ -6,7 +6,8 @@ import LingohubDropdownContent from "./LingohubDropdownContent.vue";
 
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
-const { getTranslationStatus, getTranslationResourceFile } = useLingohub();
+const { emitter, getTranslationStatus, getTranslationResourceFile } =
+  useLingohub();
 
 const defaultLanguage = panel.languages.find((language) => language.default);
 
@@ -24,6 +25,11 @@ const currentLanguageResourceFile = ref();
 // Re-fetch Lingohub data when the language or Panel path changes
 watch(() => panel.language.code, loadLingohubData);
 watch(() => panel.view.path, loadLingohubData);
+
+emitter.on("translationUpdate", () => {
+  // Lingohub needs some time to process the updated translation
+  setTimeout(loadLingohubData, 2000);
+});
 
 (async () => {
   const context = await usePluginContext();
@@ -172,10 +178,7 @@ async function loadLingohubData() {
     >
     </k-button>
     <k-dropdown-content ref="dropdownContent">
-      <LingohubDropdownContent
-        :context="context"
-        @translation-update="loadLingohubData()"
-      />
+      <LingohubDropdownContent :context="context" />
     </k-dropdown-content>
   </k-button-group>
 </template>

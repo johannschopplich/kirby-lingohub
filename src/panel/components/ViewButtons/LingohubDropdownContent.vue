@@ -10,12 +10,11 @@ export default {
 </script>
 
 <script setup>
-const emit = defineEmits(["translationUpdate"]);
-
 const panel = usePanel();
 const { openTextDialog, openFieldsDialog } = useDialog();
 const { getDefaultLanguageData } = useModel();
 const {
+  emitter,
   getTranslationStatus,
   getTranslationResourceFile,
   uploadTranslation,
@@ -57,7 +56,9 @@ async function uploadTranslations() {
         status,
         translationCode,
       );
-      const hasAnyTranslation = resourceFile.statuses.TRANSLATED > 0;
+      const hasAnyTranslation = resourceFile
+        ? resourceFile.statuses.TRANSLATED > 0
+        : false;
 
       // If Kirby translation exist that is not present on Lingohub, upload it automatically
       if (!hasAnyTranslation) {
@@ -83,7 +84,7 @@ async function uploadTranslations() {
     // Always upload the default language content
     await uploadTranslation(defaultLanguage.code);
 
-    emit("translationUpdate");
+    emitter.emit("translationUpdate");
 
     panel.notification.success(
       panel.t("johannschopplich.lingohub.success.upload"),
@@ -173,7 +174,7 @@ async function downloadTranslations() {
 
     await panel.view.reload();
 
-    emit("translationUpdate");
+    emitter.emit("translationUpdate");
 
     panel.notification.success(
       panel.t("johannschopplich.lingohub.success.download"),

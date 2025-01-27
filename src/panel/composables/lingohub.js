@@ -1,8 +1,11 @@
 import { usePanel } from "kirbyuse";
+import mitt from "mitt";
 import { ofetch } from "ofetch";
 import { PLUGIN_RECEIVE_API_ROUTE, PLUGIN_SEND_API_ROUTE } from "../constants";
 import { useModel } from "./model";
 import { usePluginContext } from "./plugin";
+
+const emitter = mitt();
 
 export function useLingohub() {
   const panel = usePanel();
@@ -107,6 +110,7 @@ export function useLingohub() {
   }
 
   return {
+    emitter,
     resolveResource,
     getTranslationStatus,
     getTranslationResources,
