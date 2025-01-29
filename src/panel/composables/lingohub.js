@@ -111,7 +111,6 @@ export function useLingohub() {
 
   return {
     emitter,
-    resolveResource,
     getTranslationStatus,
     getTranslationResources,
     getTranslationResourceFile,

@@ -13,7 +13,7 @@ export function legacyViewButtonMixin(Vue) {
       const { panel } = window;
 
       if (!panel.multilang) return;
-      if (panel.view.path === "site") return;
+      if (!panel.view.path.startsWith("pages/")) return;
 
       const buttonGroup = this.$children.find(
         (child) => child.$options.name === "k-button-group",
