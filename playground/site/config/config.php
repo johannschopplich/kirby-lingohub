@@ -10,7 +10,9 @@ return [
     ],
 
     'panel' => [
-        'css' => 'assets/panel.css'
+        'css' => array_filter([
+            env('DEMO') ? 'assets/panel.css' : null
+        ])
     ],
 
     'johannschopplich.lingohub' => [
