@@ -1,0 +1,29 @@
+Title: Die Erforschung des Universums
+
+----
+
+Text: [{"content":{"text":"<p>Weit weg, hinter den Wortbergen, weit weg von den Ländern Vokalia und Consonantia, dort leben die Blindtexte. Abgeschieden leben sie in Bookmarksgrove direkt an der Küste des Semantics, einem großen Sprachozean. Ein kleiner Fluss namens Duden fließt an ihrem Ort vorbei und versorgt sie mit den nötigen Regelialien. Es ist ein paradiesisches Land, in dem einem die gebratenen Teile von Sätzen in den Mund fliegen. Selbst das allmächtige Zeigen hat keine Kontrolle über die blinden Texte, es ist ein fast unorthographisches Leben. Eines Tages jedoch beschloss eine kleine Zeile blinden Textes namens Lorem Ipsum, in die weite Welt der Grammatik aufzubrechen.</p>"},"id":"_MtYF6qOmq","isHidden":false,"type":"text"},{"content":{"location":"kirby","image":["file://BYXR0pvumEbfTknP"],"src":"","alt":"Staring at stars","caption":"Sterne anstarren","link":"","ratio":"16/9","crop":"true"},"id":"_200yrtaus","isHidden":false,"type":"image"},{"content":{"text":"<p>Der große Oxmox riet ihr davon ab, denn es gab Tausende von schlechten Kommas, wilden Fragezeichen und hinterhältigen Semikoli, aber der kleine Blindtext hörte nicht darauf. Sie packte ihre sieben Versalia, steckte ihre Initialen in den Gürtel und machte sich auf den Weg. Als sie die ersten Hügel des Italienischen Gebirges erreichte, hatte sie einen letzten Blick zurück auf die Skyline ihrer Heimatstadt Bookmarksgrove, die Hauptlinie von Alphabet Village und die Unterlinie ihrer eigenen Straße, der Line Lane. Mitleidig lief ihr eine rhetorische Frage über die Wange, dann setzte sie ihren Weg fort. Auf ihrem Weg begegnete ihr ein Exemplar.</p>"},"id":"_J5cUP6Q8A","isHidden":false,"type":"text"}]
+
+----
+
+Cover: - file://UmLsUiC7HSEWkVwT
+
+----
+
+Date: 2020-12-10 16:00:00
+
+----
+
+Author: 
+
+----
+
+Tags: universe, sky
+
+----
+
+Subheading: Our quest to the edge of nowhere
+
+----
+
+Uuid: 3LqaapjQsir8n39b
