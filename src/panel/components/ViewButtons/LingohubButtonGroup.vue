@@ -24,7 +24,14 @@ const currentLanguageResourceFile = ref();
 
 // Re-fetch Lingohub data when the language or Panel path changes
 watch(() => panel.language.code, loadLingohubData);
-watch(() => panel.view.path, loadLingohubData);
+watch(
+  () => panel.view.path,
+  (path) => {
+    if (path.startsWith("pages/")) {
+      loadLingohubData();
+    }
+  },
+);
 
 emitter.on("translationUpdate", () => {
   // Lingohub needs some time to process the updated translation
