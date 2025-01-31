@@ -73,7 +73,7 @@ final class Content
             if (!isset($fields[$key])) {
                 continue;
             }
-            if (!$fields[$key]['translate']) {
+            if (!isset($fields[$key]['translate']) || !$fields[$key]['translate']) {
                 continue;
             }
 
