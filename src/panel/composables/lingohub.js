@@ -11,7 +11,7 @@ export function useLingohub() {
   const panel = usePanel();
   const { getDefaultLanguageData } = useModel();
 
-  const create$lingohub = async () =>
+  const create$Lingohub = async () =>
     ofetch.create({
       baseURL: "https://api.lingohub.com/v1",
       headers: {
@@ -51,8 +51,10 @@ export function useLingohub() {
   }
 
   async function getTranslationStatus() {
+    if (!(await validateLingohubConfig())) return;
+
     const { config } = await usePluginContext();
-    const $lingohub = await create$lingohub();
+    const $lingohub = await create$Lingohub();
 
     try {
       return await $lingohub(
@@ -107,6 +109,36 @@ export function useLingohub() {
       // Silent
       true,
     );
+  }
+
+  async function validateLingohubConfig() {
+    const context = await usePluginContext();
+
+    try {
+      if (!panel.multilang) {
+        throw new Error(
+          "The Lingohub plugin requires a multi-language Kirby installation.",
+        );
+      } else if (!context.config.apiKey) {
+        throw new Error(
+          'Missing API key in the "johannschopplich.lingohub.apiKey" plugin option.',
+        );
+      } else {
+        for (const key of ["workspaceId", "projectId"]) {
+          if (typeof context.config[key] !== "string" || !context.config[key]) {
+            throw new TypeError(
+              `Missing "johannschopplich.lingohub.${key}" plugin option.`,
+            );
+          }
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      panel.notification.error(error.message);
+      return false;
+    }
   }
 
   return {

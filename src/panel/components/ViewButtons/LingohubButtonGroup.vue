@@ -1,7 +1,6 @@
 <script setup>
 import { ref, useDialog, usePanel, watch } from "kirbyuse";
 import { useLingohub } from "../../composables/lingohub";
-import { usePluginContext } from "../../composables/plugin";
 import LingohubDropdownContent from "./LingohubDropdownContent.vue";
 
 const panel = usePanel();
@@ -23,44 +22,20 @@ const dropdownContent = ref();
 const currentLanguageResourceFile = ref();
 
 // Re-fetch Lingohub data when the language or Panel path changes
-watch(() => panel.language.code, loadLingohubData);
 watch(
-  () => panel.view.path,
-  (path) => {
+  () => [panel.view.path, panel.language.code],
+  ([path]) => {
     if (path.startsWith("pages/")) {
       loadLingohubData();
     }
   },
+  { immediate: true },
 );
 
 emitter.on("translationUpdate", () => {
   // Lingohub needs some time to process the updated translation
   setTimeout(loadLingohubData, 2000);
 });
-
-(async () => {
-  const context = await usePluginContext();
-
-  if (!panel.multilang) {
-    panel.notification.error(
-      "The Lingohub plugin requires a multi-language Kirby installation.",
-    );
-  } else if (!context.config.apiKey) {
-    panel.notification.error(
-      'Missing API key in the "johannschopplich.lingohub.apiKey" plugin option.',
-    );
-  } else {
-    for (const key of ["workspaceId", "projectId"]) {
-      if (!context.config[key]) {
-        panel.notification.error(
-          `Missing "johannschopplich.lingohub.${key}" plugin option.`,
-        );
-      }
-    }
-  }
-
-  await loadLingohubData();
-})();
 
 function toggle() {
   dropdownContent.value.toggle();
@@ -185,7 +160,7 @@ async function loadLingohubData() {
     >
     </k-button>
     <k-dropdown-content ref="dropdownContent">
-      <LingohubDropdownContent :context="context" />
+      <LingohubDropdownContent />
     </k-dropdown-content>
   </k-button-group>
 </template>
