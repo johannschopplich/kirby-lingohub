@@ -22,7 +22,7 @@ return [
         'johannschopplich.lingohub.download' => 'Übersetzungen herunterladen',
         'johannschopplich.lingohub.status' => 'Status',
         'johannschopplich.lingohub.languages' => 'Sprachen',
-        'johannschopplich.lingohub.status.approved' => 'Genehmigt',
+        'johannschopplich.lingohub.status.approved' => 'Freigegeben',
         'johannschopplich.lingohub.status.inTranslation' => 'In Übersetzung',
         'johannschopplich.lingohub.status.notUploaded' => 'Nicht hochgeladen',
         'johannschopplich.lingohub.success.upload' => 'Hochladen erfolgreich',
