@@ -1,4 +1,4 @@
-Title: Feld-Support
+Title: Field Support
 
 ----
 
@@ -24,7 +24,3 @@ Tags01: Das, Leben, ist, ein, Abenteuer
 ----
 
 Markdown01: Some content.
-
-----
-
-Uuid: AwEY46vCuCQYt6xB
