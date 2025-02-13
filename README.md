@@ -127,10 +127,11 @@ Click on the **Lingohub** dropdown button in the Panel header and select **Uploa
 
 When you click on the button, a dialog will open where you can select the content you want to upload to Lingohub:
 
-- **Source Language**: The default language of your site.
-- **Target Languages**: Any additional languages that have translations for the current page.
+- **Source Language**: Select it to upload the default language content to Lingohub. Pre-selected by default.
+- **Target Languages**: All languages that have translations for the current page. Pre-selected if there are no translations in Lingohub. This helps you to identify which languages need to be uploaded for the first time, e.g. when migrating an existing Kirby project to Lingohub.
 
-For target languages, the checkbox will be pre-selected if there are no translations in Lingohub for the current page. This helps you to identify which languages need to be uploaded for the first time.
+> [!NOTE]
+> If no translations are available in Kirby, the **Target Languages** list will be empty.
 
 After selecting the desired languages and confirming the dialog, the plugin will serialize the content and upload it to Lingohub for translation.
 
