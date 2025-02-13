@@ -1,0 +1,29 @@
+Title: Die Erforschung des Universums
+
+----
+
+Text: [{"content":{"text":"<p>Weit weg, hinter den Wortbergen, weit weg von den Ländern Vokalia und Consonantia, dort leben die Blindtexte. Abgeschieden leben sie in Bookmarksgrove direkt an der Küste des Semantics, einem großen Sprachozean. Ein kleiner Fluss namens Duden fließt an ihrem Ort vorbei und versorgt sie mit den nötigen Regelialien. Es ist ein paradiesisches Land, in dem einem die gebratenen Teile von Sätzen in den Mund fliegen. Selbst das allmächtige Zeigen hat keine Kontrolle über die blinden Texte, es ist ein fast unorthographisches Leben. Eines Tages jedoch beschloss eine kleine Zeile blinden Textes namens Lorem Ipsum, in die weite Welt der Grammatik aufzubrechen.</p>"},"id":"7d0fda0f-9980-4c93-8751-dfac09e38560","isHidden":false,"type":"text"},{"content":{"text":"<p><strong>Der große Oxmox</strong> riet ihr davon ab, denn es gab Tausende von schlechten Kommas, wilden Fragezeichen und hinterhältigen Semikoli, aber der kleine Blindtext hörte nicht darauf. Sie packte ihre sieben Versalia, steckte ihre Initialen in den Gürtel und machte sich auf den Weg. Als sie die ersten Hügel des Italienischen Gebirges erreichte, hatte sie einen letzten Blick zurück auf die Skyline ihrer Heimatstadt Bookmarksgrove, die Hauptlinie von Alphabet Village und die Unterlinie ihrer eigenen Straße, der Line Lane. Mitleidig lief ihr eine rhetorische Frage über die Wange, dann setzte sie ihren Weg fort. Auf ihrem Weg begegnete ihr ein Exemplar.</p>"},"id":"01d75285-79e1-414a-9273-3302008d70f5","isHidden":false,"type":"text"},{"content":{"text":"Die Zeit fliegt wie ein Pfeil, das Obst fliegt wie eine Banane","citation":"<a href=\"https://en.wikipedia.org/wiki/Anthony_Oettinger\">Anthony Oettinger</a>"},"id":"f8401fba-e2dd-4967-b07a-b468e9ba2786","isHidden":false,"type":"quote"},{"content":{"level":"h2","text":"Setzen wir hier eine Überschrift"},"id":"0687ec18-25fe-4a67-ac14-6bdd4370519f","isHidden":false,"type":"heading"},{"content":{"text":"<p>Doch nichts von dem, was die Werbetexter sagten, konnte sie überzeugen, und so dauerte es nicht lange, bis ein paar heimtückische Werbetexter ihr auflauerten, sie mit Longe und Parole betrunken machten und sie in ihre Agentur schleppten, wo sie sie immer wieder für ihre Projekte missbrauchten. Und wenn sie nicht umgeschrieben wurde, dann benutzen sie sie immer noch. Weit weg, hinter den Wortbergen, weit weg von den Ländern Vokalia und Consonantia, dort leben die Blindtexte. Abgeschieden leben sie in Bookmarksgrove direkt an der Küste der Semantik, einem großen Sprachenozean.</p>"},"id":"ee48646c-3e8b-41c8-9ecc-30a762f680e6","isHidden":false,"type":"text"}]
+
+----
+
+Cover: - file://UmLsUiC7HSEWkVwT
+
+----
+
+Date: 2020-12-10 16:00:00
+
+----
+
+Author: 
+
+----
+
+Tags: universe, sky
+
+----
+
+Subheading: Our quest to the edge of nowhere
+
+----
+
+Uuid: 3LqaapjQsir8n39b

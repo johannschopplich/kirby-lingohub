@@ -60,7 +60,11 @@ final class Content
 
     public function deserializeContent(array $translation, string $languageCode): array
     {
-        $content = $this->model->content($languageCode)->toArray();
+        $defaultLanguageCode = App::instance()->defaultLanguage()->code();
+        // Explicitly use the default language content as a base to merge the
+        // translation into, as the translation might not contain all segments
+        // (e.g. in blocks or layouts)
+        $content = $this->model->content($defaultLanguageCode)->toArray();
         $fields = Model::resolveModelFields($this->model);
         return $this->mergeTranslatedContent($translation, $content, $fields);
     }
