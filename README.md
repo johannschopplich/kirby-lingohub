@@ -121,16 +121,18 @@ Click on the status to open a dialog with more detailed information:
 
 ## Upload Translations for a Page or File
 
-Click on the **Lingohub** dropdown button in the Panel header and select **Upload Translations**.
+Click on the **Lingohub** dropdown button in the Panel header and select **Upload**.
 
 ![Kirby Lingohub upload translations](./.github/kirby-lingohub-upload.png)
 
-As soon as you click on the button, the plugin will:
+When you click on the button, a dialog will open where you can select the content you want to upload to Lingohub:
 
-- Serialize and upload the default language content to Lingohub.
-- If the current model (page or file) has Kirby translations, the plugin will check if these translations already exist in Lingohub. If not, they will be uploaded automatically. If they exist, the user can decide if they should be uploaded.
+- **Source Language**: The default language of your site.
+- **Target Languages**: Any additional languages that have translations for the current page.
 
-Instruct your translators to translate the content in Lingohub. When the translations are done, download the translations back to Kirby.
+For target languages, the checkbox will be pre-selected if there are no translations in Lingohub for the current page. This helps you to identify which languages need to be uploaded for the first time.
+
+After selecting the desired languages and confirming the dialog, the plugin will serialize the content and upload it to Lingohub for translation.
 
 ## Download Translations from Lingohub
 

@@ -11,7 +11,7 @@ export default {
 
 <script setup>
 const panel = usePanel();
-const { openTextDialog, openFieldsDialog } = useDialog();
+const { openFieldsDialog } = useDialog();
 const { getDefaultLanguageData } = useModel();
 const {
   emitter,
@@ -49,40 +49,85 @@ async function uploadTranslations() {
 
   const status = await getTranslationStatus();
 
+  // Find all translation codes that already exist on Lingohub
+  const localizedLanguageCodes = (
+    await Promise.all(
+      availableTranslationLanguageCodes.map(async (languageCode) => {
+        const resourceFile = await getTranslationResourceFile(
+          status,
+          languageCode,
+        );
+        const hasAnyTranslation = resourceFile
+          ? resourceFile.statuses.TRANSLATED > 0 ||
+            resourceFile.statuses.DRAFT > 0 ||
+            resourceFile.statuses.APPROVED > 0
+          : false;
+
+        if (hasAnyTranslation) {
+          return;
+        }
+
+        return languageCode;
+      }),
+    )
+  ).filter(Boolean);
+
+  const options = await openFieldsDialog({
+    submitButton: {
+      icon: "upload",
+      theme: "positive",
+      text: panel.t("johannschopplich.lingohub.upload"),
+    },
+    fields: {
+      sourceLanguage: {
+        type: "checkboxes",
+        label: panel.t("johannschopplich.lingohub.sourceLanguage"),
+        options: [
+          {
+            value: defaultLanguage.code,
+            text: defaultLanguage.name,
+          },
+        ],
+      },
+      targetLanguages:
+        availableTranslationLanguageCodes.length > 0
+          ? {
+              type: "checkboxes",
+              label: panel.t("johannschopplich.lingohub.targetLanguages"),
+              options: availableTranslationLanguageCodes.map(
+                (translationCode) => ({
+                  value: translationCode,
+                  text:
+                    panel.languages.find(
+                      (language) => language.code === translationCode,
+                    )?.name ?? translationCode,
+                }),
+              ),
+            }
+          : {
+              type: "info",
+              theme: "empty",
+              label: panel.t("johannschopplich.lingohub.targetLanguages"),
+              text: panel.t("johannschopplich.lingohub.emptyKirbyTranslations"),
+            },
+    },
+    value: {
+      sourceLanguage: [defaultLanguage.code],
+      targetLanguages: localizedLanguageCodes,
+    },
+  });
+
+  if (!options) return;
+
+  panel.view.isLoading = true;
+
   try {
-    // If any Kirby translations exist, ask the user if they want to upload them
-    for (const translationCode of availableTranslationLanguageCodes) {
-      const resourceFile = await getTranslationResourceFile(
-        status,
-        translationCode,
-      );
-      const hasAnyTranslation = resourceFile
-        ? resourceFile.statuses.TRANSLATED > 0
-        : false;
-
-      // If Kirby translation exist that is not present on Lingohub, upload it automatically
-      if (!hasAnyTranslation) {
-        await uploadTranslation(translationCode);
-      }
-      // Otherwise, ask the user if they want to overwrite the existing remote translation
-      else {
-        const isOk = await openTextDialog(
-          panel.t("johannschopplich.lingohub.dialog.overwrite", {
-            language: translationCode,
-          }),
-        );
-
-        await Promise.all(
-          [
-            isOk && uploadTranslation(translationCode),
-            new Promise((resolve) => setTimeout(resolve, 250)),
-          ].filter(Boolean),
-        );
-      }
+    for (const languageCode of [
+      ...options.sourceLanguage,
+      ...options.targetLanguages,
+    ]) {
+      await uploadTranslation(languageCode);
     }
-
-    // Always upload the default language content
-    await uploadTranslation(defaultLanguage.code);
 
     emitter.emit("translationUpdate");
 
@@ -90,9 +135,10 @@ async function uploadTranslations() {
       panel.t("johannschopplich.lingohub.success.upload"),
     );
   } catch (error) {
-    panel.view.isLoading = false;
     console.error(error);
     panel.notification.error(error.message);
+  } finally {
+    panel.view.isLoading = false;
   }
 }
 
@@ -114,8 +160,8 @@ async function downloadTranslations() {
 
         if (
           resourceFile &&
-          defaultResourceFile.statuses.APPROVED ===
-            resourceFile.statuses.APPROVED
+          resourceFile.statuses.APPROVED >=
+            defaultResourceFile.statuses.APPROVED
         ) {
           return language.code;
         }
@@ -168,8 +214,8 @@ async function downloadTranslations() {
   panel.view.isLoading = true;
 
   try {
-    for (const language of options.languages) {
-      await downloadTranslation(language, options.status);
+    for (const languageCode of options.languages) {
+      await downloadTranslation(languageCode, options.status);
     }
 
     await panel.view.reload();
