@@ -183,10 +183,6 @@ Lingohub uses a path based approach to identify the content. The path is generat
 
 While Kirby uses a language code as file suffix (e.g., `en`), Lingohub uses a locale code (e.g., `en-US`). The plugin maps the Kirby language code to the Lingohub locale code.
 
-Some special rules apply when uploading content to Lingohub:
-
-- Surrounding `<p>` tags are stripped from `writer` fields before uploading to Lingohub. This is done to remove unnecessary clutter from the translator's view in Lingohub. The tags are added back when the content is downloaded to Kirby.
-
 ## Roadmap
 
 ## Media Files
