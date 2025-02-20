@@ -9,9 +9,7 @@ export function useModel() {
 
   // Ensure event listener is only set once
   if (!isListenerRegistered) {
-    panel.events.on("page.changeSlug", () => {
-      languageDataCache.delete(panel.view.path);
-    });
+    panel.events.on("page.changeSlug", removeLanguageData);
     isListenerRegistered = true;
   }
 
@@ -35,6 +33,10 @@ export function useModel() {
 
     languageDataCache.set(id, response);
     return response;
+  }
+
+  function removeLanguageData() {
+    languageDataCache.delete(panel.view.path);
   }
 
   return {
