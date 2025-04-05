@@ -12,7 +12,10 @@ return [
     'panel' => [
         'css' => array_filter([
             env('DEMO') ? 'assets/panel.css' : null
-        ])
+        ]),
+        'vue' => [
+            'compiler' => false
+        ]
     ],
 
     'johannschopplich.lingohub' => [
