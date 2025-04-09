@@ -22,14 +22,14 @@ export function legacyViewButtonMixin(Vue) {
       );
       if (!buttonGroup) return;
 
-      const ButtonConstructor = Vue.extend(LingohubButtonGroup);
-      buttonComponent = new ButtonConstructor({ parent: this });
-      buttonComponent.$mount();
-
       const languagesDropdown = buttonGroup.$el.querySelector(
         ".k-languages-dropdown",
       );
       if (!languagesDropdown) return;
+
+      const ButtonConstructor = Vue.extend(LingohubButtonGroup);
+      buttonComponent = new ButtonConstructor({ parent: this });
+      buttonComponent.$mount();
 
       languagesDropdown.before(buttonComponent.$el);
     },
