@@ -9,7 +9,7 @@ const emitter = mitt();
 
 export function useLingohub() {
   const panel = usePanel();
-  const { getDefaultLanguageData } = useModel();
+  const { getViewModelData } = useModel();
 
   const create$Lingohub = async () =>
     ofetch.create({
@@ -21,7 +21,7 @@ export function useLingohub() {
 
   async function resolveResource(languageCode) {
     const { languages } = await usePluginContext();
-    const model = await getDefaultLanguageData();
+    const model = await getViewModelData();
 
     let localeCode = languages?.[languageCode]?.locale?.[0] ?? languageCode;
 
@@ -81,7 +81,7 @@ export function useLingohub() {
   }
 
   async function uploadTranslation(languageCode) {
-    const defaultLanguageData = await getDefaultLanguageData();
+    const defaultLanguageData = await getViewModelData();
 
     await panel.api.post(
       PLUGIN_SEND_API_ROUTE,
@@ -96,7 +96,7 @@ export function useLingohub() {
   }
 
   async function downloadTranslation(languageCode, targetStatus) {
-    const defaultLanguageData = await getDefaultLanguageData();
+    const defaultLanguageData = await getViewModelData();
 
     await panel.api.post(
       PLUGIN_RECEIVE_API_ROUTE,

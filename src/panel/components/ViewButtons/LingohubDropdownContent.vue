@@ -12,7 +12,7 @@ export default {
 <script setup>
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
-const { getDefaultLanguageData } = useModel();
+const { getViewModelData } = useModel();
 const {
   emitter,
   getTranslationStatus,
@@ -30,7 +30,7 @@ const modelContext = ref();
 
 // Lazily fetch model data for the default language
 const initializationPromise = (async () => {
-  const defaultLanguageData = await getDefaultLanguageData();
+  const defaultLanguageData = await getViewModelData();
 
   // Check which translations are available
   modelContext.value = await panel.api.post(PLUGIN_MODEL_CONTEXT_API_ROUTE, {
