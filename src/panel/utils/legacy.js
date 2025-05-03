@@ -34,6 +34,9 @@ export function legacyViewButtonMixin(Vue) {
       languagesDropdown.before(buttonComponent.$el);
     },
     beforeDestroy() {
+      if (this.$options.name !== "k-header") return;
+      if (!window.panel.multilang) return;
+
       if (buttonComponent) {
         buttonComponent.$destroy();
         buttonComponent = undefined;
