@@ -19,6 +19,15 @@ structure:
 
 ----
 
+Structure01:
+
+- 
+  text: '„Lorem ipsum dolor sit amet, consectetur adipiscing elit  …“ ist ein Blindtext, der nichts bedeuten soll, sondern als Platzhalter im Layout verwendet wird, um einen Eindruck vom fertigen Schriftstück zu erhalten.'
+  layout: '[{"attrs":[],"columns":[{"blocks":[{"content":{"level":"h2","text":"Warum Lorem Ipsum?"},"id":"afc976ce-7963-45d3-96d1-0ea4137a4bb6","isHidden":false,"type":"heading"},{"content":{"text":"<p>Die Verteilung der Buchstaben und der Wortlängen des pseudo-lateinischen Textes entspricht in etwa der natürlichen lateinischen Sprache. Der Text ist absichtlich unverständlich, damit der Betrachter nicht durch den Inhalt abgelenkt wird.</p>"},"id":"8e74b053-16ad-482d-b161-9707ab2baec2","isHidden":false,"type":"text"}],"id":"4edcc9a5-cddf-468e-b877-1302ead1daf4","width":"1/1"}],"id":"30794d85-ead0-45c2-b68a-1e4d5cbc193e"},{"attrs":[],"columns":[{"blocks":[{"content":{"text":"<ul><li>Über die Herkunft des Textes lässt sich keine Klarheit mehr gewinnen. Auch finden sich viele leicht voneinander abweichende Varianten dieses Textes. In der 1914 herausgegebenen lateinisch-englischen Cicero-Werkausgabe findet sich der Text auf Seite 36 oben beginnend mit lorem ipsum…, da das Wort dolorem getrennt umbrochen wurde.</li></ul>"},"id":"9246ca89-dd3b-44c9-a765-b9a40e01d0ac","isHidden":false,"type":"list"}],"id":"3aadc07f-8132-4a01-aad1-76ecb670c661","width":"1/1"}],"id":"4be091ba-db75-46eb-9e11-ba420faf8158"}]'
+  multiselect: from
+
+----
+
 Tags01: Das, Leben, ist, ein, Abenteuer
 
 ----

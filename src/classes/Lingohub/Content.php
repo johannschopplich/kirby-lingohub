@@ -278,8 +278,68 @@ final class Content
         }
 
         $fieldName = array_shift($parts);
+
+        // If there are no more parts, this is a direct field assignment
+        if (empty($parts)) {
+            if (isset($fields[$fieldName])) {
+                $items[$index][$fieldName] = $value;
+            }
+            return;
+        }
+
+        // Handle nested fields within structure items
         if (isset($fields[$fieldName])) {
-            $items[$index][$fieldName] = $value;
+            $fieldType = $fields[$fieldName]['type'];
+
+            // Handle nested layout fields
+            if ($fieldType === 'layout') {
+                // Decode the layout JSON if it's a string
+                if (is_string($items[$index][$fieldName])) {
+                    $layoutData = Data::decode($items[$index][$fieldName], 'json');
+                } else {
+                    $layoutData = $items[$index][$fieldName] ?? [];
+                }
+
+                // Process layout with remaining parts
+                $this->mergeLayoutContent($layoutData, $parts, $value);
+
+                // Re-encode the layout data
+                $items[$index][$fieldName] = Data::encode($layoutData, 'json');
+            }
+            // Handle nested blocks fields
+            elseif ($fieldType === 'blocks') {
+                // Decode the blocks JSON if it's a string
+                if (is_string($items[$index][$fieldName])) {
+                    $blocksData = Data::decode($items[$index][$fieldName], 'json');
+                } else {
+                    $blocksData = $items[$index][$fieldName] ?? [];
+                }
+
+                // Process blocks with remaining parts
+                $this->mergeBlockContent($blocksData, $parts, $value);
+
+                // Re-encode the blocks data
+                $items[$index][$fieldName] = Data::encode($blocksData, 'json');
+            }
+            // Handle nested structure fields
+            elseif ($fieldType === 'structure' || $fieldType === 'object') {
+                // Decode the nested structure/object data if it's a string
+                if (is_string($items[$index][$fieldName])) {
+                    $nestedData = Data::decode($items[$index][$fieldName], 'yaml');
+                } else {
+                    $nestedData = $items[$index][$fieldName] ?? [];
+                }
+
+                // Process structure recursively
+                if ($fieldType === 'structure') {
+                    $this->mergeStructureContent($nestedData, $parts, $value, $fields[$fieldName]['fields']);
+                } else {
+                    $this->mergeObjectContent($nestedData, $parts, $value);
+                }
+
+                // Re-encode the structure/object data
+                $items[$index][$fieldName] = Data::encode($nestedData, 'yaml');
+            }
         }
     }
 

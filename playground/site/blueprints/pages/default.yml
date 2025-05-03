@@ -26,7 +26,7 @@ tabs:
               - quote
               - structure
 
-  objectFields:
+  structuredDataFields:
     label: Object & Structure Fields
     columns:
       - width: 2/3
@@ -43,6 +43,18 @@ tabs:
                 fields:
                   text:
                     type: textarea
+          structure01:
+            type: structure
+            label: Structure Field
+            fields:
+              text:
+                type: textarea
+              layout:
+                type: layout
+                fieldsets:
+                  - heading
+                  - text
+                  - list
           tags01:
             type: tags
             label: Tags Field
