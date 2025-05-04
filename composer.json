@@ -2,7 +2,7 @@
   "name": "johannschopplich/kirby-lingohub",
   "description": "Lingohub translation service integration for Kirby CMS",
   "type": "kirby-plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "keywords": [
     "lingohub",
     "service",
