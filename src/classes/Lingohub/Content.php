@@ -60,15 +60,15 @@ final class Content
     {
         $content = $this->model->content($languageCode)->toArray();
         $fields = Model::resolveModelFields($this->model);
-        $translatableContent = $this->resolveTranslatableContent($content, $fields);
+        $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
         // Add title to translatable content if the model has one
         if (method_exists($this->model, 'title')) {
             $title = $this->model->title($languageCode)->value();
-            $translatableContent['title'] = $title;
+            $serializedContent['title'] = $title;
         }
 
-        return $translatableContent;
+        return $serializedContent;
     }
 
     public function deserializeContent(array $serializedContent, string $languageCode): array
@@ -85,14 +85,14 @@ final class Content
         // Preserve the existing slug from the target language
         $currentSlug = $this->model->content($languageCode)->get('slug')->value();
 
-        $result = $this->mergeTranslatedContent($serializedContent, $content, $fields);
+        $deserializedContent = $this->mergeTranslatedContent($serializedContent, $content, $fields);
 
         // Restore the original slug for this language if it exists
         if ($currentSlug !== null) {
-            $result['slug'] = $currentSlug;
+            $deserializedContent['slug'] = $currentSlug;
         }
 
-        return $result;
+        return $deserializedContent;
     }
 
     private function resolveTranslatableContent(array &$obj, array $fields, string $prefix = ''): array
