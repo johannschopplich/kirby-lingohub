@@ -48,6 +48,11 @@ final class Content
 
             // Write the translated and merged new content
             $this->model = $this->model->update($mergedContent, $languageCode);
+
+            // Handle title translation if present
+            if (isset($serializedContent['title']) && method_exists($this->model, 'changeTitle')) {
+                $this->model = $this->model->changeTitle($serializedContent['title'], $languageCode);
+            }
         });
     }
 
@@ -55,18 +60,29 @@ final class Content
     {
         $content = $this->model->content($languageCode)->toArray();
         $fields = Model::resolveModelFields($this->model);
-        return $this->resolveTranslatableContent($content, $fields);
+        $translatableContent = $this->resolveTranslatableContent($content, $fields);
+
+        // Add title to translatable content if the model has one
+        if (method_exists($this->model, 'title')) {
+            $title = $this->model->title($languageCode)->value();
+            $translatableContent['title'] = $title;
+        }
+
+        return $translatableContent;
     }
 
-    public function deserializeContent(array $translation, string $languageCode): array
+    public function deserializeContent(array $serializedContent, string $languageCode): array
     {
         $defaultLanguageCode = App::instance()->defaultLanguage()->code();
-        // Explicitly use the default language content as a base to merge the
-        // translation into, as the translation might not contain all segments
-        // (e.g. in blocks or layouts)
+        // Explicitly use the default language content as a base to merge the translation into,
+        // as the translation might not contain all segments (e.g. in blocks or layouts)
         $content = $this->model->content($defaultLanguageCode)->toArray();
         $fields = Model::resolveModelFields($this->model);
-        return $this->mergeTranslatedContent($translation, $content, $fields);
+
+        // Remove title from translation array, as it's handled separately
+        unset($serializedContent['title']);
+
+        return $this->mergeTranslatedContent($serializedContent, $content, $fields);
     }
 
     private function resolveTranslatableContent(array &$obj, array $fields, string $prefix = ''): array
