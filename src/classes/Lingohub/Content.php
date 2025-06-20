@@ -82,7 +82,17 @@ final class Content
         // Remove title from translation array, as it's handled separately
         unset($serializedContent['title']);
 
-        return $this->mergeTranslatedContent($serializedContent, $content, $fields);
+        // Preserve the existing slug from the target language
+        $currentSlug = $this->model->content($languageCode)->get('slug')->value();
+
+        $result = $this->mergeTranslatedContent($serializedContent, $content, $fields);
+
+        // Restore the original slug for this language if it exists
+        if ($currentSlug !== null) {
+            $result['slug'] = $currentSlug;
+        }
+
+        return $result;
     }
 
     private function resolveTranslatableContent(array &$obj, array $fields, string $prefix = ''): array

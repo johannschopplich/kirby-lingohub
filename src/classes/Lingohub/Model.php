@@ -26,7 +26,8 @@ final class Model
         ]);
 
         $fields = $form->fields()->toArray();
-        unset($fields['title']);
+
+        unset($fields['title'], $fields['slug']);
 
         foreach ($fields as $index => $props) {
             unset($fields[$index]['value']);
