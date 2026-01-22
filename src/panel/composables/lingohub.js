@@ -90,7 +90,7 @@ export function useLingohub() {
         languageCode,
       },
       undefined,
-      // Silent
+      // Avoid showing Panel loading indicator
       true,
     );
   }
@@ -106,7 +106,7 @@ export function useLingohub() {
         targetStatus,
       },
       undefined,
-      // Silent
+      // Avoid showing Panel loading indicator
       true,
     );
   }
