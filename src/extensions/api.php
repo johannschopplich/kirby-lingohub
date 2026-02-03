@@ -1,7 +1,7 @@
 <?php
 
+use JohannSchopplich\KirbyPlugins\ModelResolver;
 use JohannSchopplich\Lingohub\Content;
-use JohannSchopplich\Lingohub\Model;
 use Kirby\Cms\App;
 
 return [
@@ -24,7 +24,7 @@ return [
             'method' => 'POST',
             'action' => function () use ($kirby) {
                 $id = $kirby->request()->body()->get('id');
-                $model = Model::resolveModel($id);
+                $model = ModelResolver::resolveFromId($id);
 
                 $availableTranslationLanguageCodes = $model
                     ->translations()

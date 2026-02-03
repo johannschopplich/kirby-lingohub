@@ -2,22 +2,22 @@
 
 declare(strict_types = 1);
 
-namespace JohannSchopplich\Lingohub;
+namespace JohannSchopplich\KirbyPlugins;
 
-use Kirby\Cms\App;
-use Kirby\Cms\File;
 use Kirby\Cms\ModelWithContent;
-use Kirby\Cms\Page;
-use Kirby\Cms\Site;
 use Kirby\Form\Form;
 
-final class Model
+final class FieldResolver
 {
+    /**
+     * Resolves blueprint fields from a model
+     */
     public static function resolveModelFields(ModelWithContent $model): array
     {
         $fields = $model->blueprint()->fields();
         $languageCode = $model->kirby()->languageCode();
         $content = $model->content($languageCode)->toArray();
+
         $form = new Form([
             'fields' => $fields,
             'values' => $content,
@@ -26,7 +26,6 @@ final class Model
         ]);
 
         $fields = $form->fields()->toArray();
-
         unset($fields['title'], $fields['slug']);
 
         foreach ($fields as $index => $props) {
@@ -34,14 +33,5 @@ final class Model
         }
 
         return $fields;
-    }
-
-    public static function resolveModel(string $modelId): Site|Page|File
-    {
-        $kirby = App::instance();
-
-        return $modelId === 'site'
-            ? $kirby->site()
-            : $kirby->page($modelId, drafts: true) ?? $kirby->file($modelId, drafts: true);
     }
 }

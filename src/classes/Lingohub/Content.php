@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace JohannSchopplich\Lingohub;
 
+use JohannSchopplich\KirbyPlugins\FieldResolver;
+use JohannSchopplich\KirbyPlugins\ModelResolver;
 use Kirby\Cms\App;
 use Kirby\Cms\File;
 use Kirby\Cms\Page;
@@ -17,10 +19,10 @@ final class Content
 
     public function __construct(string $modelId)
     {
-        $this->model = Model::resolveModel($modelId);
+        $this->model = ModelResolver::resolveFromId($modelId);
     }
 
-    public function uploadTranslation(string $languageCode)
+    public function uploadTranslation(string $languageCode): array
     {
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
@@ -32,7 +34,7 @@ final class Content
         );
     }
 
-    public function downloadTranslation(string $languageCode, array $options = [])
+    public function downloadTranslation(string $languageCode, array $options = []): void
     {
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
@@ -59,7 +61,7 @@ final class Content
     public function serializeContent(string $languageCode): array
     {
         $content = $this->model->content($languageCode)->toArray();
-        $fields = Model::resolveModelFields($this->model);
+        $fields = FieldResolver::resolveModelFields($this->model);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
         // Add title to translatable content if the model has one
@@ -77,7 +79,7 @@ final class Content
         // Explicitly use the default language content as a base to merge the translation into,
         // as the translation might not contain all segments (e.g. in blocks or layouts)
         $content = $this->model->content($defaultLanguageCode)->toArray();
-        $fields = Model::resolveModelFields($this->model);
+        $fields = FieldResolver::resolveModelFields($this->model);
 
         // Remove title from translation array, as it's handled separately
         unset($serializedContent['title']);
@@ -120,8 +122,8 @@ final class Content
 
             $fieldKey = $prefix ? $prefix . '_' . $key : $key;
 
-            // Handle text-like fields
-            if (in_array($fields[$key]['type'], ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'], true)) {
+            // Handle text-like fields (including custom types that extend them)
+            if ($this->isTextLikeField($fields[$key])) {
                 $result[$fieldKey] = $value;
             }
 
@@ -180,6 +182,9 @@ final class Content
         return $result;
     }
 
+    /**
+     * Checks if a block is translatable based on its structure and visibility.
+     */
     private function isBlockTranslatable(array $block): bool
     {
         return isset($block['content']) &&
@@ -188,6 +193,43 @@ final class Content
             && ($block['isHidden'] ?? false) !== true;
     }
 
+    /**
+     * Checks if a field is a text-like field that should be translated.
+     *
+     * This includes both native Kirby field types and custom field types
+     * that extend them (e.g., `seo-writer` extends `writer`).
+     */
+    private function isTextLikeField(array $field): bool
+    {
+        $type = $field['type'] ?? '';
+        $extends = $field['extends'] ?? null;
+
+        // Native text-like field types
+        static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
+
+        // Check if the field type is a text-like type
+        if (in_array($type, $textLikeTypes, true)) {
+            return true;
+        }
+
+        // Check if the field extends a text-like type
+        if ($extends !== null && in_array($extends, $textLikeTypes, true)) {
+            return true;
+        }
+
+        // Check for common text-like field type patterns (e.g., `seo-writer` extends `writer`)
+        foreach ($textLikeTypes as $textType) {
+            if (str_ends_with($type, '-' . $textType) || str_starts_with($type, $textType . '-')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Flattens the tab-based field structure into a single fields array.
+     */
     private function flattenTabFields(array $fieldsets, array $block): array
     {
         $blockFields = [];
@@ -199,6 +241,9 @@ final class Content
         return $blockFields;
     }
 
+    /**
+     * Merges translated content back into the original content structure.
+     */
     private function mergeTranslatedContent(array $translation, array $original, array $fields): array
     {
         $result = $original;
@@ -213,7 +258,7 @@ final class Content
 
             // Direct assignment for simple field types
             if (empty($parts)) {
-                if (in_array($fields[$fieldName]['type'], ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'], true)) {
+                if ($this->isTextLikeField($fields[$fieldName])) {
                     $result[$fieldName] = $value;
                 }
                 continue;
