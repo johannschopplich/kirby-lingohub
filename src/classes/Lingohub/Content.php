@@ -183,65 +183,6 @@ final class Content
     }
 
     /**
-     * Checks if a block is translatable based on its structure and visibility.
-     */
-    private function isBlockTranslatable(array $block): bool
-    {
-        return isset($block['content']) &&
-            A::isAssociative($block['content'])
-            && isset($block['id'])
-            && ($block['isHidden'] ?? false) !== true;
-    }
-
-    /**
-     * Checks if a field is a text-like field that should be translated.
-     *
-     * This includes both native Kirby field types and custom field types
-     * that extend them (e.g., `seo-writer` extends `writer`).
-     */
-    private function isTextLikeField(array $field): bool
-    {
-        $type = $field['type'] ?? '';
-        $extends = $field['extends'] ?? null;
-
-        // Native text-like field types
-        static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
-
-        // Check if the field type is a text-like type
-        if (in_array($type, $textLikeTypes, true)) {
-            return true;
-        }
-
-        // Check if the field extends a text-like type
-        if ($extends !== null && in_array($extends, $textLikeTypes, true)) {
-            return true;
-        }
-
-        // Check for common text-like field type patterns (e.g., `seo-writer` extends `writer`)
-        foreach ($textLikeTypes as $textType) {
-            if (str_ends_with($type, '-' . $textType) || str_starts_with($type, $textType . '-')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Flattens the tab-based field structure into a single fields array.
-     */
-    private function flattenTabFields(array $fieldsets, array $block): array
-    {
-        $blockFields = [];
-
-        foreach ($fieldsets[$block['type']]['tabs'] as $tab) {
-            $blockFields = array_merge($blockFields, $tab['fields']);
-        }
-
-        return $blockFields;
-    }
-
-    /**
      * Merges translated content back into the original content structure.
      */
     private function mergeTranslatedContent(array $translation, array $original, array $fields): array
@@ -493,5 +434,64 @@ final class Content
                 $object[$fieldName] = Data::encode($nestedData, 'yaml');
             }
         }
+    }
+
+    /**
+     * Checks if a block is translatable based on its structure and visibility.
+     */
+    private function isBlockTranslatable(array $block): bool
+    {
+        return isset($block['content']) &&
+            A::isAssociative($block['content'])
+            && isset($block['id'])
+            && ($block['isHidden'] ?? false) !== true;
+    }
+
+    /**
+     * Checks if a field is a text-like field that should be translated.
+     *
+     * This includes both native Kirby field types and custom field types
+     * that extend them (e.g., `seo-writer` extends `writer`).
+     */
+    private function isTextLikeField(array $field): bool
+    {
+        $type = $field['type'] ?? '';
+        $extends = $field['extends'] ?? null;
+
+        // Native text-like field types
+        static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
+
+        // Check if the field type is a text-like type
+        if (in_array($type, $textLikeTypes, true)) {
+            return true;
+        }
+
+        // Check if the field extends a text-like type
+        if ($extends !== null && in_array($extends, $textLikeTypes, true)) {
+            return true;
+        }
+
+        // Check for common text-like field type patterns (e.g., `seo-writer` extends `writer`)
+        foreach ($textLikeTypes as $textType) {
+            if (str_ends_with($type, '-' . $textType) || str_starts_with($type, $textType . '-')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Flattens the tab-based field structure into a single fields array.
+     */
+    private function flattenTabFields(array $fieldsets, array $block): array
+    {
+        $blockFields = [];
+
+        foreach ($fieldsets[$block['type']]['tabs'] as $tab) {
+            $blockFields = array_merge($blockFields, $tab['fields']);
+        }
+
+        return $blockFields;
     }
 }
