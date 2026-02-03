@@ -7,9 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'JohannSchopplich\\KirbyPlugins\\FieldResolver' => $baseDir . '/src/classes/KirbyPlugins/FieldResolver.php',
+    'JohannSchopplich\\KirbyPlugins\\ModelResolver' => $baseDir . '/src/classes/KirbyPlugins/ModelResolver.php',
     'JohannSchopplich\\Lingohub\\Content' => $baseDir . '/src/classes/Lingohub/Content.php',
     'JohannSchopplich\\Lingohub\\Lingohub' => $baseDir . '/src/classes/Lingohub/Lingohub.php',
-    'JohannSchopplich\\Lingohub\\Model' => $baseDir . '/src/classes/Lingohub/Model.php',
     'JohannSchopplich\\Lingohub\\Multipart' => $baseDir . '/src/classes/Lingohub/Multipart.php',
     'Kirby\\ComposerInstaller\\CmsInstaller' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',
     'Kirby\\ComposerInstaller\\Installer' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/Installer.php',

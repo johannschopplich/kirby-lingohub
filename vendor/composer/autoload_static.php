@@ -7,22 +7,22 @@ namespace Composer\Autoload;
 class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
 {
     public static $prefixLengthsPsr4 = array (
-        'K' => 
+        'K' =>
         array (
             'Kirby\\' => 6,
         ),
-        'J' => 
+        'J' =>
         array (
             'JohannSchopplich\\' => 17,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Kirby\\' => 
+        'Kirby\\' =>
         array (
             0 => __DIR__ . '/..' . '/getkirby/composer-installer/src',
         ),
-        'JohannSchopplich\\' => 
+        'JohannSchopplich\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src/classes',
         ),
@@ -30,9 +30,10 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'JohannSchopplich\\KirbyPlugins\\FieldResolver' => __DIR__ . '/../..' . '/src/classes/KirbyPlugins/FieldResolver.php',
+        'JohannSchopplich\\KirbyPlugins\\ModelResolver' => __DIR__ . '/../..' . '/src/classes/KirbyPlugins/ModelResolver.php',
         'JohannSchopplich\\Lingohub\\Content' => __DIR__ . '/../..' . '/src/classes/Lingohub/Content.php',
         'JohannSchopplich\\Lingohub\\Lingohub' => __DIR__ . '/../..' . '/src/classes/Lingohub/Lingohub.php',
-        'JohannSchopplich\\Lingohub\\Model' => __DIR__ . '/../..' . '/src/classes/Lingohub/Model.php',
         'JohannSchopplich\\Lingohub\\Multipart' => __DIR__ . '/../..' . '/src/classes/Lingohub/Multipart.php',
         'Kirby\\ComposerInstaller\\CmsInstaller' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',
         'Kirby\\ComposerInstaller\\Installer' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/Installer.php',
