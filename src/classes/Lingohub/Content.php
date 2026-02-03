@@ -456,7 +456,6 @@ final class Content
     private function isTextLikeField(array $field): bool
     {
         $type = $field['type'] ?? '';
-        $extends = $field['extends'] ?? null;
 
         // Native text-like field types
         static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
@@ -466,16 +465,12 @@ final class Content
             return true;
         }
 
-        // Check if the field extends a text-like type
-        if ($extends !== null && in_array($extends, $textLikeTypes, true)) {
-            return true;
-        }
+        // Look up the `extends` property from Kirby's field extensions
+        $fieldExtensions = App::instance()->extensions('fields');
+        $extends = $fieldExtensions[$type]['extends'] ?? null;
 
-        // Check for common text-like field type patterns (e.g., `seo-writer` extends `writer`)
-        foreach ($textLikeTypes as $textType) {
-            if (str_ends_with($type, '-' . $textType) || str_starts_with($type, $textType . '-')) {
-                return true;
-            }
+        if (in_array($extends, $textLikeTypes, true)) {
+            return true;
         }
 
         return false;
