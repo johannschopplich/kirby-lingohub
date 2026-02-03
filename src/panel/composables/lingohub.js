@@ -23,6 +23,7 @@ export function useLingohub() {
     const { languages } = await usePluginContext();
     const model = await getModelData();
 
+    // Get the locale from the language configuration
     let localeCode = languages?.[languageCode]?.locale?.[0] ?? languageCode;
 
     // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
@@ -68,16 +69,32 @@ export function useLingohub() {
 
   async function getTranslationResources(status, languageCode) {
     const { resourcePath } = await resolveResource(languageCode);
-    const resource = status?.resourceFiles?.find((item) =>
-      item.files.some((file) => file.name === resourcePath),
-    );
+
+    // Try exact match first, then fall back to case-insensitive match
+    const resource =
+      status?.resourceFiles?.find((item) =>
+        item.files.some((file) => file.name === resourcePath),
+      ) ??
+      status?.resourceFiles?.find((item) =>
+        item.files.some(
+          (file) => file.name.toLowerCase() === resourcePath.toLowerCase(),
+        ),
+      );
+
     return resource?.files ?? [];
   }
 
   async function getTranslationResourceFile(status, languageCode) {
     const { resourcePath } = await resolveResource(languageCode);
     const resourceFiles = await getTranslationResources(status, languageCode);
-    return resourceFiles.find((file) => file.name === resourcePath);
+
+    // Try exact match first, then fall back to case-insensitive match
+    return (
+      resourceFiles.find((file) => file.name === resourcePath) ??
+      resourceFiles.find(
+        (file) => file.name.toLowerCase() === resourcePath.toLowerCase(),
+      )
+    );
   }
 
   async function uploadTranslation(languageCode) {
