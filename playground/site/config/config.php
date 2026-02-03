@@ -18,6 +18,10 @@ return [
         ]
     ],
 
+    'tobimori.seo' => [
+        'canonicalBase' => 'http://localhost:8000/'
+    ],
+
     'johannschopplich.lingohub' => [
         'apiKey' => env('LINGOHUB_API_KEY'),
         'workspaceId' => env('LINGOHUB_WORKSPACE_ID'),

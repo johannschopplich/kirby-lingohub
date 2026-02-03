@@ -1,6 +1,7 @@
 title: Note
 
 buttons:
+  - open
   - preview
   - settings
   - lingohub
@@ -12,6 +13,7 @@ columns:
     sections:
       lingohubStatus:
         type: lingohub-status
+
   - width: 2/3
     fields:
       text:
