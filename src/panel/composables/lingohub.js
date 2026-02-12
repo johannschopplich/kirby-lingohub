@@ -23,14 +23,14 @@ export function useLingohub() {
     const { languages } = await usePluginContext();
     const model = await getModelData();
 
-    // Get the locale from the language configuration
+    // Get the locale for the language
     let localeCode = languages?.[languageCode]?.locale?.[0] ?? languageCode;
 
     // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
     // (1) Convert locale code to IETF language tag format (e.g., `en_US` to `en-US`)
-    localeCode = localeCode.replace("_", "-");
+    localeCode = localeCode.replaceAll("_", "-");
 
-    // (2) Remove UTF-8 suffix and convert to lowercase for consistency
+    // (2) Remove UTF-8 suffix for consistency
     localeCode = localeCode.replace(/\.utf-?8$/i, "");
 
     let blueprintName = model.blueprint.name;
