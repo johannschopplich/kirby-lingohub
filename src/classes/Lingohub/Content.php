@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace JohannSchopplich\Lingohub;
 
-use JohannSchopplich\KirbyPlugins\FieldResolver;
-use JohannSchopplich\KirbyPlugins\ModelResolver;
+use JohannSchopplich\KirbyTools\FieldResolver;
+use JohannSchopplich\KirbyTools\ModelResolver;
 use Kirby\Cms\App;
 use Kirby\Cms\File;
 use Kirby\Cms\Page;
@@ -442,9 +442,9 @@ final class Content
     private function isBlockTranslatable(array $block): bool
     {
         return isset($block['content']) &&
-            A::isAssociative($block['content'])
-            && isset($block['id'])
-            && ($block['isHidden'] ?? false) !== true;
+            A::isAssociative($block['content']) &&
+            isset($block['id']) &&
+            ($block['isHidden'] ?? false) !== true;
     }
 
     /**

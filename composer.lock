@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8cdf1fd847ddfb90c18f4d0239324166",
+    "content-hash": "85b3639fbc495a4d3232e946b590fbb7",
     "packages": [
         {
             "name": "getkirby/composer-installer",
@@ -52,6 +52,51 @@
                 }
             ],
             "time": "2020-12-28T12:54:39+00:00"
+        },
+        {
+            "name": "johannschopplich/kirby-tools-utils",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kirby-tools/utils.git",
+                "reference": "f4664f75663c45bc8ae121eab6f652052bb872ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kirby-tools/utils/zipball/f4664f75663c45bc8ae121eab6f652052bb872ef",
+                "reference": "f4664f75663c45bc8ae121eab6f652052bb872ef",
+                "shasum": ""
+            },
+            "require-dev": {
+                "getkirby/cms": "^5"
+            },
+            "type": "library",
+            "extra": {
+                "kirby-cms-path": false
+            },
+            "autoload": {
+                "psr-4": {
+                    "JohannSchopplich\\KirbyTools\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Johann Schopplich",
+                    "email": "hello@johannschopplich.com",
+                    "homepage": "https://johannschopplich.com"
+                }
+            ],
+            "description": "Shared utility classes for Kirby Tools plugins",
+            "homepage": "https://github.com/kirby-tools/kirby-tools-utils#readme",
+            "support": {
+                "issues": "https://github.com/kirby-tools/utils/issues",
+                "source": "https://github.com/kirby-tools/utils/tree/v0.1.0"
+            },
+            "time": "2026-03-02T15:46:37+00:00"
         }
     ],
     "packages-dev": [
@@ -317,16 +362,16 @@
         },
         {
             "name": "getkirby/cms",
-            "version": "5.3.0",
+            "version": "5.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getkirby/kirby.git",
-                "reference": "3e1446322398c5b7705a03a9e8ad14920b9bbfa6"
+                "reference": "0ccfcabfbc86fc84127e876c249a75b7a15f1964"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getkirby/kirby/zipball/3e1446322398c5b7705a03a9e8ad14920b9bbfa6",
-                "reference": "3e1446322398c5b7705a03a9e8ad14920b9bbfa6",
+                "url": "https://api.github.com/repos/getkirby/kirby/zipball/0ccfcabfbc86fc84127e876c249a75b7a15f1964",
+                "reference": "0ccfcabfbc86fc84127e876c249a75b7a15f1964",
                 "shasum": ""
             },
             "require": {
@@ -413,7 +458,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-02-10T12:03:52+00:00"
+            "time": "2026-02-16T19:34:35+00:00"
         },
         {
             "name": "graham-campbell/result-type",

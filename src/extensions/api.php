@@ -1,6 +1,6 @@
 <?php
 
-use JohannSchopplich\KirbyPlugins\ModelResolver;
+use JohannSchopplich\KirbyTools\ModelResolver;
 use JohannSchopplich\Lingohub\Content;
 use Kirby\Cms\App;
 
