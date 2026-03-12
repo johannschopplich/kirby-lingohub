@@ -26,6 +26,7 @@ tabs:
               - text
               - quote
               - structure
+              - nestedblocks
 
   structuredDataFields:
     label: Object & Structure Fields

@@ -1,0 +1,11 @@
+name: Nested Blocks
+icon: box
+fields:
+  image:
+    type: files
+    translateInKirbyOnly: true
+  innerblocks:
+    type: blocks
+    fieldsets:
+      - heading
+      - text
