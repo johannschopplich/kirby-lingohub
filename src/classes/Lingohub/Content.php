@@ -22,6 +22,9 @@ final class Content
         $this->model = ModelResolver::resolveFromId($modelId);
     }
 
+    /**
+     * Uploads the serialized content for the given language to Lingohub.
+     */
     public function uploadTranslation(string $languageCode): array
     {
         $lingohub = Lingohub::instance();
@@ -34,6 +37,10 @@ final class Content
         );
     }
 
+    /**
+     * Downloads the translation for the given language from Lingohub
+     * and updates the model content.
+     */
     public function downloadTranslation(string $languageCode, array $options = []): void
     {
         $lingohub = Lingohub::instance();
@@ -58,6 +65,9 @@ final class Content
         });
     }
 
+    /**
+     * Flattens the model's content into a key-value map for Lingohub.
+     */
     public function serializeContent(string $languageCode): array
     {
         $content = $this->model->content($languageCode)->toArray();
@@ -73,6 +83,9 @@ final class Content
         return $serializedContent;
     }
 
+    /**
+     * Merges a Lingohub key-value map back into the model's content structure.
+     */
     public function deserializeContent(array $serializedContent, string $languageCode): array
     {
         $defaultLanguageCode = App::instance()->defaultLanguage()->code();
@@ -94,6 +107,10 @@ final class Content
             $deserializedContent['slug'] = $currentSlug;
         }
 
+        // Restore target language values for fields flagged with `translateInKirbyOnly`
+        $targetContent = $this->model->content($languageCode)->toArray();
+        $this->restoreKirbyOnlyFieldsInContent($deserializedContent, $targetContent, $fields);
+
         return $deserializedContent;
     }
 
@@ -107,6 +124,10 @@ final class Content
             }
 
             if (!($fields[$key]['translate'] ?? true)) {
+                continue;
+            }
+
+            if ($fields[$key]['translateInKirbyOnly'] ?? false) {
                 continue;
             }
 
@@ -182,9 +203,6 @@ final class Content
         return $result;
     }
 
-    /**
-     * Merges translated content back into the original content structure.
-     */
     private function mergeTranslatedContent(array $translation, array $original, array $fields): array
     {
         $result = $original;
@@ -214,9 +232,9 @@ final class Content
 
             // Handle nested structures
             if ($fields[$fieldName]['type'] === 'blocks') {
-                $this->mergeBlockContent($result[$fieldName], $parts, $value);
+                $this->mergeBlockContent($result[$fieldName], $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
             } elseif ($fields[$fieldName]['type'] === 'layout') {
-                $this->mergeLayoutContent($result[$fieldName], $parts, $value);
+                $this->mergeLayoutContent($result[$fieldName], $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
             } elseif ($fields[$fieldName]['type'] === 'structure') {
                 $this->mergeStructureContent($result[$fieldName], $parts, $value, $fields[$fieldName]['fields']);
             } elseif ($fields[$fieldName]['type'] === 'object') {
@@ -234,7 +252,7 @@ final class Content
         return $result;
     }
 
-    private function mergeBlockContent(array &$blocks, array $parts, string $value): void
+    private function mergeBlockContent(array &$blocks, array $parts, string $value, array $fieldsets = []): void
     {
         if (count($parts) < 2) {
             return;
@@ -245,14 +263,63 @@ final class Content
         $fieldName = $parts[2] ?? null;
 
         foreach ($blocks as &$block) {
-            if ($block['id'] === $blockId && $block['type'] === $blockType && $fieldName) {
+            if ($block['id'] !== $blockId || $block['type'] !== $blockType || !$fieldName) {
+                continue;
+            }
+
+            // Simple case: direct field assignment
+            if (count($parts) === 3) {
                 $block['content'][$fieldName] = $value;
                 break;
             }
+
+            // Recursive case: nested field within a block's content
+            $remainingParts = array_slice($parts, 3);
+            $blockFields = isset($fieldsets[$blockType])
+                ? $this->flattenTabFields($fieldsets, $block)
+                : [];
+
+            if (!isset($blockFields[$fieldName])) {
+                break;
+            }
+
+            $fieldType = $blockFields[$fieldName]['type'];
+
+            if ($fieldType === 'blocks') {
+                $nestedData = is_string($block['content'][$fieldName])
+                    ? Data::decode($block['content'][$fieldName], 'json')
+                    : ($block['content'][$fieldName] ?? []);
+
+                $this->mergeBlockContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fieldsets'] ?? []);
+                $block['content'][$fieldName] = Data::encode($nestedData, 'json');
+            } elseif ($fieldType === 'layout') {
+                $nestedData = is_string($block['content'][$fieldName])
+                    ? Data::decode($block['content'][$fieldName], 'json')
+                    : ($block['content'][$fieldName] ?? []);
+
+                $this->mergeLayoutContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fieldsets'] ?? []);
+                $block['content'][$fieldName] = Data::encode($nestedData, 'json');
+            } elseif ($fieldType === 'structure') {
+                $nestedData = is_string($block['content'][$fieldName])
+                    ? Data::decode($block['content'][$fieldName], 'yaml')
+                    : ($block['content'][$fieldName] ?? []);
+
+                $this->mergeStructureContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fields'] ?? []);
+                $block['content'][$fieldName] = Data::encode($nestedData, 'yaml');
+            } elseif ($fieldType === 'object') {
+                $nestedData = is_string($block['content'][$fieldName])
+                    ? Data::decode($block['content'][$fieldName], 'yaml')
+                    : ($block['content'][$fieldName] ?? []);
+
+                $this->mergeObjectContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fields'] ?? []);
+                $block['content'][$fieldName] = Data::encode($nestedData, 'yaml');
+            }
+
+            break;
         }
     }
 
-    private function mergeLayoutContent(array &$layouts, array $parts, string $value): void
+    private function mergeLayoutContent(array &$layouts, array $parts, string $value, array $fieldsets = []): void
     {
         if (count($parts) < 2) {
             return;
@@ -265,10 +332,59 @@ final class Content
         foreach ($layouts as &$layout) {
             foreach ($layout['columns'] as &$column) {
                 foreach ($column['blocks'] as &$block) {
-                    if ($block['id'] === $blockId && $block['type'] === $blockType && $fieldName) {
+                    if ($block['id'] !== $blockId || $block['type'] !== $blockType || !$fieldName) {
+                        continue;
+                    }
+
+                    // Simple case: direct field assignment
+                    if (count($parts) === 3) {
                         $block['content'][$fieldName] = $value;
                         break 3;
                     }
+
+                    // Recursive case: nested field within a block's content
+                    $remainingParts = array_slice($parts, 3);
+                    $blockFields = isset($fieldsets[$blockType])
+                        ? $this->flattenTabFields($fieldsets, $block)
+                        : [];
+
+                    if (!isset($blockFields[$fieldName])) {
+                        break 3;
+                    }
+
+                    $fieldType = $blockFields[$fieldName]['type'];
+
+                    if ($fieldType === 'blocks') {
+                        $nestedData = is_string($block['content'][$fieldName])
+                            ? Data::decode($block['content'][$fieldName], 'json')
+                            : ($block['content'][$fieldName] ?? []);
+
+                        $this->mergeBlockContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fieldsets'] ?? []);
+                        $block['content'][$fieldName] = Data::encode($nestedData, 'json');
+                    } elseif ($fieldType === 'layout') {
+                        $nestedData = is_string($block['content'][$fieldName])
+                            ? Data::decode($block['content'][$fieldName], 'json')
+                            : ($block['content'][$fieldName] ?? []);
+
+                        $this->mergeLayoutContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fieldsets'] ?? []);
+                        $block['content'][$fieldName] = Data::encode($nestedData, 'json');
+                    } elseif ($fieldType === 'structure') {
+                        $nestedData = is_string($block['content'][$fieldName])
+                            ? Data::decode($block['content'][$fieldName], 'yaml')
+                            : ($block['content'][$fieldName] ?? []);
+
+                        $this->mergeStructureContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fields'] ?? []);
+                        $block['content'][$fieldName] = Data::encode($nestedData, 'yaml');
+                    } elseif ($fieldType === 'object') {
+                        $nestedData = is_string($block['content'][$fieldName])
+                            ? Data::decode($block['content'][$fieldName], 'yaml')
+                            : ($block['content'][$fieldName] ?? []);
+
+                        $this->mergeObjectContent($nestedData, $remainingParts, $value, $blockFields[$fieldName]['fields'] ?? []);
+                        $block['content'][$fieldName] = Data::encode($nestedData, 'yaml');
+                    }
+
+                    break 3;
                 }
             }
         }
@@ -313,7 +429,7 @@ final class Content
                 }
 
                 // Process layout with remaining parts
-                $this->mergeLayoutContent($layoutData, $parts, $value);
+                $this->mergeLayoutContent($layoutData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
                 // Re-encode the layout data
                 $items[$index][$fieldName] = Data::encode($layoutData, 'json');
@@ -328,7 +444,7 @@ final class Content
                 }
 
                 // Process blocks with remaining parts
-                $this->mergeBlockContent($blocksData, $parts, $value);
+                $this->mergeBlockContent($blocksData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
                 // Re-encode the blocks data
                 $items[$index][$fieldName] = Data::encode($blocksData, 'json');
@@ -383,7 +499,7 @@ final class Content
                 }
 
                 // Process layout with remaining parts
-                $this->mergeLayoutContent($layoutData, $parts, $value);
+                $this->mergeLayoutContent($layoutData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
                 // Re-encode the layout data
                 $object[$fieldName] = Data::encode($layoutData, 'json');
@@ -398,7 +514,7 @@ final class Content
                 }
 
                 // Process blocks with remaining parts
-                $this->mergeBlockContent($blocksData, $parts, $value);
+                $this->mergeBlockContent($blocksData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
                 // Re-encode the blocks data
                 $object[$fieldName] = Data::encode($blocksData, 'json');
@@ -437,8 +553,141 @@ final class Content
     }
 
     /**
-     * Checks if a block is translatable based on its structure and visibility.
+     * Recursively restores `translateInKirbyOnly` field values from the target language content.
      */
+    private function restoreKirbyOnlyFieldsInContent(
+        array &$mergedContent,
+        array $targetContent,
+        array $fields
+    ): void {
+        foreach ($fields as $key => $field) {
+            if ($field['translateInKirbyOnly'] ?? false) {
+                if (isset($targetContent[$key])) {
+                    $mergedContent[$key] = $targetContent[$key];
+                }
+                continue;
+            }
+
+            if (!isset($mergedContent[$key]) || !isset($targetContent[$key])) {
+                continue;
+            }
+
+            if ($field['type'] === 'blocks') {
+                $mergedBlocks = is_string($mergedContent[$key])
+                    ? Data::decode($mergedContent[$key], 'json')
+                    : $mergedContent[$key];
+                $targetBlocks = is_string($targetContent[$key])
+                    ? Data::decode($targetContent[$key], 'json')
+                    : $targetContent[$key];
+
+                $this->restoreKirbyOnlyFieldsInBlocks($mergedBlocks, $targetBlocks, $field['fieldsets'] ?? []);
+
+                $mergedContent[$key] = is_string($mergedContent[$key])
+                    ? Data::encode($mergedBlocks, 'json')
+                    : $mergedBlocks;
+            } elseif ($field['type'] === 'layout') {
+                $mergedLayouts = is_string($mergedContent[$key])
+                    ? Data::decode($mergedContent[$key], 'json')
+                    : $mergedContent[$key];
+                $targetLayouts = is_string($targetContent[$key])
+                    ? Data::decode($targetContent[$key], 'json')
+                    : $targetContent[$key];
+
+                $targetLayoutsById = [];
+                foreach ($targetLayouts as $layout) {
+                    $targetLayoutsById[$layout['id']] = $layout;
+                }
+
+                foreach ($mergedLayouts as &$layout) {
+                    if (!isset($targetLayoutsById[$layout['id']])) {
+                        continue;
+                    }
+                    $targetLayout = $targetLayoutsById[$layout['id']];
+                    foreach ($layout['columns'] as $colIndex => &$column) {
+                        if (!isset($targetLayout['columns'][$colIndex]['blocks'])) {
+                            continue;
+                        }
+                        $this->restoreKirbyOnlyFieldsInBlocks(
+                            $column['blocks'],
+                            $targetLayout['columns'][$colIndex]['blocks'],
+                            $field['fieldsets'] ?? []
+                        );
+                    }
+                }
+
+                $mergedContent[$key] = is_string($mergedContent[$key])
+                    ? Data::encode($mergedLayouts, 'json')
+                    : $mergedLayouts;
+            } elseif ($field['type'] === 'structure') {
+                $mergedItems = is_string($mergedContent[$key])
+                    ? Data::decode($mergedContent[$key], 'yaml')
+                    : $mergedContent[$key];
+                $targetItems = is_string($targetContent[$key])
+                    ? Data::decode($targetContent[$key], 'yaml')
+                    : $targetContent[$key];
+
+                foreach ($mergedItems as $index => &$item) {
+                    if (!isset($targetItems[$index])) {
+                        continue;
+                    }
+                    $this->restoreKirbyOnlyFieldsInContent($item, $targetItems[$index], $field['fields'] ?? []);
+                }
+
+                $mergedContent[$key] = is_string($mergedContent[$key])
+                    ? Data::encode($mergedItems, 'yaml')
+                    : $mergedItems;
+            } elseif ($field['type'] === 'object') {
+                $mergedObj = is_string($mergedContent[$key])
+                    ? Data::decode($mergedContent[$key], 'yaml')
+                    : $mergedContent[$key];
+                $targetObj = is_string($targetContent[$key])
+                    ? Data::decode($targetContent[$key], 'yaml')
+                    : $targetContent[$key];
+
+                $this->restoreKirbyOnlyFieldsInContent($mergedObj, $targetObj, $field['fields'] ?? []);
+
+                $mergedContent[$key] = is_string($mergedContent[$key])
+                    ? Data::encode($mergedObj, 'yaml')
+                    : $mergedObj;
+            }
+        }
+    }
+
+    /**
+     * Restores `translateInKirbyOnly` field values within blocks
+     * by matching blocks between merged and target content by ID.
+     */
+    private function restoreKirbyOnlyFieldsInBlocks(
+        array &$mergedBlocks,
+        array $targetBlocks,
+        array $fieldsets
+    ): void {
+        $targetBlocksById = [];
+        foreach ($targetBlocks as $block) {
+            if (isset($block['id'])) {
+                $targetBlocksById[$block['id']] = $block;
+            }
+        }
+
+        foreach ($mergedBlocks as &$block) {
+            if (!isset($block['id'], $block['type'], $block['content'])) {
+                continue;
+            }
+
+            if (!isset($fieldsets[$block['type']])) {
+                continue;
+            }
+
+            $targetBlock = $targetBlocksById[$block['id']] ?? null;
+            if ($targetBlock === null) {
+                continue;
+            }
+
+            $blockFields = $this->flattenTabFields($fieldsets, $block);
+            $this->restoreKirbyOnlyFieldsInContent($block['content'], $targetBlock['content'] ?? [], $blockFields);
+        }
+    }
+
     private function isBlockTranslatable(array $block): bool
     {
         return isset($block['content']) &&
@@ -476,9 +725,6 @@ final class Content
         return false;
     }
 
-    /**
-     * Flattens the tab-based field structure into a single fields array.
-     */
     private function flattenTabFields(array $fieldsets, array $block): array
     {
         $blockFields = [];
