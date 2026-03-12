@@ -7,8 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'JohannSchopplich\\KirbyPlugins\\FieldResolver' => $baseDir . '/src/classes/KirbyPlugins/FieldResolver.php',
-    'JohannSchopplich\\KirbyPlugins\\ModelResolver' => $baseDir . '/src/classes/KirbyPlugins/ModelResolver.php',
+    'JohannSchopplich\\KirbyTools\\FieldResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
+    'JohannSchopplich\\KirbyTools\\ModelResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
     'JohannSchopplich\\Lingohub\\Content' => $baseDir . '/src/classes/Lingohub/Content.php',
     'JohannSchopplich\\Lingohub\\Lingohub' => $baseDir . '/src/classes/Lingohub/Lingohub.php',
     'JohannSchopplich\\Lingohub\\Multipart' => $baseDir . '/src/classes/Lingohub/Multipart.php',

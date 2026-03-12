@@ -13,6 +13,7 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
         ),
         'J' =>
         array (
+            'JohannSchopplich\\KirbyTools\\' => 28,
             'JohannSchopplich\\' => 17,
         ),
     );
@@ -22,6 +23,10 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
         array (
             0 => __DIR__ . '/..' . '/getkirby/composer-installer/src',
         ),
+        'JohannSchopplich\\KirbyTools\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src',
+        ),
         'JohannSchopplich\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src/classes',
@@ -30,8 +35,8 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'JohannSchopplich\\KirbyPlugins\\FieldResolver' => __DIR__ . '/../..' . '/src/classes/KirbyPlugins/FieldResolver.php',
-        'JohannSchopplich\\KirbyPlugins\\ModelResolver' => __DIR__ . '/../..' . '/src/classes/KirbyPlugins/ModelResolver.php',
+        'JohannSchopplich\\KirbyTools\\FieldResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
+        'JohannSchopplich\\KirbyTools\\ModelResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
         'JohannSchopplich\\Lingohub\\Content' => __DIR__ . '/../..' . '/src/classes/Lingohub/Content.php',
         'JohannSchopplich\\Lingohub\\Lingohub' => __DIR__ . '/../..' . '/src/classes/Lingohub/Lingohub.php',
         'JohannSchopplich\\Lingohub\\Multipart' => __DIR__ . '/../..' . '/src/classes/Lingohub/Multipart.php',
