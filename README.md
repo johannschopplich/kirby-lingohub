@@ -2,7 +2,7 @@
 
 # Kirby Lingohub
 
-The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including nested data structures like blocks and structures.
+The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including complex field types like blocks, layouts, structures, and objects — even blocks nested within custom blocks.
 
 > [!NOTE]
 > For this plugin to work, you need to have a Lingohub account and a project set up. You can create a free account at [Lingohub](https://lingohub.com/).
@@ -59,7 +59,7 @@ Now, configure the project to use the same source and target languages as you ha
 
 As another example: If the Kirby language code is `de` and the locale is `de_DE`, the Lingohub language code should be `de-DE`.
 
-Finally, create an API key for your workspace. Follow the [Linoghub API key guide](https://help.lingohub.com/en/articles/6775959-how-to-create-an-api-key) to create an API key with read/write access.
+Finally, create an API key for your workspace. Follow the [Lingohub API key guide](https://help.lingohub.com/en/articles/6775959-how-to-create-an-api-key) to create an API key with read/write access.
 
 > [!NOTE]
 > Enable full permissions for the **Resources** section in the API key settings. This is required to upload and download translations. No other permissions are needed.
@@ -109,9 +109,9 @@ Finalize your blueprints by adding the necessary translation configuration to ea
 
 ## Usage
 
-## Translation Status
+### Translation Status
 
-The [translation status](https://help.lingohub.com/en/articles/6683154-manage-localization-with-statuses) is automatically retrieved from Lingohub and displayed in the user interface. It shows the minimum status of all segments of the page. Only if all segments are in status **Approved**, the translation language will be shown as **Approved** in green color:
+The [translation status](https://help.lingohub.com/en/articles/6683154-manage-localization-with-statuses) is automatically retrieved from Lingohub and displayed in the user interface. It reflects the minimum status across all segments of the page. Only when all segments have the **Approved** status will the translation be shown as **Approved** in green:
 
 ![Kirby Lingohub status approved](./.github/kirby-lingohub-status-approved.png)
 
@@ -119,7 +119,7 @@ Click on the status to open a dialog with more detailed information:
 
 ![Kirby Lingohub status dialog](./.github/kirby-lingohub-status-dialog.png)
 
-## Upload Translations for a Page or File
+### Upload Translations for a Page or File
 
 Click on the **Lingohub** dropdown button in the Panel header and select **Upload**.
 
@@ -135,7 +135,7 @@ When you click on the button, a dialog will open where you can select the conten
 
 After selecting the desired languages and confirming the dialog, the plugin will serialize the content and upload it to Lingohub for translation.
 
-## Download Translations from Lingohub
+### Download Translations from Lingohub
 
 Click on the **Lingohub** dropdown button in the Panel header and select **Download Translations**. This will open a dialog where you can select the languages and status of the translations to download:
 
@@ -152,7 +152,7 @@ Submit the form to download the translations. The page will be updated with the 
 
 ### `translateExternalOnly` Blueprint Field Option
 
-The `translateExternalOnly` option allows you to mark fields that should only be translatable using the external translation service (i.e. Lingohub). For these fields, only the source language is editable. In translations, these fields cannot be edited. Admins can always edit the fields, independent of this setting. Set it to `true` when editors should only edit translations in Lingohub, and when the Lingohub translation memory is important to you.
+The `translateExternalOnly` option allows you to mark fields that should only be translatable using the external translation service (i.e. Lingohub). For these fields, only the source language is editable. In translations, these fields cannot be edited. Admins can always edit the fields, independent of this setting. Use this for fields where translations should be managed exclusively through Lingohub, ensuring the translation memory stays consistent.
 
 ```yml
 fields:
@@ -160,6 +160,20 @@ fields:
     label: Text
     type: blocks
     translateExternalOnly: true
+```
+
+### `translateInKirbyOnly` Blueprint Field Option
+
+The `translateInKirbyOnly` option marks fields that should only be translated within Kirby, not through Lingohub. These fields are excluded from uploads and preserved during downloads — their target language values are never overwritten by Lingohub translations.
+
+This is useful for fields like images or files that differ per language but are managed directly in the Panel.
+
+```yml
+fields:
+  image:
+    label: Image
+    type: files
+    translateInKirbyOnly: true
 ```
 
 ### Translation Status Table Section
@@ -180,19 +194,19 @@ sections:
 
 ### How Is Kirby Content Data Mapped to Lingohub?
 
-With the JSON (Standard) file format, Lingohub requires a key-value hierarchy structure where all elements in the chain have a long-term consistent key. Thus, nested data structures like `block` fields or `structure` fields in Kirby must be flattened to a key-value map. For example, block fields are transformed into a key-value map where the key is generated from the field name, block type, and block field name: `{fieldName}_{blockId}_{blockType}_{blockFieldName}`.
+With the JSON (Standard) file format, Lingohub requires a key-value hierarchy structure where all elements in the chain have a long-term consistent key. Thus, nested data structures like `blocks`, `layout`, `structure`, and `object` fields in Kirby must be flattened to a key-value map. For example, block fields are transformed into a key-value map where the key is generated from the field name, block ID, block type, and content field name: `{fieldName}_{blockId}_{blockType}_{contentFieldName}`. Nested blocks (blocks within custom blocks) produce deeper key chains following the same pattern.
 
-Lingohub uses a path based approach to identify the content. The path is generated from the Kirby model ID (which doesn't contain any draft status or sort numbers) and the language code.
+Lingohub uses a path-based approach to identify the content. The path is generated from the Kirby model ID (which doesn't contain any draft status or sort numbers) and the language code.
 
 While Kirby uses a language code as file suffix (e.g., `en`), Lingohub uses a locale code (e.g., `en-US`). The plugin maps the Kirby language code to the Lingohub locale code.
 
 ## Roadmap
 
-## Media Files
+### Media Files
 
 - Translate all media files (images, videos, etc.) associated with the page. This is a nice-to-have feature that may be implemented in the future.
 
-## Mass Operations
+### Mass Operations
 
 - Upload all pages to Lingohub in bulk, including translations if they already exist.
 - Download all pages from Lingohub in bulk. Configure which pages to process using a filter: e.g. only pages with a certain status or language.
