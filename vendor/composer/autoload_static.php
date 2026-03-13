@@ -38,6 +38,7 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
         'JohannSchopplich\\KirbyTools\\FieldResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
         'JohannSchopplich\\KirbyTools\\ModelResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
         'JohannSchopplich\\Lingohub\\Content' => __DIR__ . '/../..' . '/src/classes/Lingohub/Content.php',
+        'JohannSchopplich\\Lingohub\\FieldTypeResolver' => __DIR__ . '/../..' . '/src/classes/Lingohub/FieldTypeResolver.php',
         'JohannSchopplich\\Lingohub\\Lingohub' => __DIR__ . '/../..' . '/src/classes/Lingohub/Lingohub.php',
         'JohannSchopplich\\Lingohub\\Multipart' => __DIR__ . '/../..' . '/src/classes/Lingohub/Multipart.php',
         'Kirby\\ComposerInstaller\\CmsInstaller' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',

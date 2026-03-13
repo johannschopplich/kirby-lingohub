@@ -10,6 +10,7 @@ return array(
     'JohannSchopplich\\KirbyTools\\FieldResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
     'JohannSchopplich\\KirbyTools\\ModelResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
     'JohannSchopplich\\Lingohub\\Content' => $baseDir . '/src/classes/Lingohub/Content.php',
+    'JohannSchopplich\\Lingohub\\FieldTypeResolver' => $baseDir . '/src/classes/Lingohub/FieldTypeResolver.php',
     'JohannSchopplich\\Lingohub\\Lingohub' => $baseDir . '/src/classes/Lingohub/Lingohub.php',
     'JohannSchopplich\\Lingohub\\Multipart' => $baseDir . '/src/classes/Lingohub/Multipart.php',
     'Kirby\\ComposerInstaller\\CmsInstaller' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',
