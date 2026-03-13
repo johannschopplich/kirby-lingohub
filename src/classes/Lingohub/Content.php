@@ -72,6 +72,7 @@ final class Content
     {
         $content = $this->model->content($languageCode)->toArray();
         $fields = FieldResolver::resolveModelFields($this->model);
+        $fields = FieldTypeResolver::normalizeFields($fields);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
         // Add title to translatable content if the model has one
@@ -93,6 +94,7 @@ final class Content
         // as the translation might not contain all segments (e.g. in blocks or layouts)
         $content = $this->model->content($defaultLanguageCode)->toArray();
         $fields = FieldResolver::resolveModelFields($this->model);
+        $fields = FieldTypeResolver::normalizeFields($fields);
 
         // Remove title from translation array, as it's handled separately
         unset($serializedContent['title']);
@@ -696,33 +698,10 @@ final class Content
             ($block['isHidden'] ?? false) !== true;
     }
 
-    /**
-     * Checks if a field is a text-like field that should be translated.
-     *
-     * This includes both native Kirby field types and custom field types
-     * that extend them (e.g., `seo-writer` extends `writer`).
-     */
     private function isTextLikeField(array $field): bool
     {
-        $type = $field['type'] ?? '';
-
-        // Native text-like field types
         static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
-
-        // Check if the field type is a text-like type
-        if (in_array($type, $textLikeTypes, true)) {
-            return true;
-        }
-
-        // Look up the `extends` property from Kirby's field extensions
-        $fieldExtensions = App::instance()->extensions('fields');
-        $extends = $fieldExtensions[$type]['extends'] ?? null;
-
-        if (in_array($extends, $textLikeTypes, true)) {
-            return true;
-        }
-
-        return false;
+        return in_array($field['type'] ?? '', $textLikeTypes, true);
     }
 
     private function flattenTabFields(array $fieldsets, array $block): array

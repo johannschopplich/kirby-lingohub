@@ -176,6 +176,25 @@ fields:
     translateInKirbyOnly: true
 ```
 
+Usage within a block blueprint (e.g. `site/blueprints/blocks/imagecontent.yml`):
+
+```yml
+name: Image Content
+icon: image
+fields:
+  text:
+    type: blocks
+    fieldsets:
+      - heading
+      - text
+  image:
+    type: files
+    translateInKirbyOnly: true
+```
+
+> [!IMPORTANT]
+> The `translateInKirbyOnly` option must be set on individual **field** definitions, not on block fieldset definitions. Kirby only preserves known properties on fieldsets – custom attributes at the block root level are silently discarded.
+
 ### Translation Status Table Section
 
 ![Kirby Lingohub status section](./.github/kirby-lingohub-status-section.png)
