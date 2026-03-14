@@ -2,7 +2,7 @@
 
 # Kirby Lingohub
 
-The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including complex field types like blocks, layouts, structures, and objects — even blocks nested within custom blocks.
+The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including complex field types like blocks, layouts, structures, and objects – even blocks nested within custom blocks.
 
 > [!NOTE]
 > For this plugin to work, you need to have a Lingohub account and a project set up. You can create a free account at [Lingohub](https://lingohub.com/).
@@ -164,7 +164,7 @@ fields:
 
 ### `translateInKirbyOnly` Blueprint Field Option
 
-The `translateInKirbyOnly` option marks fields that should only be translated within Kirby, not through Lingohub. These fields are excluded from uploads and preserved during downloads — their target language values are never overwritten by Lingohub translations.
+The `translateInKirbyOnly` option marks fields that should only be translated within Kirby, not through Lingohub. These fields are excluded from uploads and preserved during downloads – their target language values are never overwritten by Lingohub translations.
 
 This is useful for fields like images or files that differ per language but are managed directly in the Panel.
 
@@ -172,22 +172,6 @@ This is useful for fields like images or files that differ per language but are 
 fields:
   image:
     label: Image
-    type: files
-    translateInKirbyOnly: true
-```
-
-Usage within a block blueprint (e.g. `site/blueprints/blocks/imagecontent.yml`):
-
-```yml
-name: Image Content
-icon: image
-fields:
-  text:
-    type: blocks
-    fieldsets:
-      - heading
-      - text
-  image:
     type: files
     translateInKirbyOnly: true
 ```
