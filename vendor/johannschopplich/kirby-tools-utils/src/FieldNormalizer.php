@@ -2,15 +2,15 @@
 
 declare(strict_types = 1);
 
-namespace JohannSchopplich\Lingohub;
+namespace JohannSchopplich\KirbyTools;
 
 use Kirby\Form\Field;
 
 /**
- * Resolves custom Kirby field types to their standard base types
- * by following the `extends` chain in field definitions.
+ * Normalizes Kirby field definitions: resolves custom types to their
+ * standard base types and recurses into nested fields and fieldsets.
  */
-final class FieldTypeResolver
+final class FieldNormalizer
 {
     private const SUPPORTED_TYPES = [
         'blocks', 'checkboxes', 'color', 'date', 'email', 'entries', 'files',
@@ -25,8 +25,8 @@ final class FieldTypeResolver
     private static array|null $supportedTypesMap = null;
 
     /**
-     * Resolves a custom field type to its standard base type by following
-     * the `extends` chain. Stops at the first known type.
+     * Resolves a custom field type to its standard base type
+     * by following the `extends` chain.
      */
     public static function resolveBaseType(string $type, int $depth = 0): string
     {
@@ -52,8 +52,8 @@ final class FieldTypeResolver
     }
 
     /**
-     * Normalizes field types in a fields array by resolving custom types
-     * to their standard base types. Recurses into nested fields.
+     * Normalizes a fields array by resolving custom types and
+     * recursing into nested `fields` and `fieldsets[*].tabs[*].fields`.
      */
     public static function normalizeFields(array $fields): array
     {

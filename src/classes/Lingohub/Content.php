@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace JohannSchopplich\Lingohub;
 
+use JohannSchopplich\KirbyTools\FieldNormalizer;
 use JohannSchopplich\KirbyTools\FieldResolver;
 use JohannSchopplich\KirbyTools\ModelResolver;
 use Kirby\Cms\App;
@@ -72,7 +73,7 @@ final class Content
     {
         $content = $this->model->content($languageCode)->toArray();
         $fields = FieldResolver::resolveModelFields($this->model);
-        $fields = FieldTypeResolver::normalizeFields($fields);
+        $fields = FieldNormalizer::normalizeFields($fields);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
         // Add title to translatable content if the model has one
@@ -94,7 +95,7 @@ final class Content
         // as the translation might not contain all segments (e.g. in blocks or layouts)
         $content = $this->model->content($defaultLanguageCode)->toArray();
         $fields = FieldResolver::resolveModelFields($this->model);
-        $fields = FieldTypeResolver::normalizeFields($fields);
+        $fields = FieldNormalizer::normalizeFields($fields);
 
         // Remove title from translation array, as it's handled separately
         unset($serializedContent['title']);
