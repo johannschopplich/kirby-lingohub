@@ -6,6 +6,7 @@ use JohannSchopplich\Lingohub\Content;
 use Kirby\Cms\App;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class ContentTest extends TestCase
@@ -448,7 +449,8 @@ final class ContentTest extends TestCase
 
     // --- Serialization tests ---
 
-    public function testSerializeSimpleTextField(): void
+    #[Test]
+    public function serialize_simple_text_field(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -457,7 +459,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Hello world', $serialized['text']);
     }
 
-    public function testSerializeBlocksField(): void
+    #[Test]
+    public function serialize_blocks_field(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -472,7 +475,8 @@ final class ContentTest extends TestCase
         $this->assertArrayNotHasKey('blocks_block2_heading_level', $serialized);
     }
 
-    public function testSerializeSkipsUntranslatableFields(): void
+    #[Test]
+    public function serialize_skips_untranslatable_fields(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -480,7 +484,8 @@ final class ContentTest extends TestCase
         $this->assertArrayNotHasKey('untranslatableText', $serialized);
     }
 
-    public function testSerializeSkipsHiddenBlocks(): void
+    #[Test]
+    public function serialize_skips_hidden_blocks(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -488,7 +493,8 @@ final class ContentTest extends TestCase
         $this->assertArrayNotHasKey('blocks_block3_text_text', $serialized);
     }
 
-    public function testSerializeStructureField(): void
+    #[Test]
+    public function serialize_structure_field(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -500,7 +506,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Description 2', $serialized['structure_1_description']);
     }
 
-    public function testSerializeObjectField(): void
+    #[Test]
+    public function serialize_object_field(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -512,7 +519,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Object description', $serialized['object_description']);
     }
 
-    public function testSerializeNestedBlocksInCustomBlock(): void
+    #[Test]
+    public function serialize_nested_blocks_in_custom_block(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -529,7 +537,8 @@ final class ContentTest extends TestCase
         $this->assertArrayNotHasKey('blocks_container1_container_innerblocks_inner1_heading_level', $serialized);
     }
 
-    public function testSerializeSkipsTranslateInKirbyOnlyFields(): void
+    #[Test]
+    public function serialize_skips_translate_in_kirby_only_fields(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -544,7 +553,8 @@ final class ContentTest extends TestCase
 
     // --- Deserialization tests ---
 
-    public function testDeserializeSimpleTextField(): void
+    #[Test]
+    public function deserialize_simple_text_field(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -554,7 +564,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Hallo Welt', $deserialized['text']);
     }
 
-    public function testDeserializeBlocksField(): void
+    #[Test]
+    public function deserialize_blocks_field(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -576,7 +587,8 @@ final class ContentTest extends TestCase
         $this->assertSame('h2', $blocks[1]['content']['level']);
     }
 
-    public function testDeserializeStructureField(): void
+    #[Test]
+    public function deserialize_structure_field(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -593,7 +605,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Beschreibung 2', $structure[1]['description']);
     }
 
-    public function testDeserializeObjectField(): void
+    #[Test]
+    public function deserialize_object_field(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -606,7 +619,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Objekt Beschreibung', $object['description']);
     }
 
-    public function testDeserializeNestedBlocksInCustomBlock(): void
+    #[Test]
+    public function deserialize_nested_blocks_in_custom_block(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -644,7 +658,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Innerer Text', $innerBlocks[1]['content']['text']);
     }
 
-    public function testRoundTripNestedBlocks(): void
+    #[Test]
+    public function round_trip_nested_blocks(): void
     {
         $content = new Content('test');
 
@@ -685,7 +700,8 @@ final class ContentTest extends TestCase
 
     // --- translateInKirbyOnly tests ---
 
-    public function testDeserializePreservesTranslateInKirbyOnlyTopLevel(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_top_level(): void
     {
         $content = new Content('test');
 
@@ -696,7 +712,8 @@ final class ContentTest extends TestCase
         $this->assertSame('- file://image-de.jpg', $deserialized['image']);
     }
 
-    public function testDeserializeFallsBackToDefaultLanguageForNonFlaggedFields(): void
+    #[Test]
+    public function deserialize_falls_back_to_default_language_for_non_flagged_fields(): void
     {
         $content = new Content('test');
 
@@ -708,7 +725,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Hello world', $deserialized['text']);
     }
 
-    public function testDeserializePreservesTranslateInKirbyOnlyInBlocks(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_in_blocks(): void
     {
         $content = new Content('test');
 
@@ -739,7 +757,8 @@ final class ContentTest extends TestCase
         $this->assertSame('- file://de-block-image.jpg', $imageBlock['content']['image']);
     }
 
-    public function testDeserializePreservesTranslateInKirbyOnlyInNestedBlocks(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_in_nested_blocks(): void
     {
         $content = new Content('test');
 
@@ -781,7 +800,8 @@ final class ContentTest extends TestCase
         $this->assertSame('- file://de-inner-image.jpg', $innerImageBlock['content']['image']);
     }
 
-    public function testDeserializePreservesTranslateInKirbyOnlyInLayoutBlocks(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_in_layout_blocks(): void
     {
         $content = new Content('test');
 
@@ -809,7 +829,8 @@ final class ContentTest extends TestCase
         $this->assertSame('- file://de-layout-image.jpg', $imageBlock['content']['image']);
     }
 
-    public function testDeserializePreservesTranslateInKirbyOnlyTopLevelAlongsideBlockTranslations(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_top_level_alongside_block_translations(): void
     {
         $content = new Content('test');
 
@@ -827,7 +848,8 @@ final class ContentTest extends TestCase
         $this->assertSame('Neuer Text', $deserialized['text']);
     }
 
-    public function testDeserializePreservesTranslateInKirbyOnlyInStructure(): void
+    #[Test]
+    public function deserialize_preserves_translate_in_kirby_only_in_structure(): void
     {
         $content = new Content('test');
 
