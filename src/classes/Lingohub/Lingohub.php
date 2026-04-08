@@ -15,10 +15,10 @@ final class Lingohub
 {
     public const API_URL = 'https://api.lingohub.com/v1';
 
-    private string|null $apiKey;
-    private string|null $workspaceId;
-    private string|null $projectId;
-    private static Lingohub|null $instance;
+    private readonly string|null $apiKey;
+    private readonly string|null $workspaceId;
+    private readonly string|null $projectId;
+    private static self|null $instance;
 
     public function __construct()
     {
@@ -36,7 +36,7 @@ final class Lingohub
 
     public static function instance(): Lingohub
     {
-        return static::$instance ??= new static();
+        return self::$instance ??= new self();
     }
 
     public static function resolveResourceFilename(ModelWithContent $model, string $languageCode): string
@@ -92,7 +92,7 @@ final class Lingohub
 
     private function request(string $path, array $options = []): array
     {
-        $response = new Remote(static::API_URL . '/' . $path, A::merge([
+        $response = new Remote(self::API_URL . '/' . $path, A::merge([
             'headers' => [
                 'Accept' => '*/*',
                 'Authorization' => 'Bearer ' . $this->apiKey,

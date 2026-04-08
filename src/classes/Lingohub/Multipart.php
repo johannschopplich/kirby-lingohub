@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace JohannSchopplich\Lingohub;
 
-class Multipart
+final class Multipart
 {
-    private string $boundary;
+    private readonly string $boundary;
     private array $data = [];
 
     public function __construct()
