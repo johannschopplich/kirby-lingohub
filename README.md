@@ -11,17 +11,15 @@ The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) transl
 
 - Kirby 4 or Kirby 5
 
-Kirby is not free software. However, you can try Kirby and the Starterkit on your local machine or on a test server as long as you need to make sure it is the right tool for your next project. … and when you're convinced, [buy your license](https://getkirby.com/buy).
-
 ## Installation
 
-### Composer
+### Composer (Recommended)
 
 ```bash
 composer require johannschopplich/kirby-lingohub
 ```
 
-### Download
+### Manual Installation
 
 Download and copy this repository to `/site/plugins/kirby-lingohub`.
 
