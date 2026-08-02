@@ -25,7 +25,8 @@ final class Lingohub
         $kirby = App::instance();
         $apiKey = $kirby->option('johannschopplich.lingohub.apiKey');
 
-        if ($apiKey === null || $apiKey === '') {
+        // The option is arbitrary user input, so anything but a non-empty string is a misconfiguration
+        if (!is_string($apiKey) || $apiKey === '') {
             throw new AuthException('Missing Lingohub API key');
         }
 
