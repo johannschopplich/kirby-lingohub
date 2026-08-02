@@ -71,7 +71,7 @@ final class Content
         $fields = FieldNormalizer::normalizeFields($fields);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
-        // The title is not a blueprint field, so it never shows up in the resolved fields
+        // `FieldResolver::resolveModelFields()` strips `title` and `slug`, so the title has to be added back by hand
         if (method_exists($this->model, 'title')) {
             $title = $this->model->title($languageCode)->value();
             $serializedContent['title'] = $title;
@@ -634,6 +634,7 @@ final class Content
 
     private function isTextLikeField(array $field): bool
     {
+        // Custom types are already resolved to their base type by `FieldNormalizer::normalizeFields()`
         static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
         return in_array($field['type'] ?? '', $textLikeTypes, true);
     }
