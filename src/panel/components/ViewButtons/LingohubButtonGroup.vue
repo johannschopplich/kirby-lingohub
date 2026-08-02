@@ -21,7 +21,6 @@ const isApproved = ref(false);
 const dropdownContent = ref();
 const currentLanguageResourceFile = ref();
 
-// Re-fetch Lingohub data when the language or Panel path changes
 watch(
   () => [panel.view.path, panel.language.code],
   ([path]) => {

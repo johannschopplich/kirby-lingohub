@@ -28,11 +28,10 @@ const translationLanguages = panel.languages.filter(
 
 const modelContext = ref();
 
-// Lazily fetch model data for the default language
+// Start fetching right away, `invokeWhenInitialized()` awaits it before any dropdown action runs
 const initializationPromise = (async () => {
   const defaultLanguageData = await getModelData();
 
-  // Check which translations are available
   modelContext.value = await panel.api.post(PLUGIN_MODEL_CONTEXT_API_ROUTE, {
     id: defaultLanguageData.id ?? "site",
   });
@@ -49,7 +48,7 @@ async function uploadTranslations() {
 
   const status = await getTranslationStatus();
 
-  // Find all translation codes that already exist on Lingohub
+  // Preselect the languages that carry no Lingohub translation yet
   const localizedLanguageCodes = (
     await Promise.all(
       availableTranslationLanguageCodes.map(async (languageCode) => {
@@ -149,7 +148,7 @@ async function downloadTranslations() {
     defaultLanguage.code,
   );
 
-  // Find all languages that are 100% translated and approved
+  // Preselect the languages whose approved segments have caught up with the source language
   const approvedLanguageCodes = (
     await Promise.all(
       translationLanguages.map(async (language) => {

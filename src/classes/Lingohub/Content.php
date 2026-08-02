@@ -23,9 +23,6 @@ final class Content
         $this->model = ModelResolver::resolveFromId($modelId);
     }
 
-    /**
-     * Uploads the serialized content for the given language to Lingohub.
-     */
     public function uploadTranslation(string $languageCode): array
     {
         $lingohub = Lingohub::instance();
@@ -40,7 +37,7 @@ final class Content
 
     /**
      * Downloads the translation for the given language from Lingohub
-     * and updates the model content.
+     * and writes it back into the model content.
      */
     public function downloadTranslation(string $languageCode, array $options = []): void
     {
@@ -56,10 +53,8 @@ final class Content
         App::instance()->impersonate('kirby', function () use ($languageCode, $serializedContent) {
             $mergedContent = $this->deserializeContent($serializedContent, $languageCode);
 
-            // Write the translated and merged new content
             $this->model = $this->model->update($mergedContent, $languageCode);
 
-            // Handle title translation if present
             if (isset($serializedContent['title']) && method_exists($this->model, 'changeTitle')) {
                 $this->model = $this->model->changeTitle($serializedContent['title'], $languageCode);
             }
@@ -76,7 +71,7 @@ final class Content
         $fields = FieldNormalizer::normalizeFields($fields);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
-        // Add title to translatable content if the model has one
+        // The title is not a blueprint field, so it never shows up in the resolved fields
         if (method_exists($this->model, 'title')) {
             $title = $this->model->title($languageCode)->value();
             $serializedContent['title'] = $title;
@@ -97,20 +92,19 @@ final class Content
         $fields = FieldResolver::resolveModelFields($this->model);
         $fields = FieldNormalizer::normalizeFields($fields);
 
-        // Remove title from translation array, as it's handled separately
+        // The title is written through `changeTitle()` in `downloadTranslation()`, not through the content merge
         unset($serializedContent['title']);
 
-        // Preserve the existing slug from the target language
+        // The default language base content carries the default slug,
+        // so the target language's own slug has to survive the merge
         $currentSlug = $this->model->content($languageCode)->get('slug')->value();
 
         $deserializedContent = $this->mergeTranslatedContent($serializedContent, $content, $fields);
 
-        // Restore the original slug for this language if it exists
         if ($currentSlug !== null) {
             $deserializedContent['slug'] = $currentSlug;
         }
 
-        // Restore target language values for fields flagged with `translateInKirbyOnly`
         $targetContent = $this->model->content($languageCode)->toArray();
         $this->restoreKirbyOnlyFieldsInContent($deserializedContent, $targetContent, $fields);
 
@@ -134,25 +128,17 @@ final class Content
                 continue;
             }
 
-            // Parse JSON-encoded fields
             if (($fields[$key]['type'] === 'blocks' || $fields[$key]['type'] === 'layout') && is_string($obj[$key])) {
                 $obj[$key] = Data::decode($obj[$key], 'json');
-            }
-
-            // Parse YAML-encoded fields
-            elseif (($fields[$key]['type'] === 'structure' || $fields[$key]['type'] === 'object') && is_string($obj[$key])) {
+            } elseif (($fields[$key]['type'] === 'structure' || $fields[$key]['type'] === 'object') && is_string($obj[$key])) {
                 $obj[$key] = Data::decode($obj[$key], 'yaml');
             }
 
             $fieldKey = $prefix ? $prefix . '_' . $key : $key;
 
-            // Handle text-like fields (including custom types that extend them)
             if ($this->isTextLikeField($fields[$key])) {
                 $result[$fieldKey] = $value;
-            }
-
-            // Handle structure fields
-            elseif ($fields[$key]['type'] === 'structure' && is_array($obj[$key])) {
+            } elseif ($fields[$key]['type'] === 'structure' && is_array($obj[$key])) {
                 foreach ($obj[$key] as $index => $item) {
                     $structurePrefix = $fieldKey . '_' . $index;
                     $result = array_merge(
@@ -160,18 +146,12 @@ final class Content
                         $this->resolveTranslatableContent($item, $fields[$key]['fields'], $structurePrefix)
                     );
                 }
-            }
-
-            // Handle object fields
-            elseif ($fields[$key]['type'] === 'object' && A::isAssociative($obj[$key])) {
+            } elseif ($fields[$key]['type'] === 'object' && A::isAssociative($obj[$key])) {
                 $result = array_merge(
                     $result,
                     $this->resolveTranslatableContent($obj[$key], $fields[$key]['fields'], $fieldKey)
                 );
-            }
-
-            // Handle layout fields
-            elseif ($fields[$key]['type'] === 'layout' && is_array($obj[$key])) {
+            } elseif ($fields[$key]['type'] === 'layout' && is_array($obj[$key])) {
                 foreach ($obj[$key] as $layout) {
                     foreach ($layout['columns'] as $column) {
                         foreach ($column['blocks'] as $block) {
@@ -186,10 +166,7 @@ final class Content
                         }
                     }
                 }
-            }
-
-            // Handle block fields
-            elseif ($fields[$key]['type'] === 'blocks' && is_array($obj[$key])) {
+            } elseif ($fields[$key]['type'] === 'blocks' && is_array($obj[$key])) {
                 foreach ($obj[$key] as $block) {
                     if ($this->isBlockTranslatable($block) && isset($fields[$key]['fieldsets'][$block['type']])) {
                         $blockPrefix = $fieldKey . '_' . $block['id'] . '_' . $block['type'];
@@ -218,7 +195,7 @@ final class Content
                 continue;
             }
 
-            // Direct assignment for simple field types
+            // A key without further parts addresses a top-level field
             if (empty($parts)) {
                 if ($this->isTextLikeField($fields[$fieldName])) {
                     $result[$fieldName] = $value;
@@ -226,14 +203,12 @@ final class Content
                 continue;
             }
 
-            // Ensure the original field value is decoded
             if (($fields[$fieldName]['type'] === 'blocks' || $fields[$fieldName]['type'] === 'layout') && is_string($result[$fieldName])) {
                 $result[$fieldName] = Data::decode($result[$fieldName], 'json');
             } elseif (($fields[$fieldName]['type'] === 'structure' || $fields[$fieldName]['type'] === 'object') && is_string($result[$fieldName])) {
                 $result[$fieldName] = Data::decode($result[$fieldName], 'yaml');
             }
 
-            // Handle nested structures
             if ($fields[$fieldName]['type'] === 'blocks') {
                 $this->mergeBlockContent($result[$fieldName], $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
             } elseif ($fields[$fieldName]['type'] === 'layout') {
@@ -244,7 +219,6 @@ final class Content
                 $this->mergeObjectContent($result[$fieldName], $parts, $value, $fields[$fieldName]['fields']);
             }
 
-            // Re-encode the field value
             if ($fields[$fieldName]['type'] === 'blocks' || $fields[$fieldName]['type'] === 'layout') {
                 $result[$fieldName] = Data::encode($result[$fieldName], 'json');
             } elseif ($fields[$fieldName]['type'] === 'structure' || $fields[$fieldName]['type'] === 'object') {
@@ -270,13 +244,11 @@ final class Content
                 continue;
             }
 
-            // Simple case: direct field assignment
             if (count($parts) === 3) {
                 $block['content'][$fieldName] = $value;
                 break;
             }
 
-            // Recursive case: nested field within a block's content
             $remainingParts = array_slice($parts, 3);
             $blockFields = isset($fieldsets[$blockType])
                 ? $this->flattenTabFields($fieldsets, $block)
@@ -339,13 +311,11 @@ final class Content
                         continue;
                     }
 
-                    // Simple case: direct field assignment
                     if (count($parts) === 3) {
                         $block['content'][$fieldName] = $value;
                         break 3;
                     }
 
-                    // Recursive case: nested field within a block's content
                     $remainingParts = array_slice($parts, 3);
                     $blockFields = isset($fieldsets[$blockType])
                         ? $this->flattenTabFields($fieldsets, $block)
@@ -410,7 +380,6 @@ final class Content
 
         $fieldName = array_shift($parts);
 
-        // Direct field assignment if there are no more parts
         if (empty($parts)) {
             if (isset($fields[$fieldName])) {
                 $items[$index][$fieldName] = $value;
@@ -418,57 +387,42 @@ final class Content
             return;
         }
 
-        // Handle nested fields within structure items
         if (isset($fields[$fieldName])) {
             $fieldType = $fields[$fieldName]['type'];
 
-            // Handle nested layout fields
             if ($fieldType === 'layout') {
-                // Decode the layout JSON if it's a string
                 if (is_string($items[$index][$fieldName])) {
                     $layoutData = Data::decode($items[$index][$fieldName], 'json');
                 } else {
                     $layoutData = $items[$index][$fieldName] ?? [];
                 }
 
-                // Process layout with remaining parts
                 $this->mergeLayoutContent($layoutData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
-                // Re-encode the layout data
                 $items[$index][$fieldName] = Data::encode($layoutData, 'json');
-            }
-            // Handle nested blocks fields
-            elseif ($fieldType === 'blocks') {
-                // Decode the blocks JSON if it's a string
+            } elseif ($fieldType === 'blocks') {
                 if (is_string($items[$index][$fieldName])) {
                     $blocksData = Data::decode($items[$index][$fieldName], 'json');
                 } else {
                     $blocksData = $items[$index][$fieldName] ?? [];
                 }
 
-                // Process blocks with remaining parts
                 $this->mergeBlockContent($blocksData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
-                // Re-encode the blocks data
                 $items[$index][$fieldName] = Data::encode($blocksData, 'json');
-            }
-            // Handle nested structure fields
-            elseif ($fieldType === 'structure' || $fieldType === 'object') {
-                // Decode the nested structure/object data if it's a string
+            } elseif ($fieldType === 'structure' || $fieldType === 'object') {
                 if (is_string($items[$index][$fieldName])) {
                     $nestedData = Data::decode($items[$index][$fieldName], 'yaml');
                 } else {
                     $nestedData = $items[$index][$fieldName] ?? [];
                 }
 
-                // Process structure recursively
                 if ($fieldType === 'structure') {
                     $this->mergeStructureContent($nestedData, $parts, $value, $fields[$fieldName]['fields']);
                 } else {
                     $this->mergeObjectContent($nestedData, $parts, $value, $fields[$fieldName]['fields']);
                 }
 
-                // Re-encode the structure/object data
                 $items[$index][$fieldName] = Data::encode($nestedData, 'yaml');
             }
         }
@@ -482,74 +436,53 @@ final class Content
 
         $fieldName = array_shift($parts);
 
-        // Direct field assignment if there are no more parts
         if (empty($parts)) {
             $object[$fieldName] = $value;
             return;
         }
 
-        // Handle nested fields within object items
         if (isset($object[$fieldName])) {
             $fieldType = $fields[$fieldName]['type'];
 
-            // Handle nested layout fields
             if ($fieldType === 'layout') {
-                // Decode the layout JSON if it's a string
                 if (is_string($object[$fieldName])) {
                     $layoutData = Data::decode($object[$fieldName], 'json');
                 } else {
                     $layoutData = $object[$fieldName];
                 }
 
-                // Process layout with remaining parts
                 $this->mergeLayoutContent($layoutData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
-                // Re-encode the layout data
                 $object[$fieldName] = Data::encode($layoutData, 'json');
-            }
-            // Handle nested blocks fields
-            elseif ($fieldType === 'blocks') {
-                // Decode the blocks JSON if it's a string
+            } elseif ($fieldType === 'blocks') {
                 if (is_string($object[$fieldName])) {
                     $blocksData = Data::decode($object[$fieldName], 'json');
                 } else {
                     $blocksData = $object[$fieldName];
                 }
 
-                // Process blocks with remaining parts
                 $this->mergeBlockContent($blocksData, $parts, $value, $fields[$fieldName]['fieldsets'] ?? []);
 
-                // Re-encode the blocks data
                 $object[$fieldName] = Data::encode($blocksData, 'json');
-            }
-            // Handle nested structure fields
-            elseif ($fieldType === 'structure') {
-                // Decode the nested structure data if it's a string
+            } elseif ($fieldType === 'structure') {
                 if (is_string($object[$fieldName])) {
                     $nestedData = Data::decode($object[$fieldName], 'yaml');
                 } else {
                     $nestedData = $object[$fieldName];
                 }
 
-                // Process structure recursively with the fields definition
                 $this->mergeStructureContent($nestedData, $parts, $value, $fields[$fieldName]['fields']);
 
-                // Re-encode the structure data
                 $object[$fieldName] = Data::encode($nestedData, 'yaml');
-            }
-            // Handle nested object fields
-            elseif ($fieldType === 'object') {
-                // Decode the nested object data if it's a string
+            } elseif ($fieldType === 'object') {
                 if (is_string($object[$fieldName])) {
                     $nestedData = Data::decode($object[$fieldName], 'yaml');
                 } else {
                     $nestedData = $object[$fieldName];
                 }
 
-                // Process object recursively with the fields definition
                 $this->mergeObjectContent($nestedData, $parts, $value, $fields[$fieldName]['fields']);
 
-                // Re-encode the object data
                 $object[$fieldName] = Data::encode($nestedData, 'yaml');
             }
         }
