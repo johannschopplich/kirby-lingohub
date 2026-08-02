@@ -196,7 +196,7 @@ final class Content
             }
 
             // A key without further parts addresses a top-level field
-            if (empty($parts)) {
+            if ($parts === []) {
                 if ($this->isTextLikeField($fields[$fieldName])) {
                     $result[$fieldName] = $value;
                 }
@@ -374,13 +374,13 @@ final class Content
             return;
         }
 
-        if (empty($parts)) {
+        if ($parts === []) {
             return;
         }
 
         $fieldName = array_shift($parts);
 
-        if (empty($parts)) {
+        if ($parts === []) {
             if (isset($fields[$fieldName])) {
                 $items[$index][$fieldName] = $value;
             }
@@ -430,13 +430,13 @@ final class Content
 
     private function mergeObjectContent(array &$object, array $parts, string $value, array $fields = []): void
     {
-        if (empty($parts)) {
+        if ($parts === []) {
             return;
         }
 
         $fieldName = array_shift($parts);
 
-        if (empty($parts)) {
+        if ($parts === []) {
             $object[$fieldName] = $value;
             return;
         }

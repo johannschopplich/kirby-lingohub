@@ -25,7 +25,7 @@ final class Lingohub
         $kirby = App::instance();
         $apiKey = $kirby->option('johannschopplich.lingohub.apiKey');
 
-        if (empty($apiKey)) {
+        if ($apiKey === null || $apiKey === '') {
             throw new AuthException('Missing Lingohub API key');
         }
 
@@ -87,7 +87,7 @@ final class Lingohub
     {
         $encodedQuery = http_build_query($query);
         $resolvedPath = "{$this->workspaceId}/projects/{$this->projectId}/{$path}";
-        return empty($encodedQuery) ? $resolvedPath : "{$resolvedPath}?{$encodedQuery}";
+        return $encodedQuery === '' ? $resolvedPath : "{$resolvedPath}?{$encodedQuery}";
     }
 
     private function request(string $path, array $options = []): array
