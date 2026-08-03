@@ -450,7 +450,7 @@ final class ContentTest extends TestCase
     // --- Serialization tests ---
 
     #[Test]
-    public function serialize_simple_text_field(): void
+    public function serializes_a_plain_text_field_under_its_own_key(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -460,7 +460,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_blocks_field(): void
+    public function serializes_blocks_under_id_and_type_prefixed_keys(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -476,7 +476,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_skips_untranslatable_fields(): void
+    public function omits_a_field_marked_translate_false_from_the_export(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -485,7 +485,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_skips_hidden_blocks(): void
+    public function omits_hidden_blocks_from_the_export(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -494,7 +494,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_structure_field(): void
+    public function serializes_structure_rows_under_indexed_keys(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -507,7 +507,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_object_field(): void
+    public function serializes_object_properties_under_prefixed_keys(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -520,7 +520,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_nested_blocks_in_custom_block(): void
+    public function serializes_nested_blocks_under_deep_container_keys(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -538,7 +538,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function serialize_skips_translate_in_kirby_only_fields(): void
+    public function omits_translate_in_kirby_only_fields_from_the_export(): void
     {
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
@@ -554,7 +554,7 @@ final class ContentTest extends TestCase
     // --- Deserialization tests ---
 
     #[Test]
-    public function deserialize_simple_text_field(): void
+    public function deserializes_a_plain_text_field_under_its_own_key(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -565,7 +565,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_blocks_field(): void
+    public function deserializes_blocks_under_id_and_type_prefixed_keys(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -588,7 +588,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_structure_field(): void
+    public function deserializes_structure_rows_under_indexed_keys(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -606,7 +606,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_object_field(): void
+    public function deserializes_object_properties_under_prefixed_keys(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -620,7 +620,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_nested_blocks_in_custom_block(): void
+    public function deserializes_nested_blocks_under_deep_container_keys(): void
     {
         $content = new Content('test');
         $deserialized = $content->deserializeContent([
@@ -659,7 +659,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function round_trip_nested_blocks(): void
+    public function nested_blocks_round_trip_through_the_export_format(): void
     {
         $content = new Content('test');
 
@@ -701,7 +701,7 @@ final class ContentTest extends TestCase
     // --- translateInKirbyOnly tests ---
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_top_level(): void
+    public function restores_a_top_level_translate_in_kirby_only_field_from_the_target_language(): void
     {
         $content = new Content('test');
 
@@ -713,7 +713,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_falls_back_to_default_language_for_non_flagged_fields(): void
+    public function falls_back_to_the_default_language_when_no_translation_arrives(): void
     {
         $content = new Content('test');
 
@@ -726,7 +726,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_in_blocks(): void
+    public function restores_translate_in_kirby_only_fields_inside_blocks(): void
     {
         $content = new Content('test');
 
@@ -758,7 +758,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_in_nested_blocks(): void
+    public function restores_translate_in_kirby_only_fields_inside_nested_blocks(): void
     {
         $content = new Content('test');
 
@@ -801,7 +801,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_in_layout_blocks(): void
+    public function restores_translate_in_kirby_only_fields_inside_layout_blocks(): void
     {
         $content = new Content('test');
 
@@ -830,7 +830,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_top_level_alongside_block_translations(): void
+    public function restores_a_top_level_translate_in_kirby_only_field_alongside_block_translations(): void
     {
         $content = new Content('test');
 
@@ -849,7 +849,7 @@ final class ContentTest extends TestCase
     }
 
     #[Test]
-    public function deserialize_preserves_translate_in_kirby_only_in_structure(): void
+    public function restores_translate_in_kirby_only_fields_inside_structure_rows(): void
     {
         $content = new Content('test');
 
