@@ -136,6 +136,7 @@ final class Lingohub
         ], $options));
 
         if ($response->code() < 200 || $response->code() >= 300) {
+            // TODO: Drop K4 compat in v2 – use named arg (message:) once Kirby 5 is the floor
             throw new LogicException(
                 "Lingohub API request failed: {$response->content()}",
                 (string)$response->code()
