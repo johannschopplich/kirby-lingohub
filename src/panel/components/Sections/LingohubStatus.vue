@@ -19,7 +19,10 @@ const panel = usePanel();
 const { t } = useI18n();
 const { getTranslationStatus, getTranslationResources } = useLingohub();
 
+// Section state
 const label = ref();
+
+// Runtime state
 const resourceFiles = ref();
 
 const tableColumns = {
