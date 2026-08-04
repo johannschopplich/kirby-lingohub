@@ -1,7 +1,10 @@
 import { usePanel } from "kirbyuse";
 import mitt from "mitt";
-import { ofetch } from "ofetch";
-import { PLUGIN_RECEIVE_API_ROUTE, PLUGIN_SEND_API_ROUTE } from "../constants";
+import {
+  PLUGIN_RECEIVE_API_ROUTE,
+  PLUGIN_SEND_API_ROUTE,
+  PLUGIN_STATUS_API_ROUTE,
+} from "../constants";
 import { useModel } from "./model";
 import { usePluginContext } from "./plugin";
 
@@ -10,14 +13,6 @@ const emitter = mitt();
 export function useLingohub() {
   const panel = usePanel();
   const { getModelData } = useModel();
-
-  const create$Lingohub = async () =>
-    ofetch.create({
-      baseURL: "https://api.lingohub.com/v1",
-      headers: {
-        Authorization: `Bearer ${(await usePluginContext()).config.apiKey}`,
-      },
-    });
 
   async function resolveResource(languageCode) {
     const { languages } = await usePluginContext();
@@ -53,13 +48,16 @@ export function useLingohub() {
   async function getTranslationStatus() {
     if (!(await validateLingohubConfig())) return;
 
-    const { config } = await usePluginContext();
-    const $lingohub = await create$Lingohub();
-
     try {
-      return await $lingohub(
-        `${config.workspaceId}/projects/${config.projectId}/status`,
+      const { translationStatus } = await panel.api.get(
+        PLUGIN_STATUS_API_ROUTE,
+        undefined,
+        undefined,
+        // Avoid showing Panel loading indicator
+        true,
       );
+
+      return translationStatus;
     } catch (error) {
       console.error(error);
       panel.notification.error(error.message);
@@ -128,25 +126,25 @@ export function useLingohub() {
   }
 
   async function validateLingohubConfig() {
-    const context = await usePluginContext();
+    const { config } = await usePluginContext();
 
     try {
       if (!panel.multilang) {
         throw new Error(
           "The Lingohub plugin requires a multi-language Kirby installation.",
         );
-      } else if (!context.config.apiKey) {
+      } else if (!config.hasApiKey) {
         throw new Error(
           'Missing API key in the "johannschopplich.lingohub.apiKey" plugin option.',
         );
-      } else {
-        for (const key of ["workspaceId", "projectId"]) {
-          if (typeof context.config[key] !== "string" || !context.config[key]) {
-            throw new TypeError(
-              `Missing "johannschopplich.lingohub.${key}" plugin option.`,
-            );
-          }
-        }
+      } else if (!config.hasWorkspaceId) {
+        throw new Error(
+          'Missing "johannschopplich.lingohub.workspaceId" plugin option.',
+        );
+      } else if (!config.hasProjectId) {
+        throw new Error(
+          'Missing "johannschopplich.lingohub.projectId" plugin option.',
+        );
       }
 
       return true;

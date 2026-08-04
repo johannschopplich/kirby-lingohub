@@ -2,6 +2,8 @@
 
 use JohannSchopplich\KirbyTools\ModelResolver;
 use JohannSchopplich\Lingohub\Content;
+use JohannSchopplich\Lingohub\Lingohub;
+use JohannSchopplich\Lingohub\PanelContext;
 use Kirby\Cms\App;
 
 return [
@@ -10,7 +12,6 @@ return [
             'pattern' => '__lingohub__/context',
             'method' => 'GET',
             'action' => function () use ($kirby) {
-                $config = $kirby->option('johannschopplich.lingohub', []);
                 $languages = $kirby->languages()->toArray(fn ($language) => array_merge(
                     $language->toArray(),
                     // Resolve the `LC_ALL` locale value explicitly to ensure
@@ -21,7 +22,7 @@ return [
                 ));
 
                 return [
-                    'config' => $config,
+                    'config' => PanelContext::config(),
                     'languages' => $languages
                 ];
             }
@@ -42,6 +43,13 @@ return [
                     'availableTranslationLanguageCodes' => $availableTranslationLanguageCodes
                 ];
             }
+        ],
+        [
+            'pattern' => '__lingohub__/status',
+            'method' => 'GET',
+            'action' => fn () => [
+                'translationStatus' => Lingohub::instance()->getTranslationStatus()
+            ]
         ],
         [
             'pattern' => '__lingohub__/export',

@@ -26,9 +26,6 @@ importers:
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
-      ofetch:
-        specifier: ^1.5.1
-        version: 1.5.1
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -1774,9 +1771,6 @@ packages:
 
   object-deep-merge@2.0.0:
     resolution: {integrity: sha512-3DC3UMpeffLTHiuXSy/UG4NOIYTLlY9u3V82+djSCLYClWobZiS4ivYzpIUWrRY/nfsJ8cWsKyG3QfyLePmhvg==}
-
-  ofetch@1.5.1:
-    resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
 
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
@@ -4030,12 +4024,6 @@ snapshots:
       tinyexec: 1.0.2
 
   object-deep-merge@2.0.0: {}
-
-  ofetch@1.5.1:
-    dependencies:
-      destr: 2.0.5
-      node-fetch-native: 1.6.7
-      ufo: 1.6.3
 
   ohash@2.0.11: {}
 

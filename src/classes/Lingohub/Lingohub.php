@@ -7,6 +7,7 @@ namespace JohannSchopplich\Lingohub;
 use Kirby\Cms\App;
 use Kirby\Cms\ModelWithContent;
 use Kirby\Exception\AuthException;
+use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Kirby\Http\Remote;
 use Kirby\Toolkit\A;
@@ -15,29 +16,35 @@ final class Lingohub
 {
     public const API_URL = 'https://api.lingohub.com/v1';
 
-    private readonly string|null $apiKey;
-    private readonly string|null $workspaceId;
-    private readonly string|null $projectId;
+    private const OPTION_PREFIX = 'johannschopplich.lingohub.';
+
+    private readonly string $apiKey;
+    private readonly string $workspaceId;
+    private readonly string $projectId;
     private static self|null $instance;
 
     public function __construct()
     {
         $kirby = App::instance();
-        $apiKey = $kirby->option('johannschopplich.lingohub.apiKey');
+        $apiKey = $kirby->option(self::OPTION_PREFIX . 'apiKey');
 
-        // The option is arbitrary user input, so anything but a non-empty string is a misconfiguration
-        if (!is_string($apiKey) || $apiKey === '') {
+        if (!self::isUsableOption($apiKey)) {
             throw new AuthException('Missing Lingohub API key');
         }
 
         $this->apiKey = $apiKey;
-        $this->workspaceId = $kirby->option('johannschopplich.lingohub.workspaceId');
-        $this->projectId = $kirby->option('johannschopplich.lingohub.projectId');
+        $this->workspaceId = self::requireOption($kirby, 'workspaceId');
+        $this->projectId = self::requireOption($kirby, 'projectId');
     }
 
     public static function instance(): Lingohub
     {
         return self::$instance ??= new self();
+    }
+
+    public static function hasUsableOption(string $name): bool
+    {
+        return self::isUsableOption(App::instance()->option(self::OPTION_PREFIX . $name));
     }
 
     public static function resolveResourceFilename(ModelWithContent $model, string $languageCode): string
@@ -62,6 +69,11 @@ final class Lingohub
         return "{$blueprintName}_{$localeCode}.json";
     }
 
+    public function getTranslationStatus(): array
+    {
+        return $this->request($this->getProjectPath('status'));
+    }
+
     public function uploadResource(string $path, string $filename, array $data): array
     {
         $multipart = new Multipart();
@@ -82,6 +94,29 @@ final class Lingohub
             "resources/{$filename}",
             A::merge(['path' => $path], $options)
         ));
+    }
+
+    /**
+     * Every option is arbitrary user input, so anything but a
+     * non-empty string is a misconfiguration.
+     */
+    private static function isUsableOption(mixed $value): bool
+    {
+        return is_string($value) && $value !== '';
+    }
+
+    private static function requireOption(App $kirby, string $name): string
+    {
+        $value = $kirby->option(self::OPTION_PREFIX . $name);
+
+        if (!self::isUsableOption($value)) {
+            // TODO: Drop K4 compat in v2 – use named arg (message:) once Kirby 5 is the floor
+            throw new InvalidArgumentException(
+                'Missing required option "' . self::OPTION_PREFIX . $name . '"'
+            );
+        }
+
+        return $value;
     }
 
     private function getProjectPath(string $path, array $query = []): string
