@@ -73,7 +73,7 @@ final class ContextRouteTest extends ApiRouteTestCase
         ]);
 
         // Any Panel user of any role can read this response, so the guard
-        // covers the whole envelope rather than the `config` key alone
+        // covers the whole envelope rather than the `config` key alone.
         $payload = json_encode($response);
 
         $this->assertStringNotContainsString('test-key', $payload);

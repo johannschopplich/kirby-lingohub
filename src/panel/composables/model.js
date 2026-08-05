@@ -7,7 +7,7 @@ export function useModel() {
   const panel = usePanel();
   const defaultLanguage = panel.languages.find((language) => language.default);
 
-  // `useModel()` runs per component, but cache and invalidation listener are module-global
+  // `useModel()` runs per component, but cache and invalidation listener are module-global.
   if (!isListenerRegistered) {
     panel.events.on("page.changeSlug", clearModelData);
     isListenerRegistered = true;
@@ -27,7 +27,7 @@ export function useModel() {
         language: defaultLanguage?.code,
       },
       undefined,
-      // Avoid showing Panel loading indicator
+      // Avoid showing the Panel loading indicator.
       true,
     );
 

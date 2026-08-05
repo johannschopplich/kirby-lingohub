@@ -52,7 +52,7 @@ final class LingohubTest extends TestCase
         return [
             'missing workspaceId' => ['workspaceId', null],
             'missing projectId' => ['projectId', null],
-            // A non-string used to reach the property assignment and die with a `TypeError`
+            // Without the guard, a non-string reaches the typed property assignment and raises a `TypeError`.
             'mistyped workspaceId' => ['workspaceId', ['test-workspace']],
             'mistyped projectId' => ['projectId', 0],
         ];

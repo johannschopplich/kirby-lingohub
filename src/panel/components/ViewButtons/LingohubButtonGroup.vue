@@ -32,7 +32,7 @@ watch(
 );
 
 emitter.on("translationUpdate", () => {
-  // Lingohub needs some time to process the updated translation
+  // Lingohub needs some time to process the updated translation.
   setTimeout(loadLingohubData, 2000);
 });
 

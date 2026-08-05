@@ -71,7 +71,7 @@ final class Content
         $fields = FieldNormalizer::normalizeFields($fields);
         $serializedContent = $this->resolveTranslatableContent($content, $fields);
 
-        // `FieldResolver::resolveModelFields()` strips `title` and `slug`, so the title has to be added back by hand
+        // `FieldResolver::resolveModelFields()` strips `title` and `slug`, so the title has to be added back by hand.
         if (method_exists($this->model, 'title')) {
             $title = $this->model->title($languageCode)->value();
             $serializedContent['title'] = $title;
@@ -87,16 +87,16 @@ final class Content
     {
         $defaultLanguageCode = App::instance()->defaultLanguage()->code();
         // Explicitly use the default language content as a base to merge the translation into,
-        // as the translation might not contain all segments (e.g. in blocks or layouts)
+        // as the translation might not contain all segments (e.g. in blocks or layouts).
         $content = $this->model->content($defaultLanguageCode)->toArray();
         $fields = FieldResolver::resolveModelFields($this->model);
         $fields = FieldNormalizer::normalizeFields($fields);
 
-        // The title is written through `changeTitle()` in `downloadTranslation()`, not through the content merge
+        // The title is written through `changeTitle()` in `downloadTranslation()`, not through the content merge.
         unset($serializedContent['title']);
 
         // The default language base content carries the default slug,
-        // so the target language's own slug has to survive the merge
+        // so the target language's own slug has to survive the merge.
         $currentSlug = $this->model->content($languageCode)->get('slug')->value();
 
         $deserializedContent = $this->mergeTranslatedContent($serializedContent, $content, $fields);
@@ -195,7 +195,7 @@ final class Content
                 continue;
             }
 
-            // A key without further parts addresses a top-level field
+            // A key without further parts addresses a top-level field.
             if ($parts === []) {
                 if ($this->isTextLikeField($fields[$fieldName])) {
                     $result[$fieldName] = $value;
@@ -634,7 +634,7 @@ final class Content
 
     private function isTextLikeField(array $field): bool
     {
-        // Custom types are already resolved to their base type by `FieldNormalizer::normalizeFields()`
+        // Custom types are already resolved to their base type by `FieldNormalizer::normalizeFields()`.
         static $textLikeTypes = ['list', 'tags', 'text', 'textarea', 'writer', 'markdown'];
         return in_array($field['type'] ?? '', $textLikeTypes, true);
     }

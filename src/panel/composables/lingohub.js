@@ -21,10 +21,10 @@ export function useLingohub() {
     let localeCode = languages?.[languageCode]?.locale?.[0] ?? languageCode;
 
     // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
-    // (1) Convert locale code to IETF language tag format (e.g., `en_US` to `en-US`)
+    // (1) Convert locale code to IETF language tag format (e.g., `en_US` to `en-US`).
     localeCode = localeCode.replaceAll("_", "-");
 
-    // (2) Remove UTF-8 suffix for consistency
+    // (2) Remove UTF-8 suffix for consistency.
     localeCode = localeCode.replace(/\.utf-?8$/i, "");
 
     let blueprintName = model.blueprint.name;
@@ -53,7 +53,7 @@ export function useLingohub() {
         PLUGIN_STATUS_API_ROUTE,
         undefined,
         undefined,
-        // Avoid showing Panel loading indicator
+        // Avoid showing the Panel loading indicator.
         true,
       );
 
@@ -67,7 +67,7 @@ export function useLingohub() {
   async function getTranslationResources(status, languageCode) {
     const { resourcePath } = await resolveResource(languageCode);
 
-    // Lingohub may return the resource filename with different casing
+    // Lingohub may return the resource filename with different casing.
     const resource =
       status?.resourceFiles?.find((item) =>
         item.files.some((file) => file.name === resourcePath),
@@ -85,7 +85,7 @@ export function useLingohub() {
     const { resourcePath } = await resolveResource(languageCode);
     const resourceFiles = await getTranslationResources(status, languageCode);
 
-    // Lingohub may return the resource filename with different casing
+    // Lingohub may return the resource filename with different casing.
     return (
       resourceFiles.find((file) => file.name === resourcePath) ??
       resourceFiles.find(
@@ -104,7 +104,7 @@ export function useLingohub() {
         languageCode,
       },
       undefined,
-      // Avoid showing Panel loading indicator
+      // Avoid showing the Panel loading indicator.
       true,
     );
   }
@@ -120,7 +120,7 @@ export function useLingohub() {
         targetStatus,
       },
       undefined,
-      // Avoid showing Panel loading indicator
+      // Avoid showing the Panel loading indicator.
       true,
     );
   }

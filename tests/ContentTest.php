@@ -471,7 +471,7 @@ final class ContentTest extends TestCase
         $this->assertArrayHasKey('blocks_block2_heading_text', $serialized);
         $this->assertSame('Block heading', $serialized['blocks_block2_heading_text']);
 
-        // Level (select) should be excluded (`translate: false`)
+        // The `level` select field should be excluded (`translate: false`).
         $this->assertArrayNotHasKey('blocks_block2_heading_level', $serialized);
     }
 
@@ -533,7 +533,7 @@ final class ContentTest extends TestCase
         $this->assertArrayHasKey('blocks_container1_container_innerblocks_inner2_text_text', $serialized);
         $this->assertSame('Inner text content', $serialized['blocks_container1_container_innerblocks_inner2_text_text']);
 
-        // Level in nested heading should be excluded
+        // The `level` field of the nested heading should be excluded.
         $this->assertArrayNotHasKey('blocks_container1_container_innerblocks_inner1_heading_level', $serialized);
     }
 
@@ -543,11 +543,11 @@ final class ContentTest extends TestCase
         $content = new Content('test');
         $serialized = $content->serializeContent('en');
 
-        // Top-level files field with `translateInKirbyOnly` is already excluded by isTextLikeField,
-        // but a text field with `translateInKirbyOnly` should also be excluded
+        // A top-level files field with `translateInKirbyOnly` is already excluded by
+        // `isTextLikeField()`, but a text field with `translateInKirbyOnly` has to be too.
         $this->assertArrayNotHasKey('kirbyOnlyText', $serialized);
 
-        // The image field (files type) should also not appear
+        // The `image` field (files type) should also not appear.
         $this->assertArrayNotHasKey('image', $serialized);
     }
 
@@ -575,7 +575,7 @@ final class ContentTest extends TestCase
 
         $blocks = Json::decode($deserialized['blocks']);
 
-        // Block IDs and types must be preserved
+        // Block IDs and types must be preserved.
         $this->assertSame('block1', $blocks[0]['id']);
         $this->assertSame('text', $blocks[0]['type']);
         $this->assertSame('Blocktext Inhalt', $blocks[0]['content']['text']);
@@ -583,7 +583,7 @@ final class ContentTest extends TestCase
         $this->assertSame('block2', $blocks[1]['id']);
         $this->assertSame('heading', $blocks[1]['type']);
         $this->assertSame('Block Überschrift', $blocks[1]['content']['text']);
-        // Non-translated fields should be preserved from default language
+        // Non-translated fields should be preserved from the default language.
         $this->assertSame('h2', $blocks[1]['content']['level']);
     }
 
@@ -630,7 +630,6 @@ final class ContentTest extends TestCase
 
         $blocks = Json::decode($deserialized['blocks']);
 
-        // Find the container block
         $containerBlock = null;
         foreach ($blocks as $block) {
             if ($block['id'] === 'container1') {
@@ -646,13 +645,11 @@ final class ContentTest extends TestCase
 
         $this->assertCount(3, $innerBlocks);
 
-        // Inner heading block
         $this->assertSame('inner1', $innerBlocks[0]['id']);
         $this->assertSame('heading', $innerBlocks[0]['type']);
         $this->assertSame('Innere Überschrift', $innerBlocks[0]['content']['text']);
         $this->assertSame('h3', $innerBlocks[0]['content']['level']);
 
-        // Inner text block
         $this->assertSame('inner2', $innerBlocks[1]['id']);
         $this->assertSame('text', $innerBlocks[1]['type']);
         $this->assertSame('Innerer Text', $innerBlocks[1]['content']['text']);
@@ -665,11 +662,10 @@ final class ContentTest extends TestCase
 
         $serialized = $content->serializeContent('en');
 
-        // Verify expected keys exist
         $this->assertArrayHasKey('blocks_container1_container_innerblocks_inner1_heading_text', $serialized);
         $this->assertArrayHasKey('blocks_container1_container_innerblocks_inner2_text_text', $serialized);
 
-        // Simulate translation by prefixing values
+        // Simulate translation by prefixing values.
         $translated = [];
         foreach ($serialized as $key => $value) {
             $translated[$key] = '[de]' . $value;
@@ -678,7 +674,6 @@ final class ContentTest extends TestCase
         $deserialized = $content->deserializeContent($translated, 'de');
         $blocks = Json::decode($deserialized['blocks']);
 
-        // Find container
         $containerBlock = null;
         foreach ($blocks as $block) {
             if ($block['id'] === 'container1') {
@@ -717,11 +712,9 @@ final class ContentTest extends TestCase
     {
         $content = new Content('test');
 
-        // Non-flagged fields should fall back to default language content as base
-        // when no translation is provided
         $deserialized = $content->deserializeContent([], 'de');
 
-        // Text should come from the default language (EN in this test setup)
+        // Text should come from the default language (EN in this test setup).
         $this->assertSame('Hello world', $deserialized['text']);
     }
 
@@ -731,14 +724,13 @@ final class ContentTest extends TestCase
         $content = new Content('test');
 
         // Translate the text field of the `imageblock`, but the `image` field
-        // should be restored from DE (`translateInKirbyOnly`: true)
+        // should be restored from DE (`translateInKirbyOnly`: true).
         $deserialized = $content->deserializeContent([
             'blocks_imgblock1_imageblock_text' => 'DE Bildunterschrift'
         ], 'de');
 
         $blocks = Json::decode($deserialized['blocks']);
 
-        // Find the imageblock
         $imageBlock = null;
         foreach ($blocks as $block) {
             if ($block['id'] === 'imgblock1') {
@@ -750,10 +742,9 @@ final class ContentTest extends TestCase
         $this->assertNotNull($imageBlock, 'Image block must exist');
         $this->assertSame('imageblock', $imageBlock['type']);
 
-        // Text should be translated
         $this->assertSame('DE Bildunterschrift', $imageBlock['content']['text']);
 
-        // Image should be restored from DE, not EN default
+        // Image should be restored from DE, not the EN default.
         $this->assertSame('- file://de-block-image.jpg', $imageBlock['content']['image']);
     }
 
@@ -762,14 +753,13 @@ final class ContentTest extends TestCase
     {
         $content = new Content('test');
 
-        // Translate the nested `imageblock`'s text, but image should be restored from DE
+        // Translate the nested `imageblock`'s text, but the `image` field should be restored from DE.
         $deserialized = $content->deserializeContent([
             'blocks_container1_container_innerblocks_innerimg1_imageblock_text' => 'DE Innere Bildunterschrift'
         ], 'de');
 
         $blocks = Json::decode($deserialized['blocks']);
 
-        // Find the container block
         $containerBlock = null;
         foreach ($blocks as $block) {
             if ($block['id'] === 'container1') {
@@ -781,7 +771,6 @@ final class ContentTest extends TestCase
         $this->assertNotNull($containerBlock, 'Container block must exist');
         $innerBlocks = Json::decode($containerBlock['content']['innerblocks']);
 
-        // Find the inner imageblock
         $innerImageBlock = null;
         foreach ($innerBlocks as $block) {
             if ($block['id'] === 'innerimg1') {
@@ -793,10 +782,9 @@ final class ContentTest extends TestCase
         $this->assertNotNull($innerImageBlock, 'Inner image block must exist');
         $this->assertSame('imageblock', $innerImageBlock['type']);
 
-        // Text should be translated
         $this->assertSame('DE Innere Bildunterschrift', $innerImageBlock['content']['text']);
 
-        // Image should be restored from DE, not EN default
+        // Image should be restored from DE, not the EN default.
         $this->assertSame('- file://de-inner-image.jpg', $innerImageBlock['content']['image']);
     }
 
@@ -805,7 +793,7 @@ final class ContentTest extends TestCase
     {
         $content = new Content('test');
 
-        // Translate the layout `imageblock`'s text, but image should be restored from DE
+        // Translate the layout `imageblock`'s text, but the `image` field should be restored from DE.
         $deserialized = $content->deserializeContent([
             'layoutfield_layoutimg1_imageblock_text' => 'DE Layout Bildunterschrift'
         ], 'de');
@@ -822,10 +810,9 @@ final class ContentTest extends TestCase
         $this->assertSame('layoutimg1', $imageBlock['id']);
         $this->assertSame('imageblock', $imageBlock['type']);
 
-        // Text should be translated
         $this->assertSame('DE Layout Bildunterschrift', $imageBlock['content']['text']);
 
-        // Image should be restored from DE, not EN default
+        // Image should be restored from DE, not the EN default.
         $this->assertSame('- file://de-layout-image.jpg', $imageBlock['content']['image']);
     }
 
@@ -834,17 +821,13 @@ final class ContentTest extends TestCase
     {
         $content = new Content('test');
 
-        // Regression test: verify top-level `translateInKirbyOnly` still works
-        // after the refactor to recursive restoration
         $deserialized = $content->deserializeContent([
             'text' => 'Neuer Text',
             'blocks_imgblock1_imageblock_text' => 'Bildunterschrift'
         ], 'de');
 
-        // Top-level image should be DE value
         $this->assertSame('- file://image-de.jpg', $deserialized['image']);
 
-        // Text should be translated
         $this->assertSame('Neuer Text', $deserialized['text']);
     }
 
@@ -853,7 +836,7 @@ final class ContentTest extends TestCase
     {
         $content = new Content('test');
 
-        // Translate structure fields, but note (`translateInKirbyOnly`) should be preserved from DE
+        // Translate structure fields, but `note` (`translateInKirbyOnly`) should be preserved from DE.
         $deserialized = $content->deserializeContent([
             'structure_0_heading' => 'Neuer Abschnitt 1',
             'structure_0_description' => 'Neue Beschreibung 1'
@@ -861,11 +844,10 @@ final class ContentTest extends TestCase
 
         $structure = Yaml::decode($deserialized['structure']);
 
-        // Translated fields should be updated
         $this->assertSame('Neuer Abschnitt 1', $structure[0]['heading']);
         $this->assertSame('Neue Beschreibung 1', $structure[0]['description']);
 
-        // `translateInKirbyOnly` field should be restored from DE
+        // The `translateInKirbyOnly` field should be restored from DE.
         $this->assertSame('DE Notiz 1', $structure[0]['note']);
         $this->assertSame('DE Notiz 2', $structure[1]['note']);
     }

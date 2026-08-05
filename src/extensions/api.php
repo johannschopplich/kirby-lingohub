@@ -17,7 +17,7 @@ return [
                     // Resolve the `LC_ALL` locale value explicitly to ensure
                     // consistent JSON serialization across platforms (the `LC_*`
                     // constants have different integer values on macOS vs Linux,
-                    // causing the locale array keys to differ in JSON output)
+                    // causing the locale array keys to differ in JSON output).
                     ['locale' => [$language->locale(LC_ALL) ?? $language->code()]]
                 ));
 

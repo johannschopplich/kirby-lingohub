@@ -55,9 +55,9 @@ final class Lingohub
 
         $localeCode = $language?->locale(LC_ALL) ?? $languageCode;
         // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
-        // (1) Convert locale code to IETF language tag format (e.g. `en_US` to `en-US`)
+        // (1) Convert locale code to IETF language tag format (e.g. `en_US` to `en-US`).
         $localeCode = str_replace('_', '-', $localeCode);
-        // (2) Remove UTF-8 suffix for consistency
+        // (2) Remove UTF-8 suffix for consistency.
         $localeCode = preg_replace('/\.utf-?8$/i', '', $localeCode);
 
         $blueprintName = $model->blueprint()->name();
@@ -110,7 +110,7 @@ final class Lingohub
         $value = $kirby->option(self::OPTION_PREFIX . $name);
 
         if (!self::isUsableOption($value)) {
-            // TODO: Drop K4 compat in v2 – use named arg (message:) once Kirby 5 is the floor
+            // TODO: Drop K4 compat in v2 – use named arg (`message:`) once Kirby 5 is the floor.
             throw new InvalidArgumentException(
                 'Missing required option "' . self::OPTION_PREFIX . $name . '"'
             );
@@ -136,7 +136,7 @@ final class Lingohub
         ], $options));
 
         if ($response->code() < 200 || $response->code() >= 300) {
-            // TODO: Drop K4 compat in v2 – use named args (fallback:, httpCode:) once Kirby 5 is the floor
+            // TODO: Drop K4 compat in v2 – use named args (`fallback:`, `httpCode:`) once Kirby 5 is the floor.
             throw new LogicException([
                 'fallback' => "Lingohub API request failed: {$response->content()}",
                 'httpCode' => $response->code()
