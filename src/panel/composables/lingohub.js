@@ -104,6 +104,7 @@ export function useLingohub() {
         languageCode,
       },
       undefined,
+      "POST",
       // Avoid showing the Panel loading indicator.
       true,
     );
@@ -120,6 +121,7 @@ export function useLingohub() {
         targetStatus,
       },
       undefined,
+      "POST",
       // Avoid showing the Panel loading indicator.
       true,
     );
