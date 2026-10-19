@@ -34,6 +34,9 @@ final class ContentTest extends AppTestCase
                             'type' => 'text',
                             'translate' => false
                         ],
+                        'meta_title' => [
+                            'type' => 'text'
+                        ],
                         'blocks' => [
                             'type' => 'blocks',
                             'translate' => true,
@@ -61,6 +64,17 @@ final class ContentTest extends AppTestCase
                                                 'level' => [
                                                     'type' => 'select',
                                                     'translate' => false
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ],
+                                'image_text' => [
+                                    'tabs' => [
+                                        'content' => [
+                                            'fields' => [
+                                                'text' => [
+                                                    'type' => 'textarea'
                                                 ]
                                             ]
                                         ]
@@ -219,6 +233,7 @@ final class ContentTest extends AppTestCase
                                     'title' => 'Test Page',
                                     'text' => 'Hello world',
                                     'untranslatableText' => 'Do not translate',
+                                    'meta_title' => 'Meta EN',
                                     'blocks' => Json::encode([
                                         [
                                             'type' => 'text',
@@ -281,6 +296,13 @@ final class ContentTest extends AppTestCase
                                                 'text' => 'Image caption',
                                                 'image' => '- file://en-block-image.jpg'
                                             ]
+                                        ],
+                                        [
+                                            'type' => 'image_text',
+                                            'id' => 'imgtext1',
+                                            'content' => [
+                                                'text' => 'Block EN'
+                                            ]
                                         ]
                                     ]),
                                     'structure' => Yaml::encode([
@@ -328,6 +350,7 @@ final class ContentTest extends AppTestCase
                                 'content' => [
                                     'title' => 'Testseite',
                                     'text' => 'Hallo Welt',
+                                    'meta_title' => 'Meta DE alt',
                                     'image' => '- file://image-de.jpg',
                                     'kirbyOnlyText' => 'Nur in Kirby übersetzen',
                                     'structure' => Yaml::encode([
@@ -404,6 +427,13 @@ final class ContentTest extends AppTestCase
                                                 'text' => 'DE Image caption',
                                                 'image' => '- file://de-block-image.jpg'
                                             ]
+                                        ],
+                                        [
+                                            'type' => 'image_text',
+                                            'id' => 'imgtext1',
+                                            'content' => [
+                                                'text' => 'Block DE alt'
+                                            ]
                                         ]
                                     ]),
                                     'layoutfield' => Json::encode([
@@ -461,6 +491,16 @@ final class ContentTest extends AppTestCase
 
         // The `level` select field should be excluded (`translate: false`).
         $this->assertArrayNotHasKey('blocks_block2_heading_level', $serialized);
+    }
+
+    #[Test]
+    public function serializes_field_names_and_block_types_that_contain_underscores(): void
+    {
+        $content = new Content('test');
+        $serialized = $content->serializeContent('en');
+
+        $this->assertSame('Meta EN', $serialized['meta_title']);
+        $this->assertSame('Block EN', $serialized['blocks_imgtext1_image_text_text']);
     }
 
     #[Test]
@@ -573,6 +613,21 @@ final class ContentTest extends AppTestCase
         $this->assertSame('Block Überschrift', $blocks[1]['content']['text']);
         // Non-translated fields should be preserved from the default language.
         $this->assertSame('h2', $blocks[1]['content']['level']);
+    }
+
+    #[Test]
+    public function deserializes_field_names_and_block_types_that_contain_underscores(): void
+    {
+        $content = new Content('test');
+        $deserialized = $content->deserializeContent([
+            'meta_title' => 'Meta DE',
+            'blocks_imgtext1_image_text_text' => 'Block DE'
+        ], 'de');
+
+        $this->assertSame('Meta DE', $deserialized['meta_title']);
+
+        $blocks = Json::decode($deserialized['blocks']);
+        $this->assertSame('Block DE', $blocks[5]['content']['text']);
     }
 
     #[Test]
