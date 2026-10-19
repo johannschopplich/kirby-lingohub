@@ -11,18 +11,18 @@
 # Playground files
 .env
 .license
+.kirby-tools-licenses
 /playground/public/media/*
 /playground/storage/accounts/*
+!/playground/storage/accounts/admin
+!/playground/storage/accounts/playground
 /playground/storage/cache/*
 /playground/storage/sessions/*
 
 # Cache and temporary files
-/.cache
 /.php-cs-fixer.cache
 /.phpunit.*
 /index.dev.mjs
 /phpunit.xml
-/tests/coverage
-/tests/*/tmp
 /tests/tmp
 /tools/**/vendor
