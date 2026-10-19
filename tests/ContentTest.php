@@ -3,8 +3,11 @@
 declare(strict_types = 1);
 
 use JohannSchopplich\Lingohub\Content;
+use Kirby\Cms\App;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
+use Kirby\Exception\AuthException;
+use Kirby\Exception\PermissionException;
 use PHPUnit\Framework\Attributes\Test;
 
 final class ContentTest extends AppTestCase
@@ -24,6 +27,14 @@ final class ContentTest extends AppTestCase
                 ]
             ],
             'blueprints' => [
+                'users/editor' => [
+                    'name' => 'editor',
+                    'permissions' => [
+                        'pages' => [
+                            'update' => false
+                        ]
+                    ]
+                ],
                 'pages/default' => [
                     'fields' => [
                         'text' => [
@@ -220,6 +231,10 @@ final class ContentTest extends AppTestCase
                         ]
                     ]
                 ]
+            ],
+            'users' => [
+                ['email' => 'admin@example.com', 'role' => 'admin'],
+                ['email' => 'editor@example.com', 'role' => 'editor']
             ],
             'site' => [
                 'children' => [
@@ -465,7 +480,12 @@ final class ContentTest extends AppTestCase
         ]);
     }
 
-    // --- Serialization tests ---
+    private static function testPageContent(): Content
+    {
+        return new Content(App::instance()->page('test'));
+    }
+
+    // #region Serialization
 
     #[Test]
     public function serializes_a_plain_text_field_under_its_own_key(): void
@@ -588,7 +608,9 @@ final class ContentTest extends AppTestCase
         $this->assertArrayNotHasKey('image', $serialized);
     }
 
-    // --- Deserialization tests ---
+    // #endregion
+
+    // #region Deserialization
 
     #[Test]
     public function deserializes_a_plain_text_field_under_its_own_key(): void
@@ -745,20 +767,6 @@ final class ContentTest extends AppTestCase
         $this->assertSame('text', $innerBlocks[1]['type']);
     }
 
-    // --- translateInKirbyOnly tests ---
-
-    #[Test]
-    public function restores_a_top_level_translate_in_kirby_only_field_from_the_target_language(): void
-    {
-        $content = new Content('test');
-
-        $deserialized = $content->deserializeContent([
-            'text' => 'Hallo Welt'
-        ], 'de');
-
-        $this->assertSame('- file://image-de.jpg', $deserialized['image']);
-    }
-
     #[Test]
     public function keeps_the_target_translation_of_segments_missing_from_the_download(): void
     {
@@ -791,6 +799,22 @@ final class ContentTest extends AppTestCase
 
         // The German fixture has no `object` field.
         $this->assertSame('Object title', Yaml::decode($deserialized['object'])['title']);
+    }
+
+    // #endregion
+
+    // #region translateInKirbyOnly
+
+    #[Test]
+    public function restores_a_top_level_translate_in_kirby_only_field_from_the_target_language(): void
+    {
+        $content = new Content('test');
+
+        $deserialized = $content->deserializeContent([
+            'text' => 'Hallo Welt'
+        ], 'de');
+
+        $this->assertSame('- file://image-de.jpg', $deserialized['image']);
     }
 
     #[Test]
@@ -926,4 +950,31 @@ final class ContentTest extends AppTestCase
         $this->assertSame('DE Notiz 1', $structure[0]['note']);
         $this->assertSame('DE Notiz 2', $structure[1]['note']);
     }
+
+    // #endregion
+
+    // #region Download permission
+
+    #[Test]
+    public function download_translation_throws_for_a_user_who_may_not_update_the_page(): void
+    {
+        App::instance()->impersonate('editor@example.com');
+
+        $this->expectException(PermissionException::class);
+
+        (new Content('test'))->downloadTranslation('de');
+    }
+
+    #[Test]
+    public function download_translation_reaches_lingohub_for_a_user_who_may_update_the_page(): void
+    {
+        App::instance()->impersonate('admin@example.com');
+
+        // The permission check passes, so the download reaches the unconfigured Lingohub client.
+        $this->expectException(AuthException::class);
+
+        (new Content('test'))->downloadTranslation('de');
+    }
+
+    // #endregion
 }

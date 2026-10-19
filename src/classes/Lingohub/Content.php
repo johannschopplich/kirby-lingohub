@@ -13,6 +13,7 @@ use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Data\Data;
+use Kirby\Exception\PermissionException;
 use Kirby\Toolkit\A;
 
 /**
@@ -51,6 +52,12 @@ final class Content
      */
     public function downloadTranslation(string $languageCode, array $options = []): void
     {
+        // The update below impersonates Kirby to pass the `translateExternalOnly` guard,
+        // so the user's own permission has to be checked first.
+        if (!$this->model->permissions()->can('update')) {
+            throw new PermissionException('You are not allowed to update this content');
+        }
+
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
