@@ -1,9 +1,10 @@
+import type { PluginContext } from "../types";
 import { PLUGIN_CONTEXT_API_ROUTE } from "../constants";
 
-let context;
-let pendingPromise;
+let context: PluginContext | undefined;
+let pendingPromise: Promise<PluginContext> | undefined;
 
-export function usePluginContext() {
+export function usePluginContext(): Promise<PluginContext> {
   if (context) return Promise.resolve(context);
   if (pendingPromise) return pendingPromise;
 
@@ -15,7 +16,7 @@ export function usePluginContext() {
       // Avoid showing the Panel loading indicator.
       true,
     )
-    .then((response) => {
+    .then((response: PluginContext) => {
       context = response;
       return context;
     })

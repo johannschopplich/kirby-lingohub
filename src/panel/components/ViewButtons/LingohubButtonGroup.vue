@@ -1,4 +1,5 @@
-<script setup>
+<script setup lang="ts">
+import type { LingohubResourceFile } from "../../types";
 import { ref, useDialog, usePanel, watch } from "kirbyuse";
 import { useLingohub } from "../../composables/lingohub";
 import LingohubDropdownContent from "./LingohubDropdownContent.vue";
@@ -17,9 +18,9 @@ if (!defaultLanguage) {
 }
 
 const isLoading = ref(true);
-const isApproved = ref(false);
-const dropdownContent = ref();
-const currentLanguageResourceFile = ref();
+const isApproved = ref<boolean>();
+const dropdownContent = ref<{ toggle: () => void }>();
+const currentLanguageResourceFile = ref<LingohubResourceFile>();
 
 watch(
   () => [panel.view.path, panel.language.code],
@@ -37,7 +38,7 @@ emitter.on("translationUpdate", () => {
 });
 
 function toggle() {
-  dropdownContent.value.toggle();
+  dropdownContent.value?.toggle();
 }
 
 async function loadLingohubData() {
@@ -45,7 +46,7 @@ async function loadLingohubData() {
 
   const defaultLanguageResourceFile = await getTranslationResourceFile(
     status,
-    defaultLanguage.code,
+    defaultLanguage!.code,
   );
   currentLanguageResourceFile.value = await getTranslationResourceFile(
     status,

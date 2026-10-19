@@ -1,6 +1,11 @@
 import { usePanel } from "kirbyuse";
 
-const modelDataCache = new Map();
+interface ModelData {
+  id?: string;
+  blueprint: { name: string };
+}
+
+const modelDataCache = new Map<string, ModelData>();
 let isListenerRegistered = false;
 
 export function useModel() {
@@ -13,14 +18,14 @@ export function useModel() {
     isListenerRegistered = true;
   }
 
-  async function getModelData() {
+  async function getModelData(): Promise<ModelData> {
     const { path: id } = panel.view;
 
     if (modelDataCache.has(id)) {
-      return modelDataCache.get(id);
+      return modelDataCache.get(id)!;
     }
 
-    const response = await panel.api.get(
+    const response: ModelData = await panel.api.get(
       id,
       {
         select: ["id", "blueprint"],

@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+import type { LingohubResourceFile } from "../../types";
 import { computed, ref, useI18n, usePanel, useSection } from "kirbyuse";
 import { section } from "kirbyuse/props";
 import { useLingohub } from "../../composables/lingohub";
@@ -12,7 +13,7 @@ export default {
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps(propsDefinition);
 
 const panel = usePanel();
@@ -20,10 +21,10 @@ const { t } = useI18n();
 const { getTranslationStatus, getTranslationResources } = useLingohub();
 
 // Section state
-const label = ref();
+const label = ref<string>();
 
 // Runtime state
-const resourceFiles = ref();
+const resourceFiles = ref<LingohubResourceFile[]>();
 
 const tableColumns = {
   languageCode: { label: "Language Code", type: "text" },

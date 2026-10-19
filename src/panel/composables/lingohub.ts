@@ -1,3 +1,4 @@
+import type { LingohubResourceFile, LingohubTranslationStatus } from "../types";
 import { usePanel } from "kirbyuse";
 import mitt from "mitt";
 import {
@@ -8,13 +9,15 @@ import {
 import { useModel } from "./model";
 import { usePluginContext } from "./plugin";
 
-const emitter = mitt();
+const UTF8_SUFFIX_RE = /\.utf-?8$/i;
+
+const emitter = mitt<{ translationUpdate: void }>();
 
 export function useLingohub() {
   const panel = usePanel();
   const { getModelData } = useModel();
 
-  async function resolveResource(languageCode) {
+  async function resolveResource(languageCode: string) {
     const { languages } = await usePluginContext();
     const model = await getModelData();
 
@@ -25,7 +28,7 @@ export function useLingohub() {
     localeCode = localeCode.replaceAll("_", "-");
 
     // (2) Remove UTF-8 suffix for consistency.
-    localeCode = localeCode.replace(/\.utf-?8$/i, "");
+    localeCode = localeCode.replace(UTF8_SUFFIX_RE, "");
 
     let blueprintName = model.blueprint.name;
 
@@ -45,7 +48,9 @@ export function useLingohub() {
     };
   }
 
-  async function getTranslationStatus() {
+  async function getTranslationStatus(): Promise<
+    LingohubTranslationStatus | undefined
+  > {
     if (!(await validateLingohubConfig())) return;
 
     try {
@@ -60,11 +65,14 @@ export function useLingohub() {
       return translationStatus;
     } catch (error) {
       console.error(error);
-      panel.notification.error(error.message);
+      panel.notification.error((error as Error).message);
     }
   }
 
-  async function getTranslationResources(status, languageCode) {
+  async function getTranslationResources(
+    status: LingohubTranslationStatus | undefined,
+    languageCode: string,
+  ): Promise<LingohubResourceFile[]> {
     const { resourcePath } = await resolveResource(languageCode);
 
     // Lingohub may return the resource filename with different casing.
@@ -81,7 +89,10 @@ export function useLingohub() {
     return resource?.files ?? [];
   }
 
-  async function getTranslationResourceFile(status, languageCode) {
+  async function getTranslationResourceFile(
+    status: LingohubTranslationStatus | undefined,
+    languageCode: string,
+  ): Promise<LingohubResourceFile | undefined> {
     const { resourcePath } = await resolveResource(languageCode);
     const resourceFiles = await getTranslationResources(status, languageCode);
 
@@ -94,7 +105,7 @@ export function useLingohub() {
     );
   }
 
-  async function uploadTranslation(languageCode) {
+  async function uploadTranslation(languageCode: string) {
     const defaultLanguageData = await getModelData();
 
     await panel.api.post(
@@ -110,7 +121,10 @@ export function useLingohub() {
     );
   }
 
-  async function downloadTranslation(languageCode, targetStatus) {
+  async function downloadTranslation(
+    languageCode: string,
+    targetStatus: string,
+  ) {
     const defaultLanguageData = await getModelData();
 
     await panel.api.post(
@@ -152,7 +166,7 @@ export function useLingohub() {
       return true;
     } catch (error) {
       console.error(error);
-      panel.notification.error(error.message);
+      panel.notification.error((error as Error).message);
       return false;
     }
   }

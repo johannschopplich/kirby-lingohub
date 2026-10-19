@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+import type { ModelContext } from "../../types";
 import { ref, useDialog, usePanel } from "kirbyuse";
 import { useLingohub } from "../../composables/lingohub";
 import { useModel } from "../../composables/model";
@@ -9,7 +10,7 @@ export default {
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
 const { getModelData } = useModel();
@@ -21,12 +22,12 @@ const {
   downloadTranslation,
 } = useLingohub();
 
-const defaultLanguage = panel.languages.find((language) => language.default);
+const defaultLanguage = panel.languages.find((language) => language.default)!;
 const translationLanguages = panel.languages.filter(
   (language) => !language.default,
 );
 
-const modelContext = ref();
+const modelContext = ref<ModelContext>();
 
 // Start fetching right away, `invokeWhenInitialized()` awaits it before any dropdown action runs.
 const initializationPromise = (async () => {
@@ -37,13 +38,13 @@ const initializationPromise = (async () => {
   });
 })();
 
-async function invokeWhenInitialized(fn) {
+async function invokeWhenInitialized(fn: () => unknown) {
   await initializationPromise;
   fn?.();
 }
 
 async function uploadTranslations() {
-  const { availableTranslationLanguageCodes } = modelContext.value;
+  const { availableTranslationLanguageCodes } = modelContext.value!;
   panel.view.isLoading = true;
 
   const status = await getTranslationStatus();
@@ -71,7 +72,10 @@ async function uploadTranslations() {
     )
   ).filter(Boolean);
 
-  const options = await openFieldsDialog({
+  const options = await openFieldsDialog<{
+    sourceLanguage: string[];
+    targetLanguages: string[];
+  }>({
     submitButton: {
       icon: "upload",
       theme: "positive",
@@ -135,7 +139,7 @@ async function uploadTranslations() {
     );
   } catch (error) {
     console.error(error);
-    panel.notification.error(error.message);
+    panel.notification.error((error as Error).message);
   } finally {
     panel.view.isLoading = false;
   }
@@ -160,7 +164,7 @@ async function downloadTranslations() {
         if (
           resourceFile &&
           resourceFile.statuses.APPROVED >=
-            defaultResourceFile.statuses.APPROVED
+            defaultResourceFile!.statuses.APPROVED
         ) {
           return language.code;
         }
@@ -168,7 +172,10 @@ async function downloadTranslations() {
     )
   ).filter(Boolean);
 
-  const options = await openFieldsDialog({
+  const options = await openFieldsDialog<{
+    status: string;
+    languages: string[];
+  }>({
     submitButton: {
       icon: "import",
       theme: "positive",
@@ -227,7 +234,7 @@ async function downloadTranslations() {
   } catch (error) {
     panel.view.isLoading = false;
     console.error(error);
-    panel.notification.error(error.message);
+    panel.notification.error((error as Error).message);
   }
 }
 </script>

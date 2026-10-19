@@ -1,15 +1,18 @@
+/* eslint-disable ts/ban-ts-comment */
+import type { ComponentPublicInstance, PluginFunction } from "vue";
 import { isKirby5 } from "kirbyuse";
+// @ts-ignore - Vue component
 import LingohubButtonGroup from "../components/ViewButtons/LingohubButtonGroup.vue";
 
-export function legacyViewButtonMixin(Vue) {
+export const legacyViewButtonMixin: PluginFunction<any> = (Vue) => {
   if (isKirby5()) {
     return;
   }
 
-  let buttonComponent;
+  let buttonComponent: ComponentPublicInstance | undefined;
 
   Vue.mixin({
-    mounted() {
+    mounted(this: ComponentPublicInstance) {
       if (this.$options.name !== "k-header") return;
 
       const { panel } = window;
@@ -18,7 +21,8 @@ export function legacyViewButtonMixin(Vue) {
       if (!panel.view.path.startsWith("pages/")) return;
 
       const buttonGroup = this.$children.find(
-        (child) => child.$options.name === "k-button-group",
+        (child: ComponentPublicInstance) =>
+          child.$options.name === "k-button-group",
       );
       if (!buttonGroup) return;
 
@@ -28,12 +32,12 @@ export function legacyViewButtonMixin(Vue) {
       if (!languagesDropdown) return;
 
       const ButtonConstructor = Vue.extend(LingohubButtonGroup);
-      buttonComponent = new ButtonConstructor({ parent: this });
+      buttonComponent = new ButtonConstructor({ parent: this as any });
       buttonComponent.$mount();
 
       languagesDropdown.before(buttonComponent.$el);
     },
-    beforeDestroy() {
+    beforeDestroy(this: ComponentPublicInstance) {
       if (this.$options.name !== "k-header") return;
       if (!window.panel.multilang) return;
 
@@ -43,4 +47,4 @@ export function legacyViewButtonMixin(Vue) {
       }
     },
   });
-}
+};
