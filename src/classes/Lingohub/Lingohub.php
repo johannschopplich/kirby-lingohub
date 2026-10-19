@@ -76,15 +76,20 @@ final class Lingohub
 
     public function uploadResource(string $path, string $filename, array $data): array
     {
-        $multipart = new Multipart();
-        $multipart->addFile('file', json_encode($data), $filename);
+        // `Remote` URL-encodes array data, so the multipart body is built by hand.
+        $boundary = '----' . uniqid('boundary', true);
+        $body = "--{$boundary}\r\n"
+            . "Content-Disposition: form-data; name=\"file\"; filename=\"{$filename}\"\r\n"
+            . "Content-Type: application/json\r\n\r\n"
+            . json_encode($data) . "\r\n"
+            . "--{$boundary}--\r\n";
 
         return $this->request($this->getProjectPath('resources', ['path' => $path]), [
             'method' => 'POST',
             'headers' => [
-                'Content-Type' => $multipart->getContentTypeHeader()
+                'Content-Type' => "multipart/form-data; boundary={$boundary}"
             ],
-            'data' => $multipart->build()
+            'data' => $body
         ]);
     }
 
