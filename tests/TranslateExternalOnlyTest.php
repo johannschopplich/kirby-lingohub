@@ -20,12 +20,19 @@ final class TranslateExternalOnlyTest extends AppTestCase
         ],
         'body' => [
             'type' => 'text'
+        ],
+        'sections' => [
+            'type' => 'blocks',
+            'translateExternalOnly' => true
         ]
     ];
 
+    // Stored in another key order than Kirby's form encodes it.
+    private const SECTIONS = '[{"content":{"text":"Hallo","level":"h2"},"id":"a1","isHidden":false,"type":"heading"}]';
+
     private const TRANSLATIONS = [
-        ['code' => 'en', 'content' => ['title' => 'Test', 'teaser' => 'Teaser EN', 'metaTitle' => 'Meta EN', 'body' => 'Body EN']],
-        ['code' => 'de', 'content' => ['title' => 'Test', 'teaser' => 'Teaser DE', 'metaTitle' => 'Meta DE', 'body' => 'Body DE']]
+        ['code' => 'en', 'content' => ['title' => 'Test', 'teaser' => 'Teaser EN', 'metaTitle' => 'Meta EN', 'body' => 'Body EN', 'sections' => self::SECTIONS]],
+        ['code' => 'de', 'content' => ['title' => 'Test', 'teaser' => 'Teaser DE', 'metaTitle' => 'Meta DE', 'body' => 'Body DE', 'sections' => self::SECTIONS]]
     ];
 
     protected function setUp(): void
@@ -102,6 +109,18 @@ final class TranslateExternalOnlyTest extends AppTestCase
         $this->expectException(PermissionException::class);
 
         page('test')->update(['metaTitle' => 'Neuer Metatitel'], 'de');
+    }
+
+    #[Test]
+    public function rejects_a_translation_of_external_only_blocks(): void
+    {
+        App::instance()->impersonate('editor@example.com');
+
+        $this->expectException(PermissionException::class);
+
+        page('test')->update([
+            'sections' => [['type' => 'heading', 'content' => ['text' => 'Neu', 'level' => 'h2']]]
+        ], 'de');
     }
 
     #[Test]

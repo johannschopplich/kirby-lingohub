@@ -9,6 +9,7 @@ use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Exception\PermissionException;
+use Kirby\Form\Form;
 use Kirby\Toolkit\I18n;
 
 final class TranslateExternalOnly
@@ -35,7 +36,7 @@ final class TranslateExternalOnly
             return;
         }
 
-        $content = $model->content($languageCode);
+        $storedStrings = self::storedStrings($model, $languageCode);
 
         foreach ($model->blueprint()->fields() as $field) {
             $name = $field['name'];
@@ -46,7 +47,7 @@ final class TranslateExternalOnly
                 continue;
             }
 
-            if ((string)$content->get($name)->value() === (string)$strings[$key]) {
+            if ((string)($storedStrings[$key] ?? null) === (string)$strings[$key]) {
                 continue;
             }
 
@@ -58,5 +59,21 @@ final class TranslateExternalOnly
                 ['label' => I18n::translate($label, $label) ?? $name]
             ));
         }
+    }
+
+    /**
+     * Encodes the language's current content the way the update encodes its
+     * values, so blocks or structures stored in another shape still compare equal.
+     *
+     * @return array<string, mixed>
+     */
+    private static function storedStrings(Site|Page|File $model, string $languageCode): array
+    {
+        // TODO: Drop K4 compat in v2 – keep only the `toStoredValues()` branch once Kirby 5 is the floor.
+        if (!method_exists(Form::class, 'toStoredValues')) {
+            return Form::for($model, ['language' => $languageCode])->strings();
+        }
+
+        return Form::for($model, language: $languageCode)->toStoredValues();
     }
 }
