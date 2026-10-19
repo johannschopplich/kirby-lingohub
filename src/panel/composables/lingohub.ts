@@ -27,25 +27,23 @@ export function useLingohub() {
     );
   }
 
-  async function getTranslationStatus(): Promise<
-    LingohubTranslationStatus | undefined
-  > {
-    if (!(await validateLingohubConfig())) return;
+  /**
+   * Throws when the plugin is misconfigured or Lingohub refuses the request,
+   * so each caller can show why there is no status.
+   */
+  async function getTranslationStatus(): Promise<LingohubTranslationStatus> {
+    const configError = await getConfigError();
+    if (configError) throw new Error(configError);
 
-    try {
-      const { translationStatus } = await panel.api.get(
-        PLUGIN_STATUS_API_ROUTE,
-        undefined,
-        undefined,
-        // Avoid showing the Panel loading indicator.
-        true,
-      );
+    const { translationStatus } = await panel.api.get(
+      PLUGIN_STATUS_API_ROUTE,
+      undefined,
+      undefined,
+      // Avoid showing the Panel loading indicator.
+      true,
+    );
 
-      return translationStatus;
-    } catch (error) {
-      console.error(error);
-      panel.notification.error((error as Error).message);
-    }
+    return translationStatus;
   }
 
   /**
@@ -53,20 +51,20 @@ export function useLingohub() {
    * Lingohub may return the filename with different casing.
    */
   function findResourceFiles(
-    status: LingohubTranslationStatus | undefined,
+    status: LingohubTranslationStatus,
     resourceFile: string | undefined,
   ): LingohubResourceFile[] {
     const name = resourceFile?.toLowerCase();
 
     return (
-      status?.resourceFiles?.find((resource) =>
+      status.resourceFiles?.find((resource) =>
         resource.files.some((file) => file.name.toLowerCase() === name),
       )?.files ?? []
     );
   }
 
   function findResourceFile(
-    status: LingohubTranslationStatus | undefined,
+    status: LingohubTranslationStatus,
     resourceFile: string | undefined,
   ): LingohubResourceFile | undefined {
     const name = resourceFile?.toLowerCase();
@@ -112,7 +110,7 @@ export function useLingohub() {
     );
   }
 
-  async function validateLingohubConfig() {
+  async function getConfigError() {
     const { config } = await usePluginContext();
     const optionStates = {
       apiKey: config.hasApiKey,
@@ -123,20 +121,13 @@ export function useLingohub() {
       ([, isSet]) => !isSet,
     )?.[0];
 
-    const message = !panel.multilang
+    return !panel.multilang
       ? panel.t("johannschopplich.lingohub.error.multilang")
       : missingOption
         ? panel.t("johannschopplich.lingohub.error.missingOption", {
             option: `johannschopplich.lingohub.${missingOption}`,
           })
         : undefined;
-
-    if (message) {
-      panel.notification.error(message);
-      return false;
-    }
-
-    return true;
   }
 
   return {

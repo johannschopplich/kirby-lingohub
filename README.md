@@ -46,13 +46,13 @@ buttons:
 
 ### 🚦 Translation Status
 
-Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update.
+Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update. If the status can't be loaded, e.g. because Lingohub rejects the API key, the button reads **Unavailable** and a click shows the error.
 
 ![Lingohub status button showing Approved](./.github/kirby-lingohub-status-approved.png)
 
 ![Lingohub status dialog](./.github/kirby-lingohub-status-dialog.png)
 
-The `lingohub-status` section lists the same counts for every language of the page, Site, or file that Lingohub holds:
+The `lingohub-status` section lists the same counts for every language of the page, Site, or file that Lingohub holds, or the error if the status can't be loaded:
 
 ```yml
 sections:

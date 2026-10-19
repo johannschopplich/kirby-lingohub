@@ -26,6 +26,7 @@ const label = ref<string>();
 
 // Runtime state
 const languageFiles = ref<LingohubResourceFile[]>();
+const statusError = ref<string>();
 
 const tableColumns = {
   languageCode: {
@@ -79,21 +80,32 @@ const tableRows = computed(() =>
   label.value =
     t(sectionProps.label) || panel.t("johannschopplich.lingohub.statusLabel");
 
-  const [status, { resourceFiles }] = await Promise.all([
-    getTranslationStatus(),
-    getModelContext(),
-  ]);
+  try {
+    const [status, { resourceFiles }] = await Promise.all([
+      getTranslationStatus(),
+      getModelContext(),
+    ]);
 
-  languageFiles.value = findResourceFiles(
-    status,
-    resourceFiles[panel.language.code!],
-  );
+    languageFiles.value = findResourceFiles(
+      status,
+      resourceFiles[panel.language.code!],
+    );
+  } catch (error) {
+    console.error(error);
+    statusError.value = (error as Error).message;
+  }
 })();
 </script>
 
 <template>
   <k-section :label="label">
-    <k-box theme="none">
+    <k-box
+      v-if="statusError"
+      theme="negative"
+      icon="alert"
+      :text="statusError"
+    />
+    <k-box v-else theme="none">
       <k-table :columns="tableColumns" :rows="tableRows" />
     </k-box>
   </k-section>

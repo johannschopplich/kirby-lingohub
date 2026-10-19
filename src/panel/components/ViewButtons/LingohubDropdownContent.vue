@@ -34,8 +34,7 @@ async function loadDialogContext() {
       getModelContext(),
     ]);
 
-    // `getTranslationStatus()` already reported why there is no status.
-    return status ? { status, ...modelContext } : undefined;
+    return { status, ...modelContext };
   } catch (error) {
     console.error(error);
     panel.notification.error((error as Error).message);

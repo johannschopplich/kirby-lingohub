@@ -24,9 +24,41 @@ const {
 const isLoading = ref(true);
 const dropdownContent = ref<{ toggle: () => void }>();
 const currentLanguageResourceFile = ref<LingohubResourceFile>();
-const isApproved = computed(() =>
-  isFullyApproved(currentLanguageResourceFile.value),
-);
+const statusError = ref<string>();
+
+const statusButton = computed(() => {
+  if (isLoading.value) return { icon: "loader" };
+
+  if (statusError.value) {
+    return {
+      text: panel.t("johannschopplich.lingohub.status.unavailable"),
+      icon: "alert",
+      theme: "negative-icon",
+    };
+  }
+
+  if (isFullyApproved(currentLanguageResourceFile.value)) {
+    return {
+      text: panel.t("johannschopplich.lingohub.status.approved"),
+      icon: "check",
+      theme: "positive",
+    };
+  }
+
+  if (currentLanguageResourceFile.value) {
+    return {
+      text: panel.t("johannschopplich.lingohub.status.inTranslation"),
+      icon: "info",
+      theme: "blue-icon",
+    };
+  }
+
+  return {
+    text: panel.t("johannschopplich.lingohub.status.notUploaded"),
+    icon: "question",
+    theme: "notice-icon",
+  };
+});
 
 let reloadTimeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -64,15 +96,22 @@ async function loadLingohubData() {
       status,
       resourceFiles[panel.language.code!],
     );
+    statusError.value = undefined;
   } catch (error) {
     console.error(error);
-    panel.notification.error((error as Error).message);
+    // Shown on click, so a page load doesn't raise a notification.
+    statusError.value = (error as Error).message;
   } finally {
     isLoading.value = false;
   }
 }
 
 function openStatusDialog() {
+  if (statusError.value) {
+    panel.notification.error(statusError.value);
+    return;
+  }
+
   const file = currentLanguageResourceFile.value;
   if (!file) return;
 
@@ -131,34 +170,10 @@ function openStatusDialog() {
 <template>
   <k-button-group layout="collapsed">
     <k-button
-      :text="
-        isLoading
-          ? undefined
-          : isApproved
-            ? panel.t('johannschopplich.lingohub.status.approved')
-            : currentLanguageResourceFile
-              ? panel.t('johannschopplich.lingohub.status.inTranslation')
-              : panel.t('johannschopplich.lingohub.status.notUploaded')
-      "
-      :icon="
-        isLoading
-          ? 'loader'
-          : isApproved
-            ? 'check'
-            : currentLanguageResourceFile
-              ? 'info'
-              : 'question'
-      "
+      :text="statusButton.text"
+      :icon="statusButton.icon"
       responsive
-      :theme="
-        isLoading
-          ? undefined
-          : isApproved
-            ? 'positive'
-            : currentLanguageResourceFile
-              ? 'blue-icon'
-              : 'notice-icon'
-      "
+      :theme="statusButton.theme"
       variant="filled"
       size="sm"
       @click="openStatusDialog()"
