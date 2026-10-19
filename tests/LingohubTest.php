@@ -73,7 +73,15 @@ final class LingohubTest extends ApiRouteTestCase
         );
 
         $this->assertSame('Lingohub API request failed: Invalid API key', $exception->getMessage());
-        $this->assertSame(401, $exception->getHttpCode());
+    }
+
+    #[Test]
+    public function answers_a_lingohub_error_with_a_bad_gateway_status(): void
+    {
+        $exception = self::requestFailure(401, '');
+
+        $this->assertSame(502, $exception->getHttpCode());
+        $this->assertSame('Lingohub API request failed: HTTP 401', $exception->getMessage());
     }
 
     #[Test]

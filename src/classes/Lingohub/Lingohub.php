@@ -179,11 +179,12 @@ final class Lingohub
 
         // The reason goes in as data: Kirby resolves `{…}` in the message as placeholders,
         // and a substituted value isn't parsed again.
+        // A failure upstream is a bad gateway: Lingohub's own 401 would read to the Panel as an expired session.
         // TODO: Drop K4 compat in v2 – use named args (`fallback:`, `data:`, `httpCode:`) once Kirby 5 is the floor.
         return new LogicException([
             'fallback' => 'Lingohub API request failed: { reason }',
             'data' => ['reason' => $reason !== '' ? $reason : "HTTP {$code}"],
-            'httpCode' => $code
+            'httpCode' => 502
         ]);
     }
 }
