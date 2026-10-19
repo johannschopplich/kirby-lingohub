@@ -1,11 +1,75 @@
-![Kirby Lingohub preview](./.github/kirby-lingohub.png)
+<div align="center">
+  <img src="./.github/favicon.svg" alt="Kirby Lingohub logo" width="120">
 
 # Kirby Lingohub
 
-The Kirby Lingohub plugin integrates the [Lingohub](https://lingohub.com) translation service into your Kirby website. The plugin allows you to upload content from Kirby to Lingohub for translation and download the translations back to Kirby. It handles the whole serialization and deserialization process, including complex field types like blocks, layouts, structures, and objects – even blocks nested within custom blocks.
+Kirby Lingohub is a plugin for [Kirby CMS](https://getkirby.com) that syncs content with the [Lingohub](https://lingohub.com) translation service – blocks, layouts, structures, and objects included, even blocks nested in custom blocks.
+
+[Setup](#setup) •
+[Options](#options) •
+[Field Options](#field-options) •
+[Key Format](#key-format)
+
+</div>
+
+## When to Use
+
+| I want to…                                      | Use                       |
+| ----------------------------------------------- | ------------------------- |
+| Upload and download translations from the Panel | `lingohub` view button    |
+| See each language's translation status          | `lingohub-status` section |
+| Change a field's translations only in Lingohub  | `translateExternalOnly`   |
+| Translate a field only in Kirby                 | `translateInKirbyOnly`    |
+| Keep a field out of Lingohub                    | `translate: false`        |
+
+## Features
+
+### ☁️ Upload and Download
+
+The `lingohub` view button opens a dropdown with **Upload** and **Download Translations**. Add it to the `buttons` of a page, Site, or file blueprint:
+
+```yml
+buttons:
+  - preview
+  - settings
+  - lingohub
+  - languages
+  - status
+```
+
+**Upload** sends the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub.
+
+**Download Translations** fetches the segments of the chosen status – **All**, **Translated and Approved**, or **Approved** (the default) – and writes them into each selected language. Languages whose segments are all approved are preselected. A segment the download doesn't include keeps the language's current text, or the default language's if it has none. Only users who may update the page, Site, or file can download into it.
 
 > [!NOTE]
-> For this plugin to work, you need to have a Lingohub account and a project set up. You can create a free account at [Lingohub](https://lingohub.com/).
+> Kirby 4 has no custom view buttons. The plugin backports the `lingohub` button to page views and places it before the languages dropdown.
+
+### 🚦 Translation Status
+
+Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update.
+
+![Lingohub status button showing Approved](./.github/kirby-lingohub-status-approved.png)
+
+![Lingohub status dialog](./.github/kirby-lingohub-status-dialog.png)
+
+The `lingohub-status` section lists the same counts for every language of the page, Site, or file that Lingohub holds:
+
+```yml
+sections:
+  lingohubStatus:
+    type: lingohub-status
+    label: Translation Status
+```
+
+![Lingohub status section](./.github/kirby-lingohub-status-section.png)
+
+### 🔒 Translate Only in Lingohub
+
+Top-level fields with `translateExternalOnly` stay editable in the default language, but non-admins can't save a changed value in any other language. Use it for fields whose translations belong to Lingohub alone, so its translation memory stays consistent.
+
+### 🏠 Translate Only in Kirby
+
+Fields with `translateInKirbyOnly` never leave Kirby: uploads skip them, and downloads keep each language's own value – useful for images or files that differ per language.
 
 ## Requirements
 
@@ -23,195 +87,105 @@ composer require johannschopplich/kirby-lingohub
 
 Download and copy this repository to `/site/plugins/kirby-lingohub`.
 
-## Getting Started
+## Setup
 
-### 1️⃣ Kirby Language Configuration
+### 1. Kirby Languages
 
-Set up a multi-language Kirby site. For each desired language, create a language file in the `site/languages` folder. The language file should contain the following information:
+The plugin needs a multi-language site. Give every language a `locale`: the plugin derives the Lingohub language code from it, with `_` replaced by `-` and a `.UTF-8` suffix dropped. With an array `locale`, it reads the `LC_ALL` entry. A language without a locale falls back to its code.
 
 ```php
 # /site/languages/en.php
 return [
     'code' => 'en',
     'default' => true,
-    'direction' => 'ltr',
-    'locale' => 'en_US',
-    // Or if you need multiple locales:
-    // 'locale' => [
-    //     'LC_ALL' => 'en_US.UTF-8',
-    // ]
+    'locale' => 'en_US', // Lingohub: `en-US`
     'name' => 'English'
 ];
 ```
 
-> [!NOTE]
-> Make sure to set the `locale` option to the correct locale for each language. This is important for the mapping between Kirby and Lingohub.
+### 2. Lingohub Project
 
-### 2️⃣ Lingohub Setup
+Create a project in your Lingohub workspace and choose **File import**. Lingohub won't continue without a first file, so upload a JSON file named after the default language's code, e.g. `en-US.json` with `{"title": "Home"}`. Then pick the project type **JSON**:
 
-First, create a new project in your Lingohub workspace. Use the file format **JSON (Standard)**:
+![Lingohub project type](./.github/lingohub-project-type.png)
 
-![Lingohub platform format](./.github/lingohub-platform-format.png)
+Lingohub detects the source language from the file name. Add the other Kirby languages as targets, with the language codes derived from the locales: `en-US` for `en_US`, `de-DE` for `de_DE`.
 
-Now, configure the project to use the same source and target languages as you have in Kirby. The language code in Lingohub should match the locale in Kirby. From the example above, the locale in Kirby is `en_US`. Set the language code in Lingohub to `en-US`. (Note the difference in the delimiter.)
+Then [create an API key](https://help.lingohub.com/en/articles/16308304-managing-api-keys-in-your-workspace-settings) for the workspace with full permissions for **Resources** – uploads, downloads, and the status need nothing else.
 
-As another example: If the Kirby language code is `de` and the locale is `de_DE`, the Lingohub language code should be `de-DE`.
+### 3. Plugin Options
 
-Finally, create an API key for your workspace. Follow the [Lingohub API key guide](https://help.lingohub.com/en/articles/6775959-how-to-create-an-api-key) to create an API key with read/write access.
+Copy the workspace and project IDs from the Lingohub URLs:
 
-> [!NOTE]
-> Enable full permissions for the **Resources** section in the API key settings. This is required to upload and download translations. No other permissions are needed.
+- `workspace/space_16kPs3bRIpXi-29323/dashboard` → workspace ID `space_16kPs3bRIpXi-29323`
+- `project/pr_18JCETCbT9NW-31003/branches` → project ID `pr_18JCETCbT9NW-31003`
 
-### 3️⃣ Kirby Plugin Configuration
+Add them and the API key to your `config.php`, see [Options](#options). Then add the `lingohub` button and, if you like, the `lingohub-status` section to your blueprints.
 
-After setting up the languages in Kirby and Lingohub, configure the plugin in the `site/config/config.php` file.
+## Options
 
-- To retrieve the workspace ID, open the Lingohub dashboard and copy the workspace ID from the URL. If the URL contains `workspace/space_16kPs3bRIpXi-29323/dashboard`, the workspace ID is `space_16kPs3bRIpXi-29323`.
-- For the project ID, open the project in Lingohub and copy the project ID from the URL. If the URL contains `project/pr_18JCETCbT9NW-31003/branches`, the project ID is `pr_18JCETCbT9NW-31003`.
+All options are namespaced under `johannschopplich.lingohub`. Each is required, and the Panel shows an error while one is missing.
+
+| Option        | Default | Description                                           |
+| ------------- | ------- | ----------------------------------------------------- |
+| `apiKey`      | –       | Lingohub API key with full **Resources** permissions. |
+| `workspaceId` | –       | ID of the Lingohub workspace.                         |
+| `projectId`   | –       | ID of the Lingohub project.                           |
+
+Example `config.php`:
 
 ```php
-# /site/config/config.php
 return [
     'languages' => true,
 
     'johannschopplich.lingohub' => [
-        'apiKey' => '<LINGOHUB_API_KEY>',
-        'workspaceId' => 'space_123-456',
-        'projectId' => 'pr_123-456',
+        'apiKey' => env('LINGOHUB_API_KEY'),
+        'workspaceId' => 'space_16kPs3bRIpXi-29323',
+        'projectId' => 'pr_18JCETCbT9NW-31003'
     ]
 ];
 ```
 
-### 4️⃣ Blueprint Configuration
+## Field Options
 
-Kirby 5 introduces new extensions that allow you to add custom view buttons to most Panel views (e.g. page, site, or file). The Lingohub plugin provides a dropdown button that can be added alongside the default buttons, such as the languages dropdown button.
+Uploads include the page or Site title and every text-like field: `list`, `tags`, `text`, `textarea`, `writer`, `markdown`, and custom fields that extend one of them – also inside blocks, layouts, structures, and objects. Hidden blocks are skipped. Three blueprint options change what goes to Lingohub:
 
-To add the `lingohub` dropdown button to a particular view, set the `buttons` option in the corresponding blueprint. The following example shows how to reference the default buttons and add the `lingohub` button to a page blueprint:
-
-```yml
-title: Note
-
-buttons:
-  - preview
-  - settings
-  # Add the Lingohub button to the page view
-  - lingohub
-  - languages
-  - status
-```
-
-> [!NOTE]
-> Kirby 4 does not support custom view buttons, but the `lingohub` button has been backported. It is always placed before the language dropdown.
-
-Finalize your blueprints by adding the necessary translation configuration to each field, e.g. `translate: false` if a field should not be translated. The plugin will skip these fields when uploading content to Lingohub.
-
-## Usage
-
-### Translation Status
-
-The [translation status](https://help.lingohub.com/en/articles/6683154-manage-localization-with-statuses) is automatically retrieved from Lingohub and displayed in the user interface. It reflects the minimum status across all segments of the page. Only when all segments have the **Approved** status will the translation be shown as **Approved** in green:
-
-![Kirby Lingohub status approved](./.github/kirby-lingohub-status-approved.png)
-
-Click on the status to open a dialog with more detailed information:
-
-![Kirby Lingohub status dialog](./.github/kirby-lingohub-status-dialog.png)
-
-### Upload Translations for a Page or File
-
-Click on the **Lingohub** dropdown button in the Panel header and select **Upload**.
-
-![Kirby Lingohub upload translations](./.github/kirby-lingohub-upload.png)
-
-When you click on the button, a dialog will open where you can select the content you want to upload to Lingohub:
-
-- **Source Language**: Select it to upload the default language content to Lingohub. Pre-selected by default.
-- **Target Languages**: All languages that have translations for the current page. Pre-selected if there are no translations in Lingohub. This helps you to identify which languages need to be uploaded for the first time, e.g. when migrating an existing Kirby project to Lingohub.
-
-> [!NOTE]
-> If no translations are available in Kirby, the **Target Languages** list will be empty.
-
-After selecting the desired languages and confirming the dialog, the plugin will serialize the content and upload it to Lingohub for translation.
-
-### Download Translations from Lingohub
-
-Click on the **Lingohub** dropdown button in the Panel header and select **Download Translations**. This will open a dialog where you can select the languages and status of the translations to download:
-
-![Kirby Lingohub download translations](./.github/kirby-lingohub-download.png)
-
-The dialog contains the following fields:
-
-- **Status**: Define the minimum status of the segments to download. The default is **Approved**.
-- **Languages**: Select the languages to download. By default, all languages with a status of 100% approved in Lingohub are preselected.
-
-Submit the form to download the translations. The page will be updated with the new translations.
-
-## Features
-
-### `translateExternalOnly` Blueprint Field Option
-
-The `translateExternalOnly` option allows you to mark fields that should only be translatable using the external translation service (i.e. Lingohub). For these fields, only the source language is editable. In translations, these fields cannot be edited. Admins can always edit the fields, independent of this setting. Use this for fields where translations should be managed exclusively through Lingohub, ensuring the translation memory stays consistent.
+| Option                        | Upload  | Download                                         |
+| ----------------------------- | ------- | ------------------------------------------------ |
+| `translate: false`            | Skipped | Takes the default language's value, like Kirby   |
+| `translateInKirbyOnly: true`  | Skipped | Keeps the language's own value                   |
+| `translateExternalOnly: true` | Sent    | Written; non-admins can't change it in the Panel |
 
 ```yml
 fields:
   text:
-    label: Text
     type: blocks
     translateExternalOnly: true
-```
-
-### `translateInKirbyOnly` Blueprint Field Option
-
-The `translateInKirbyOnly` option marks fields that should only be translated within Kirby, not through Lingohub. These fields are excluded from uploads and preserved during downloads – their target language values are never overwritten by Lingohub translations.
-
-This is useful for fields like images or files that differ per language but are managed directly in the Panel.
-
-```yml
-fields:
   image:
-    label: Image
     type: files
     translateInKirbyOnly: true
 ```
 
+`translateExternalOnly` covers the top-level fields of pages, the Site, and files. Admins and the default language are exempt.
+
 > [!IMPORTANT]
-> The `translateInKirbyOnly` option must be set on individual **field** definitions, not on block fieldset definitions. Kirby only preserves known properties on fieldsets – custom attributes at the block root level are silently discarded.
+> Set `translateInKirbyOnly` on fields, not on block fieldsets: Kirby drops unknown keys at a fieldset's root.
 
-### Translation Status Table Section
+## Key Format
 
-![Kirby Lingohub status section](./.github/kirby-lingohub-status-section.png)
+Lingohub's **JSON (Standard)** format is a flat key–value map, and a segment keeps its translations only as long as its key stays the same. The plugin joins the names along a value's path with `_`:
 
-The status section is similar to [Lingohub's statuses overview](https://help.lingohub.com/en/articles/6788499-words-and-segments-overview) and displays the translation status for all available languages. The status section is read-only and cannot be edited.
+| Field           | Key                                        |
+| --------------- | ------------------------------------------ |
+| Text-like field | `{field}`                                  |
+| Structure       | `{field}_{rowIndex}_{subfield}`            |
+| Object          | `{field}_{subfield}`                       |
+| Blocks          | `{field}_{blockId}_{blockType}_{subfield}` |
+| Layout          | `{field}_{blockId}_{blockType}_{subfield}` |
 
-To add the status section to a blueprint, use the following configuration:
+Nested fields continue the chain, e.g. blocks inside a custom block: `{field}_{blockId}_{blockType}_{subfield}_{nestedBlockId}_{nestedBlockType}_{nestedSubfield}`. Layout and column IDs are not part of a key.
 
-```yml
-sections:
-  lingohubStatus:
-    type: lingohub-status
-```
-
-## FAQ
-
-### How Is Kirby Content Data Mapped to Lingohub?
-
-With the JSON (Standard) file format, Lingohub requires a key-value hierarchy structure where all elements in the chain have a long-term consistent key. Thus, nested data structures like `blocks`, `layout`, `structure`, and `object` fields in Kirby must be flattened to a key-value map. For example, block fields are transformed into a key-value map where the key is generated from the field name, block ID, block type, and content field name: `{fieldName}_{blockId}_{blockType}_{contentFieldName}`. Nested blocks (blocks within custom blocks) produce deeper key chains following the same pattern.
-
-Lingohub uses a path-based approach to identify the content. The path is generated from the Kirby model ID (which doesn't contain any draft status or sort numbers) and the language code.
-
-While Kirby uses a language code as file suffix (e.g., `en`), Lingohub uses a locale code (e.g., `en-US`). The plugin maps the Kirby language code to the Lingohub locale code.
-
-## Roadmap
-
-### Media Files
-
-- Translate all media files (images, videos, etc.) associated with the page. This is a nice-to-have feature that may be implemented in the future.
-
-### Mass Operations
-
-- Upload all pages to Lingohub in bulk, including translations if they already exist.
-- Download all pages from Lingohub in bulk. Configure which pages to process using a filter: e.g. only pages with a certain status or language.
-- Iterate through all pages in Kirby and check if new translations are available in Lingohub. If so, download them.
+Each model is one Lingohub resource per language. Its path is the page or file ID (`site` for the Site), its file name `{blueprint}_{locale}.json`, e.g. `notes/my-note/note_de-DE.json`. The ID holds neither the draft status nor the sorting number, so publishing or sorting a page keeps its resource. Changing a page's slug, moving it, or renaming a file changes the path, and changing a model's template or a language's locale changes the file name, so Lingohub treats it as a new resource.
 
 ## License
 
