@@ -7,6 +7,7 @@ use Kirby\Cms\App;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
 use Kirby\Exception\LogicException;
+use Kirby\Exception\NotFoundException;
 use Kirby\Exception\PermissionException;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -46,6 +47,14 @@ final class ContentTest extends ApiRouteTestCase
                     'permissions' => [
                         'pages' => [
                             'changeTitle' => false
+                        ]
+                    ]
+                ],
+                'users/outsider' => [
+                    'name' => 'outsider',
+                    'permissions' => [
+                        'site' => [
+                            'access' => false
                         ]
                     ]
                 ],
@@ -249,7 +258,8 @@ final class ContentTest extends ApiRouteTestCase
             'users' => [
                 ['email' => 'admin@example.com', 'role' => 'admin'],
                 ['email' => 'editor@example.com', 'role' => 'editor'],
-                ['email' => 'translator@example.com', 'role' => 'translator']
+                ['email' => 'translator@example.com', 'role' => 'translator'],
+                ['email' => 'outsider@example.com', 'role' => 'outsider']
             ],
             'site' => [
                 'children' => [
@@ -1051,6 +1061,20 @@ final class ContentTest extends ApiRouteTestCase
         self::testPageContent()->writeTranslation(['title' => 'Neuer Titel'], 'de');
 
         $this->assertSame('Neuer Titel', page('test')->content('de')->get('title')->value());
+    }
+
+    // #endregion
+
+    // #region Access
+
+    #[Test]
+    public function from_path_throws_for_a_user_who_may_not_access_the_site(): void
+    {
+        App::instance()->impersonate('outsider@example.com');
+
+        $this->expectException(NotFoundException::class);
+
+        Content::fromPath('site');
     }
 
     // #endregion

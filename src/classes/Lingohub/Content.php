@@ -43,7 +43,11 @@ final class Content
     {
         $model = ModelResolver::resolveFromPath($path);
 
-        if (!$model instanceof Site && !$model instanceof Page && !$model instanceof File) {
+        // The resolver checks access for pages and files, but not for the Site.
+        if (
+            !($model instanceof Site || $model instanceof Page || $model instanceof File) ||
+            !$model->isAccessible()
+        ) {
             throw new NotFoundException('No content found for "' . $path . '"');
         }
 
