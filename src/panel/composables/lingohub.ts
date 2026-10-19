@@ -4,7 +4,6 @@ import type {
   ModelContext,
 } from "../types";
 import { usePanel } from "kirbyuse";
-import mitt from "mitt";
 import {
   PLUGIN_MODEL_CONTEXT_API_ROUTE,
   PLUGIN_RECEIVE_API_ROUTE,
@@ -12,8 +11,6 @@ import {
   PLUGIN_STATUS_API_ROUTE,
 } from "../constants";
 import { usePluginContext } from "./plugin";
-
-const emitter = mitt<{ translationUpdate: void }>();
 
 export function useLingohub() {
   const panel = usePanel();
@@ -79,6 +76,17 @@ export function useLingohub() {
     );
   }
 
+  function isFullyApproved(file: LingohubResourceFile | undefined) {
+    if (!file) return false;
+
+    const segmentCount = Object.values(file.statuses).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+
+    return segmentCount > 0 && file.statuses.APPROVED === segmentCount;
+  }
+
   async function uploadTranslation(languageCode: string) {
     await panel.api.post(
       PLUGIN_SEND_API_ROUTE,
@@ -135,11 +143,11 @@ export function useLingohub() {
   }
 
   return {
-    emitter,
     getModelContext,
     getTranslationStatus,
     findResourceFiles,
     findResourceFile,
+    isFullyApproved,
     uploadTranslation,
     downloadTranslation,
   };

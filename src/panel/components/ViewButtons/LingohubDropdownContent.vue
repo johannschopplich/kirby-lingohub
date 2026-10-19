@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { ModelContext } from "../../types";
-import { ref, useDialog, usePanel } from "kirbyuse";
+import { useDialog, usePanel } from "kirbyuse";
 import { useLingohub } from "../../composables/lingohub";
+import { TRANSLATION_UPDATE_EVENT } from "../../constants";
 
 export default {
   inheritAttrs: false,
@@ -12,10 +12,10 @@ export default {
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
 const {
-  emitter,
   getModelContext,
   getTranslationStatus,
   findResourceFile,
+  isFullyApproved,
   uploadTranslation,
   downloadTranslation,
 } = useLingohub();
@@ -25,23 +25,30 @@ const translationLanguages = panel.languages.filter(
   (language) => !language.default,
 );
 
-const modelContext = ref<ModelContext>();
+async function loadDialogContext() {
+  panel.view.isLoading = true;
 
-// Start fetching right away, `invokeWhenInitialized()` awaits it before any dropdown action runs.
-const initializationPromise = (async () => {
-  modelContext.value = await getModelContext();
-})();
+  try {
+    const [status, modelContext] = await Promise.all([
+      getTranslationStatus(),
+      getModelContext(),
+    ]);
 
-async function invokeWhenInitialized(fn: () => unknown) {
-  await initializationPromise;
-  fn?.();
+    // `getTranslationStatus()` already reported why there is no status.
+    return status ? { status, ...modelContext } : undefined;
+  } catch (error) {
+    console.error(error);
+    panel.notification.error((error as Error).message);
+  } finally {
+    panel.view.isLoading = false;
+  }
 }
 
 async function uploadTranslations() {
-  const { resourceFiles, translatedLanguageCodes } = modelContext.value!;
-  panel.view.isLoading = true;
+  const context = await loadDialogContext();
+  if (!context) return;
 
-  const status = await getTranslationStatus();
+  const { status, resourceFiles, translatedLanguageCodes } = context;
 
   // Preselect the languages that carry no Lingohub translation yet.
   const localizedLanguageCodes = translatedLanguageCodes.filter(
@@ -116,7 +123,7 @@ async function uploadTranslations() {
       await uploadTranslation(languageCode);
     }
 
-    emitter.emit("translationUpdate");
+    panel.events.emit(TRANSLATION_UPDATE_EVENT);
 
     panel.notification.success(
       panel.t("johannschopplich.lingohub.success.upload"),
@@ -130,26 +137,16 @@ async function uploadTranslations() {
 }
 
 async function downloadTranslations() {
-  const { resourceFiles } = modelContext.value!;
-  const status = await getTranslationStatus();
-  const defaultResourceFile = findResourceFile(
-    status,
-    resourceFiles[defaultLanguage.code],
-  );
+  const context = await loadDialogContext();
+  if (!context) return;
 
-  // Preselect the languages whose approved segments have caught up with the source language.
+  const { status, resourceFiles } = context;
+
+  // Preselect the languages whose segments are all approved.
   const approvedLanguageCodes = translationLanguages
-    .filter((language) => {
-      const resourceFile = findResourceFile(
-        status,
-        resourceFiles[language.code],
-      );
-
-      return (
-        resourceFile &&
-        resourceFile.statuses.APPROVED >= defaultResourceFile!.statuses.APPROVED
-      );
-    })
+    .filter((language) =>
+      isFullyApproved(findResourceFile(status, resourceFiles[language.code])),
+    )
     .map((language) => language.code);
 
   const options = await openFieldsDialog<{
@@ -206,31 +203,29 @@ async function downloadTranslations() {
 
     await panel.view.reload();
 
-    emitter.emit("translationUpdate");
+    panel.events.emit(TRANSLATION_UPDATE_EVENT);
 
     panel.notification.success(
       panel.t("johannschopplich.lingohub.success.download"),
     );
   } catch (error) {
-    panel.view.isLoading = false;
     console.error(error);
     panel.notification.error((error as Error).message);
+  } finally {
+    panel.view.isLoading = false;
   }
 }
 </script>
 
 <template>
   <div>
-    <k-dropdown-item
-      icon="lingohub-upload-cloud"
-      @click="invokeWhenInitialized(uploadTranslations)"
-    >
+    <k-dropdown-item icon="lingohub-upload-cloud" @click="uploadTranslations()">
       {{ panel.t("johannschopplich.lingohub.upload") }}
     </k-dropdown-item>
     <hr />
     <k-dropdown-item
       icon="lingohub-download-cloud"
-      @click="invokeWhenInitialized(downloadTranslations)"
+      @click="downloadTranslations()"
     >
       {{ panel.t("johannschopplich.lingohub.download") }}
     </k-dropdown-item>

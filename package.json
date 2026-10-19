@@ -22,7 +22,6 @@
     "kirby-types": "^1.8.2",
     "kirbyup": "^3.5.0",
     "kirbyuse": "^1.4.2",
-    "mitt": "^3.0.1",
     "prettier": "^3.9.10",
     "typescript": "^6.0.3",
     "vite": "~6.3.7",
