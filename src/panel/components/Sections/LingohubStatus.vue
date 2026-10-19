@@ -21,10 +21,8 @@ const { t } = useI18n();
 const { getModelContext, getTranslationStatus, findResourceFiles } =
   useLingohub();
 
-// Section state
 const label = ref<string>();
 
-// Runtime state
 const languageFiles = ref<LingohubResourceFile[]>();
 const statusError = ref<string>();
 
