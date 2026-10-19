@@ -6,7 +6,7 @@ use JohannSchopplich\Lingohub\Content;
 use Kirby\Cms\App;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
-use Kirby\Exception\AuthException;
+use Kirby\Exception\LogicException;
 use Kirby\Exception\PermissionException;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -32,6 +32,14 @@ final class ContentTest extends AppTestCase
                     'permissions' => [
                         'pages' => [
                             'update' => false
+                        ]
+                    ]
+                ],
+                'users/translator' => [
+                    'name' => 'translator',
+                    'permissions' => [
+                        'pages' => [
+                            'changeTitle' => false
                         ]
                     ]
                 ],
@@ -234,7 +242,8 @@ final class ContentTest extends AppTestCase
             ],
             'users' => [
                 ['email' => 'admin@example.com', 'role' => 'admin'],
-                ['email' => 'editor@example.com', 'role' => 'editor']
+                ['email' => 'editor@example.com', 'role' => 'editor'],
+                ['email' => 'translator@example.com', 'role' => 'translator']
             ],
             'site' => [
                 'children' => [
@@ -956,9 +965,29 @@ final class ContentTest extends AppTestCase
     // #region Download permission
 
     #[Test]
-    public function download_translation_throws_for_a_user_who_may_not_update_the_page(): void
+    public function write_translation_throws_for_a_user_who_may_not_update_the_page(): void
     {
         App::instance()->impersonate('editor@example.com');
+
+        $this->expectException(PermissionException::class);
+
+        self::testPageContent()->writeTranslation(['text' => 'Neuer Text'], 'de');
+    }
+
+    #[Test]
+    public function download_translation_throws_for_a_user_who_may_not_update_the_page_before_calling_lingohub(): void
+    {
+        App::instance()->clone([
+            'options' => [
+                'johannschopplich.lingohub' => [
+                    'apiKey' => 'test-key',
+                    'workspaceId' => 'test-workspace',
+                    'projectId' => 'test-project'
+                ],
+                // A request that slips through fails without reaching the network.
+                'remote' => ['test' => true]
+            ]
+        ])->impersonate('editor@example.com');
 
         $this->expectException(PermissionException::class);
 
@@ -968,12 +997,54 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function download_translation_reaches_lingohub_for_a_user_who_may_update_the_page(): void
     {
-        App::instance()->impersonate('admin@example.com');
+        App::instance()->clone([
+            'options' => [
+                'johannschopplich.lingohub' => [
+                    'apiKey' => 'test-key',
+                    'workspaceId' => 'test-workspace',
+                    'projectId' => 'test-project'
+                ],
+                'remote' => ['test' => true]
+            ]
+        ])->impersonate('admin@example.com');
 
-        // The permission check passes, so the download reaches the unconfigured Lingohub client.
-        $this->expectException(AuthException::class);
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Lingohub API request failed');
 
         self::testPageContent()->downloadTranslation('de');
+    }
+
+    #[Test]
+    public function write_translation_throws_on_a_title_change_by_a_user_who_may_not_change_the_title(): void
+    {
+        App::instance()->impersonate('translator@example.com');
+
+        try {
+            self::testPageContent()->writeTranslation(['title' => 'Neuer Titel', 'text' => 'Neuer Text'], 'de');
+            $this->fail('Expected a PermissionException');
+        } catch (PermissionException) {
+            $this->assertSame('Hallo Welt', page('test')->content('de')->get('text')->value());
+        }
+    }
+
+    #[Test]
+    public function write_translation_skips_an_unchanged_title_for_a_user_who_may_not_change_the_title(): void
+    {
+        App::instance()->impersonate('translator@example.com');
+
+        self::testPageContent()->writeTranslation(['title' => 'Testseite', 'text' => 'Neuer Text'], 'de');
+
+        $this->assertSame('Neuer Text', page('test')->content('de')->get('text')->value());
+    }
+
+    #[Test]
+    public function write_translation_changes_the_title_for_a_user_who_may_change_it(): void
+    {
+        App::instance()->impersonate('admin@example.com');
+
+        self::testPageContent()->writeTranslation(['title' => 'Neuer Titel'], 'de');
+
+        $this->assertSame('Neuer Titel', page('test')->content('de')->get('title')->value());
     }
 
     // #endregion

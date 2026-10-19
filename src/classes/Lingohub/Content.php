@@ -93,33 +93,56 @@ final class Content
     /**
      * Downloads the translation for the given language from Lingohub
      * and writes it back into the model content.
+     *
+     * @throws \Kirby\Exception\PermissionException When the user may not update the model, or may not change its title and the download changes it
      */
     public function downloadTranslation(string $languageCode, array $options = []): void
     {
-        // The update below impersonates Kirby to pass the `translateExternalOnly` guard,
-        // so the user's own permission has to be checked first.
-        if (!$this->model->permissions()->can('update')) {
-            throw new PermissionException('You are not allowed to update this content');
-        }
+        // `writeTranslation()` checks again, but a refused download shouldn't reach Lingohub.
+        $this->assertCanUpdate();
 
-        $lingohub = Lingohub::instance();
-        $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
-
-        $serializedContent = $lingohub->downloadResource(
+        $serializedContent = Lingohub::instance()->downloadResource(
             Lingohub::resolveResourcePath($this->model),
-            $filename,
+            Lingohub::resolveResourceFilename($this->model, $languageCode),
             $options
         );
 
-        App::instance()->impersonate('kirby', function () use ($languageCode, $serializedContent) {
-            $mergedContent = $this->deserializeContent($serializedContent, $languageCode);
+        $this->writeTranslation($serializedContent, $languageCode);
+    }
 
-            $this->model = $this->model->update($mergedContent, $languageCode);
+    /**
+     * Merges a downloaded Lingohub key-value map into the model's content and
+     * title in the given language.
+     *
+     * @throws \Kirby\Exception\PermissionException When the user may not update the model, or may not change its title and the download changes it
+     */
+    public function writeTranslation(array $serializedContent, string $languageCode): void
+    {
+        // The update below impersonates Kirby to pass the `translateExternalOnly` guard, so the user's own permission is checked first.
+        $this->assertCanUpdate();
 
-            if (($serializedContent['title'] ?? '') !== '' && method_exists($this->model, 'changeTitle')) {
-                $this->model = $this->model->changeTitle($serializedContent['title'], $languageCode);
-            }
-        });
+        $title = $serializedContent['title'] ?? '';
+        // An unchanged title needs no `changeTitle` permission.
+        $changesTitle =
+            $title !== '' &&
+            $title !== $this->model->content($languageCode)->get('title')->value() &&
+            method_exists($this->model, 'changeTitle');
+
+        // Checked before the update, so a refused title change writes nothing.
+        if ($changesTitle && !$this->model->permissions()->can('changeTitle')) {
+            throw new PermissionException('You are not allowed to change the title');
+        }
+
+        $mergedContent = $this->deserializeContent($serializedContent, $languageCode);
+
+        $this->model = App::instance()->impersonate(
+            'kirby',
+            fn () => $this->model->update($mergedContent, $languageCode)
+        );
+
+        if ($changesTitle) {
+            $this->model = $this->model->changeTitle($title, $languageCode);
+        }
     }
 
     /**
@@ -191,7 +214,7 @@ final class Content
         );
 
         // The base carries the default title and slug. A downloaded title is
-        // written through `changeTitle()` in `downloadTranslation()` instead.
+        // written through `changeTitle()` in `writeTranslation()` instead.
         foreach (['title', 'slug'] as $name) {
             if (isset($targetContent[$name])) {
                 $mergedContent[$name] = $targetContent[$name];
@@ -310,6 +333,13 @@ final class Content
         }
 
         return $layouts;
+    }
+
+    private function assertCanUpdate(): void
+    {
+        if (!$this->model->permissions()->can('update')) {
+            throw new PermissionException('You are not allowed to update this content');
+        }
     }
 
     private function resolveFields(): array
