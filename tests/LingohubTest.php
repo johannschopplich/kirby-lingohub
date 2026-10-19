@@ -3,27 +3,20 @@
 declare(strict_types = 1);
 
 use JohannSchopplich\Lingohub\Lingohub;
-use Kirby\Cms\App;
 use Kirby\Exception\AuthException;
 use Kirby\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
-final class LingohubTest extends TestCase
+final class LingohubTest extends AppTestCase
 {
-    protected function tearDown(): void
-    {
-        App::destroy();
-    }
-
     private static function bootAppWith(string $option, mixed $value): void
     {
-        new App([
+        self::bootApp([
             'options' => [
                 'johannschopplich.lingohub' => [
                     'apiKey' => 'test-key',

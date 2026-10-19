@@ -3,15 +3,9 @@
 declare(strict_types = 1);
 
 use Kirby\Cms\App;
-use PHPUnit\Framework\TestCase;
 
-abstract class ApiRouteTestCase extends TestCase
+abstract class ApiRouteTestCase extends AppTestCase
 {
-    protected function tearDown(): void
-    {
-        App::destroy();
-    }
-
     protected function callRoute(App $kirby, string $pattern): mixed
     {
         $api = require dirname(__DIR__) . '/src/extensions/api.php';

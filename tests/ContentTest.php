@@ -3,19 +3,15 @@
 declare(strict_types = 1);
 
 use JohannSchopplich\Lingohub\Content;
-use Kirby\Cms\App;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-final class ContentTest extends TestCase
+final class ContentTest extends AppTestCase
 {
-    protected App $app;
-
     protected function setUp(): void
     {
-        $this->app = new App([
+        self::bootApp([
             'languages' => [
                 [
                     'code' => 'en',
@@ -436,15 +432,7 @@ final class ContentTest extends TestCase
                     ]
                 ]
             ],
-            'options' => [
-                'debug' => true
-            ]
         ]);
-    }
-
-    protected function tearDown(): void
-    {
-        App::destroy();
     }
 
     // --- Serialization tests ---

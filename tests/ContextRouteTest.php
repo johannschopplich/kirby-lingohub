@@ -2,7 +2,6 @@
 
 declare(strict_types = 1);
 
-use Kirby\Cms\App;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -15,7 +14,7 @@ final class ContextRouteTest extends ApiRouteTestCase
     private function callContextRoute(array $options): mixed
     {
         return $this->callRoute(
-            new App(['options' => ['johannschopplich.lingohub' => $options]]),
+            self::bootApp(['options' => ['johannschopplich.lingohub' => $options]]),
             '__lingohub__/context'
         );
     }
