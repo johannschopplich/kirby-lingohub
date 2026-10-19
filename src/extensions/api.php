@@ -1,6 +1,5 @@
 <?php
 
-use JohannSchopplich\KirbyTools\ModelResolver;
 use JohannSchopplich\Lingohub\Content;
 use JohannSchopplich\Lingohub\Lingohub;
 use JohannSchopplich\Lingohub\PanelContext;
@@ -11,36 +10,19 @@ return [
         [
             'pattern' => '__lingohub__/context',
             'method' => 'GET',
-            'action' => function () use ($kirby) {
-                $languages = $kirby->languages()->toArray(fn ($language) => array_merge(
-                    $language->toArray(),
-                    // Resolve the `LC_ALL` locale value explicitly to ensure
-                    // consistent JSON serialization across platforms (the `LC_*`
-                    // constants have different integer values on macOS vs Linux,
-                    // causing the locale array keys to differ in JSON output).
-                    ['locale' => [$language->locale(LC_ALL) ?? $language->code()]]
-                ));
-
-                return [
-                    'config' => PanelContext::config(),
-                    'languages' => $languages
-                ];
-            }
+            'action' => fn () => [
+                'config' => PanelContext::config()
+            ]
         ],
         [
             'pattern' => '__lingohub__/model-context',
             'method' => 'POST',
             'action' => function () use ($kirby) {
-                $id = $kirby->request()->body()->get('id');
-                $model = ModelResolver::resolveFromId($id);
-
-                $availableTranslationLanguageCodes = $model
-                    ->translations()
-                    ->filter(fn ($translation) => $translation->code() !== $kirby->defaultLanguage()->code() && $translation->exists())
-                    ->pluck('code');
+                $content = Content::fromPath($kirby->request()->body()->get('path', ''));
 
                 return [
-                    'availableTranslationLanguageCodes' => $availableTranslationLanguageCodes
+                    'resourceFiles' => $content->resourceFiles(),
+                    'translatedLanguageCodes' => $content->translatedLanguageCodes()
                 ];
             }
         ],
@@ -55,37 +37,27 @@ return [
             'pattern' => '__lingohub__/export',
             'method' => 'POST',
             'action' => function () use ($kirby) {
-                $id = $kirby->request()->body()->get('id');
-                $languageCode = $kirby->request()->body()->get('languageCode', $kirby->defaultLanguage()->code());
+                $body = $kirby->request()->body();
 
-                $content = new Content($id);
-                $responseContent = $content->uploadTranslation($languageCode);
+                Content::fromPath($body->get('path', ''))->uploadTranslation(
+                    $body->get('languageCode', $kirby->defaultLanguage()->code())
+                );
 
-                return [
-                    'status' => 'ok',
-                    'code' => 200,
-                    'data' => $responseContent
-                ];
+                return ['status' => 'ok'];
             }
         ],
         [
             'pattern' => '__lingohub__/import',
             'method' => 'POST',
             'action' => function () use ($kirby) {
-                $id = $kirby->request()->body()->get('id');
-                $languageCode = $kirby->request()->body()->get('languageCode', $kirby->defaultLanguage()->code());
-                $targetStatus = $kirby->request()->body()->get('targetStatus', 'APPROVED');
+                $body = $kirby->request()->body();
 
-                $content = new Content($id);
-                $responseContent = $content->downloadTranslation($languageCode, [
-                    'target:filterByStatus' => $targetStatus
-                ]);
+                Content::fromPath($body->get('path', ''))->downloadTranslation(
+                    $body->get('languageCode', $kirby->defaultLanguage()->code()),
+                    ['target:filterByStatus' => $body->get('targetStatus', 'APPROVED')]
+                );
 
-                return [
-                    'status' => 'ok',
-                    'code' => 200,
-                    'data' => $responseContent
-                ];
+                return ['status' => 'ok'];
             }
         ]
     ]

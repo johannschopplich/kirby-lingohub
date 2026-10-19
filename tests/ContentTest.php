@@ -490,7 +490,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_a_plain_text_field_under_its_own_key(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayHasKey('text', $serialized);
@@ -500,7 +500,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_blocks_under_id_and_type_prefixed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayHasKey('blocks_block1_text_text', $serialized);
@@ -516,7 +516,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_field_names_and_block_types_that_contain_underscores(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertSame('Meta EN', $serialized['meta_title']);
@@ -526,7 +526,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_the_title_in_the_requested_language(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $this->assertSame('Test Page', $content->serializeContent('en')['title']);
         $this->assertSame('Testseite', $content->serializeContent('de')['title']);
@@ -535,7 +535,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function omits_a_field_marked_translate_false_from_the_export(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayNotHasKey('untranslatableText', $serialized);
@@ -544,7 +544,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function omits_hidden_blocks_from_the_export(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayNotHasKey('blocks_block3_text_text', $serialized);
@@ -553,7 +553,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_structure_rows_under_indexed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayHasKey('structure_0_heading', $serialized);
@@ -566,7 +566,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_object_properties_under_prefixed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayHasKey('object_title', $serialized);
@@ -579,7 +579,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function serializes_nested_blocks_under_deep_container_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         // Nested blocks should produce deep keys:
@@ -597,7 +597,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function omits_translate_in_kirby_only_fields_from_the_export(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $serialized = $content->serializeContent('en');
 
         // A top-level files field with `translateInKirbyOnly` is already excluded by
@@ -615,7 +615,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_a_plain_text_field_under_its_own_key(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'text' => 'Hallo Welt'
         ], 'de');
@@ -626,7 +626,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_blocks_under_id_and_type_prefixed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'blocks_block1_text_text' => 'Blocktext Inhalt',
             'blocks_block2_heading_text' => 'Block Überschrift'
@@ -649,7 +649,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_field_names_and_block_types_that_contain_underscores(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'meta_title' => 'Meta DE',
             'blocks_imgtext1_image_text_text' => 'Block DE'
@@ -664,7 +664,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_structure_rows_under_indexed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'structure_0_heading' => 'Abschnitt 1',
             'structure_0_description' => 'Beschreibung 1',
@@ -682,7 +682,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_object_properties_under_prefixed_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'object_title' => 'Objekt Titel',
             'object_description' => 'Objekt Beschreibung'
@@ -696,7 +696,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function deserializes_nested_blocks_under_deep_container_keys(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
         $deserialized = $content->deserializeContent([
             'blocks_container1_container_innerblocks_inner1_heading_text' => 'Innere Überschrift',
             'blocks_container1_container_innerblocks_inner2_text_text' => 'Innerer Text'
@@ -732,7 +732,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function nested_blocks_round_trip_through_the_export_format(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $serialized = $content->serializeContent('en');
 
@@ -770,7 +770,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function keeps_the_target_translation_of_segments_missing_from_the_download(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $deserialized = $content->deserializeContent([], 'de');
 
@@ -793,7 +793,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function falls_back_to_the_default_language_for_segments_the_target_lacks(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $deserialized = $content->deserializeContent([], 'de');
 
@@ -808,7 +808,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_a_top_level_translate_in_kirby_only_field_from_the_target_language(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $deserialized = $content->deserializeContent([
             'text' => 'Hallo Welt'
@@ -820,7 +820,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_translate_in_kirby_only_fields_inside_blocks(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         // Translate the text field of the `imageblock`, but the `image` field
         // should be restored from DE (`translateInKirbyOnly`: true).
@@ -850,7 +850,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_translate_in_kirby_only_fields_inside_nested_blocks(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         // Translate the nested `imageblock`'s text, but the `image` field should be restored from DE.
         $deserialized = $content->deserializeContent([
@@ -890,7 +890,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_translate_in_kirby_only_fields_inside_layout_blocks(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         // Translate the layout `imageblock`'s text, but the `image` field should be restored from DE.
         $deserialized = $content->deserializeContent([
@@ -918,7 +918,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_a_top_level_translate_in_kirby_only_field_alongside_block_translations(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         $deserialized = $content->deserializeContent([
             'text' => 'Neuer Text',
@@ -933,7 +933,7 @@ final class ContentTest extends AppTestCase
     #[Test]
     public function restores_translate_in_kirby_only_fields_inside_structure_rows(): void
     {
-        $content = new Content('test');
+        $content = self::testPageContent();
 
         // Translate structure fields, but `note` (`translateInKirbyOnly`) should be preserved from DE.
         $deserialized = $content->deserializeContent([
@@ -962,7 +962,7 @@ final class ContentTest extends AppTestCase
 
         $this->expectException(PermissionException::class);
 
-        (new Content('test'))->downloadTranslation('de');
+        self::testPageContent()->downloadTranslation('de');
     }
 
     #[Test]
@@ -973,7 +973,7 @@ final class ContentTest extends AppTestCase
         // The permission check passes, so the download reaches the unconfigured Lingohub client.
         $this->expectException(AuthException::class);
 
-        (new Content('test'))->downloadTranslation('de');
+        self::testPageContent()->downloadTranslation('de');
     }
 
     // #endregion

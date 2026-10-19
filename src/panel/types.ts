@@ -22,9 +22,11 @@ export interface PluginContext {
     hasWorkspaceId: boolean;
     hasProjectId: boolean;
   };
-  languages: Record<string, { locale?: string[] }>;
 }
 
 export interface ModelContext {
-  availableTranslationLanguageCodes: string[];
+  /** Each language's Lingohub resource file, keyed by language code. */
+  resourceFiles: Record<string, string>;
+  /** Secondary languages the model has content in. */
+  translatedLanguageCodes: string[];
 }

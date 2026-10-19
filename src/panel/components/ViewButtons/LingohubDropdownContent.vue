@@ -2,8 +2,6 @@
 import type { ModelContext } from "../../types";
 import { ref, useDialog, usePanel } from "kirbyuse";
 import { useLingohub } from "../../composables/lingohub";
-import { useModel } from "../../composables/model";
-import { PLUGIN_MODEL_CONTEXT_API_ROUTE } from "../../constants";
 
 export default {
   inheritAttrs: false,
@@ -13,11 +11,11 @@ export default {
 <script setup lang="ts">
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
-const { getModelData } = useModel();
 const {
   emitter,
+  getModelContext,
   getTranslationStatus,
-  getTranslationResourceFile,
+  findResourceFile,
   uploadTranslation,
   downloadTranslation,
 } = useLingohub();
@@ -31,11 +29,7 @@ const modelContext = ref<ModelContext>();
 
 // Start fetching right away, `invokeWhenInitialized()` awaits it before any dropdown action runs.
 const initializationPromise = (async () => {
-  const defaultLanguageData = await getModelData();
-
-  modelContext.value = await panel.api.post(PLUGIN_MODEL_CONTEXT_API_ROUTE, {
-    id: defaultLanguageData.id ?? "site",
-  });
+  modelContext.value = await getModelContext();
 })();
 
 async function invokeWhenInitialized(fn: () => unknown) {
@@ -44,33 +38,25 @@ async function invokeWhenInitialized(fn: () => unknown) {
 }
 
 async function uploadTranslations() {
-  const { availableTranslationLanguageCodes } = modelContext.value!;
+  const { resourceFiles, translatedLanguageCodes } = modelContext.value!;
   panel.view.isLoading = true;
 
   const status = await getTranslationStatus();
 
   // Preselect the languages that carry no Lingohub translation yet.
-  const localizedLanguageCodes = (
-    await Promise.all(
-      availableTranslationLanguageCodes.map(async (languageCode) => {
-        const resourceFile = await getTranslationResourceFile(
-          status,
-          languageCode,
-        );
-        const hasAnyTranslation = resourceFile
-          ? resourceFile.statuses.TRANSLATED > 0 ||
-            resourceFile.statuses.DRAFT > 0 ||
-            resourceFile.statuses.APPROVED > 0
-          : false;
+  const localizedLanguageCodes = translatedLanguageCodes.filter(
+    (languageCode) => {
+      const statuses = findResourceFile(
+        status,
+        resourceFiles[languageCode],
+      )?.statuses;
 
-        if (hasAnyTranslation) {
-          return;
-        }
-
-        return languageCode;
-      }),
-    )
-  ).filter(Boolean);
+      return !(
+        statuses &&
+        (statuses.TRANSLATED > 0 || statuses.DRAFT > 0 || statuses.APPROVED > 0)
+      );
+    },
+  );
 
   const options = await openFieldsDialog<{
     sourceLanguage: string[];
@@ -93,19 +79,17 @@ async function uploadTranslations() {
         ],
       },
       targetLanguages:
-        availableTranslationLanguageCodes.length > 0
+        translatedLanguageCodes.length > 0
           ? {
               type: "checkboxes",
               label: panel.t("johannschopplich.lingohub.targetLanguages"),
-              options: availableTranslationLanguageCodes.map(
-                (translationCode) => ({
-                  value: translationCode,
-                  text:
-                    panel.languages.find(
-                      (language) => language.code === translationCode,
-                    )?.name ?? translationCode,
-                }),
-              ),
+              options: translatedLanguageCodes.map((translationCode) => ({
+                value: translationCode,
+                text:
+                  panel.languages.find(
+                    (language) => language.code === translationCode,
+                  )?.name ?? translationCode,
+              })),
             }
           : {
               type: "info",
@@ -146,31 +130,27 @@ async function uploadTranslations() {
 }
 
 async function downloadTranslations() {
+  const { resourceFiles } = modelContext.value!;
   const status = await getTranslationStatus();
-  const defaultResourceFile = await getTranslationResourceFile(
+  const defaultResourceFile = findResourceFile(
     status,
-    defaultLanguage.code,
+    resourceFiles[defaultLanguage.code],
   );
 
   // Preselect the languages whose approved segments have caught up with the source language.
-  const approvedLanguageCodes = (
-    await Promise.all(
-      translationLanguages.map(async (language) => {
-        const resourceFile = await getTranslationResourceFile(
-          status,
-          language.code,
-        );
+  const approvedLanguageCodes = translationLanguages
+    .filter((language) => {
+      const resourceFile = findResourceFile(
+        status,
+        resourceFiles[language.code],
+      );
 
-        if (
-          resourceFile &&
-          resourceFile.statuses.APPROVED >=
-            defaultResourceFile!.statuses.APPROVED
-        ) {
-          return language.code;
-        }
-      }),
-    )
-  ).filter(Boolean);
+      return (
+        resourceFile &&
+        resourceFile.statuses.APPROVED >= defaultResourceFile!.statuses.APPROVED
+      );
+    })
+    .map((language) => language.code);
 
   const options = await openFieldsDialog<{
     status: string;

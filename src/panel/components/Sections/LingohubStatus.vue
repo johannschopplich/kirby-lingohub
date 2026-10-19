@@ -18,13 +18,14 @@ const props = defineProps(propsDefinition);
 
 const panel = usePanel();
 const { t } = useI18n();
-const { getTranslationStatus, getTranslationResources } = useLingohub();
+const { getModelContext, getTranslationStatus, findResourceFiles } =
+  useLingohub();
 
 // Section state
 const label = ref<string>();
 
 // Runtime state
-const resourceFiles = ref<LingohubResourceFile[]>();
+const languageFiles = ref<LingohubResourceFile[]>();
 
 const tableColumns = {
   languageCode: { label: "Language Code", type: "text" },
@@ -36,7 +37,7 @@ const tableColumns = {
   lastUpdated: { label: "Last updated at", type: "date" },
 };
 const tableRows = computed(() =>
-  (resourceFiles.value ?? []).map((item) => ({
+  (languageFiles.value ?? []).map((item) => ({
     languageCode: item.languageCode,
     approved: item.statuses.APPROVED,
     draft: item.statuses.DRAFT,
@@ -57,11 +58,14 @@ const tableRows = computed(() =>
   label.value =
     t(sectionProps.label) || panel.t("johannschopplich.lingohub.statusLabel");
 
-  const status = await getTranslationStatus();
+  const [status, { resourceFiles }] = await Promise.all([
+    getTranslationStatus(),
+    getModelContext(),
+  ]);
 
-  resourceFiles.value = await getTranslationResources(
+  languageFiles.value = findResourceFiles(
     status,
-    panel.language.code,
+    resourceFiles[panel.language.code!],
   );
 })();
 </script>

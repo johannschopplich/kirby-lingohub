@@ -6,6 +6,7 @@ namespace JohannSchopplich\Lingohub;
 
 use Kirby\Cms\App;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Cms\Site;
 use Kirby\Exception\AuthException;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
@@ -45,6 +46,11 @@ final class Lingohub
     public static function hasUsableOption(string $name): bool
     {
         return self::isUsableOption(App::instance()->option(self::OPTION_PREFIX . $name));
+    }
+
+    public static function resolveResourcePath(ModelWithContent $model): string
+    {
+        return $model instanceof Site ? 'site' : $model->id();
     }
 
     public static function resolveResourceFilename(ModelWithContent $model, string $languageCode): string

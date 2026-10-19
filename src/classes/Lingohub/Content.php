@@ -13,6 +13,7 @@ use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Data\Data;
+use Kirby\Exception\NotFoundException;
 use Kirby\Exception\PermissionException;
 use Kirby\Toolkit\A;
 
@@ -27,11 +28,54 @@ use Kirby\Toolkit\A;
  */
 final class Content
 {
-    private Site|Page|File $model;
+    public function __construct(
+        private Site|Page|File $model
+    ) {
+    }
 
-    public function __construct(string $modelId)
+    /**
+     * Resolves the model behind a Panel view path, e.g. `site`, `pages/notes+a-note`
+     * or `pages/notes+a-note/files/image.jpg`.
+     *
+     * @throws \Kirby\Exception\NotFoundException When the path addresses no site, page or file the user can access
+     */
+    public static function fromPath(string $path): self
     {
-        $this->model = ModelResolver::resolveFromId($modelId);
+        $model = ModelResolver::resolveFromPath($path);
+
+        if (!$model instanceof Site && !$model instanceof Page && !$model instanceof File) {
+            throw new NotFoundException('No content found for "' . $path . '"');
+        }
+
+        return new self($model);
+    }
+
+    /**
+     * Lists each language's Lingohub resource file as the project status names it.
+     *
+     * @return array<string, string>
+     */
+    public function resourceFiles(): array
+    {
+        $path = Lingohub::resolveResourcePath($this->model);
+        $files = [];
+
+        foreach (App::instance()->languages() as $language) {
+            $files[$language->code()] = $path . '/' . Lingohub::resolveResourceFilename($this->model, $language->code());
+        }
+
+        return $files;
+    }
+
+    /** @return list<string> */
+    public function translatedLanguageCodes(): array
+    {
+        $defaultLanguageCode = App::instance()->defaultLanguage()->code();
+
+        return array_values($this->model
+            ->translations()
+            ->filter(fn ($translation) => $translation->code() !== $defaultLanguageCode && $translation->exists())
+            ->pluck('code'));
     }
 
     public function uploadTranslation(string $languageCode): array
@@ -40,7 +84,7 @@ final class Content
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
         return $lingohub->uploadResource(
-            $this->model->id(),
+            Lingohub::resolveResourcePath($this->model),
             $filename,
             $this->serializeContent($languageCode)
         );
@@ -62,7 +106,7 @@ final class Content
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
         $serializedContent = $lingohub->downloadResource(
-            $this->model->id(),
+            Lingohub::resolveResourcePath($this->model),
             $filename,
             $options
         );

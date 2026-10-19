@@ -1,51 +1,33 @@
-import type { LingohubResourceFile, LingohubTranslationStatus } from "../types";
+import type {
+  LingohubResourceFile,
+  LingohubTranslationStatus,
+  ModelContext,
+} from "../types";
 import { usePanel } from "kirbyuse";
 import mitt from "mitt";
 import {
+  PLUGIN_MODEL_CONTEXT_API_ROUTE,
   PLUGIN_RECEIVE_API_ROUTE,
   PLUGIN_SEND_API_ROUTE,
   PLUGIN_STATUS_API_ROUTE,
 } from "../constants";
-import { useModel } from "./model";
 import { usePluginContext } from "./plugin";
-
-const UTF8_SUFFIX_RE = /\.utf-?8$/i;
 
 const emitter = mitt<{ translationUpdate: void }>();
 
 export function useLingohub() {
   const panel = usePanel();
-  const { getModelData } = useModel();
 
-  async function resolveResource(languageCode: string) {
-    const { languages } = await usePluginContext();
-    const model = await getModelData();
-
-    let localeCode = languages?.[languageCode]?.locale?.[0] ?? languageCode;
-
-    // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
-    // (1) Convert locale code to IETF language tag format (e.g., `en_US` to `en-US`).
-    localeCode = localeCode.replaceAll("_", "-");
-
-    // (2) Remove UTF-8 suffix for consistency.
-    localeCode = localeCode.replace(UTF8_SUFFIX_RE, "");
-
-    let blueprintName = model.blueprint.name;
-
-    if (
-      blueprintName.startsWith("pages/") ||
-      blueprintName.startsWith("files/")
-    ) {
-      blueprintName = blueprintName.substring(6);
-    }
-
-    const filename = `${blueprintName}_${localeCode}.json`;
-    const resourcePath = `${model.id}/${filename}`;
-
-    return {
-      filename,
-      resourcePath,
-    };
+  /** Resolves the current view's model on the server, see `Content::fromPath()`. */
+  async function getModelContext(): Promise<ModelContext> {
+    return panel.api.post(
+      PLUGIN_MODEL_CONTEXT_API_ROUTE,
+      { path: panel.view.path },
+      undefined,
+      "POST",
+      // Avoid showing the Panel loading indicator.
+      true,
+    );
   }
 
   async function getTranslationStatus(): Promise<
@@ -69,51 +51,38 @@ export function useLingohub() {
     }
   }
 
-  async function getTranslationResources(
+  /**
+   * Returns every language file of the resource the given file belongs to.
+   * Lingohub may return the filename with different casing.
+   */
+  function findResourceFiles(
     status: LingohubTranslationStatus | undefined,
-    languageCode: string,
-  ): Promise<LingohubResourceFile[]> {
-    const { resourcePath } = await resolveResource(languageCode);
+    resourceFile: string | undefined,
+  ): LingohubResourceFile[] {
+    const name = resourceFile?.toLowerCase();
 
-    // Lingohub may return the resource filename with different casing.
-    const resource =
-      status?.resourceFiles?.find((item) =>
-        item.files.some((file) => file.name === resourcePath),
-      ) ??
-      status?.resourceFiles?.find((item) =>
-        item.files.some(
-          (file) => file.name.toLowerCase() === resourcePath.toLowerCase(),
-        ),
-      );
-
-    return resource?.files ?? [];
+    return (
+      status?.resourceFiles?.find((resource) =>
+        resource.files.some((file) => file.name.toLowerCase() === name),
+      )?.files ?? []
+    );
   }
 
-  async function getTranslationResourceFile(
+  function findResourceFile(
     status: LingohubTranslationStatus | undefined,
-    languageCode: string,
-  ): Promise<LingohubResourceFile | undefined> {
-    const { resourcePath } = await resolveResource(languageCode);
-    const resourceFiles = await getTranslationResources(status, languageCode);
+    resourceFile: string | undefined,
+  ): LingohubResourceFile | undefined {
+    const name = resourceFile?.toLowerCase();
 
-    // Lingohub may return the resource filename with different casing.
-    return (
-      resourceFiles.find((file) => file.name === resourcePath) ??
-      resourceFiles.find(
-        (file) => file.name.toLowerCase() === resourcePath.toLowerCase(),
-      )
+    return findResourceFiles(status, resourceFile).find(
+      (file) => file.name.toLowerCase() === name,
     );
   }
 
   async function uploadTranslation(languageCode: string) {
-    const defaultLanguageData = await getModelData();
-
     await panel.api.post(
       PLUGIN_SEND_API_ROUTE,
-      {
-        id: defaultLanguageData.id ?? "site",
-        languageCode,
-      },
+      { path: panel.view.path, languageCode },
       undefined,
       "POST",
       // Avoid showing the Panel loading indicator.
@@ -125,15 +94,9 @@ export function useLingohub() {
     languageCode: string,
     targetStatus: string,
   ) {
-    const defaultLanguageData = await getModelData();
-
     await panel.api.post(
       PLUGIN_RECEIVE_API_ROUTE,
-      {
-        id: defaultLanguageData.id ?? "site",
-        languageCode,
-        targetStatus,
-      },
+      { path: panel.view.path, languageCode, targetStatus },
       undefined,
       "POST",
       // Avoid showing the Panel loading indicator.
@@ -173,9 +136,10 @@ export function useLingohub() {
 
   return {
     emitter,
+    getModelContext,
     getTranslationStatus,
-    getTranslationResources,
-    getTranslationResourceFile,
+    findResourceFiles,
+    findResourceFile,
     uploadTranslation,
     downloadTranslation,
   };

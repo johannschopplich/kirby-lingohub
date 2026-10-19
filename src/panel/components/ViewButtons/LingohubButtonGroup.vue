@@ -6,7 +6,7 @@ import LingohubDropdownContent from "./LingohubDropdownContent.vue";
 
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
-const { emitter, getTranslationStatus, getTranslationResourceFile } =
+const { emitter, getModelContext, getTranslationStatus, findResourceFile } =
   useLingohub();
 
 const defaultLanguage = panel.languages.find((language) => language.default);
@@ -22,15 +22,9 @@ const isApproved = ref<boolean>();
 const dropdownContent = ref<{ toggle: () => void }>();
 const currentLanguageResourceFile = ref<LingohubResourceFile>();
 
-watch(
-  () => [panel.view.path, panel.language.code],
-  ([path]) => {
-    if (path.startsWith("pages/")) {
-      loadLingohubData();
-    }
-  },
-  { immediate: true },
-);
+watch(() => [panel.view.path, panel.language.code], loadLingohubData, {
+  immediate: true,
+});
 
 emitter.on("translationUpdate", () => {
   // Lingohub needs some time to process the updated translation.
@@ -42,15 +36,18 @@ function toggle() {
 }
 
 async function loadLingohubData() {
-  const status = await getTranslationStatus();
+  const [status, { resourceFiles }] = await Promise.all([
+    getTranslationStatus(),
+    getModelContext(),
+  ]);
 
-  const defaultLanguageResourceFile = await getTranslationResourceFile(
+  const defaultLanguageResourceFile = findResourceFile(
     status,
-    defaultLanguage!.code,
+    resourceFiles[defaultLanguage!.code],
   );
-  currentLanguageResourceFile.value = await getTranslationResourceFile(
+  currentLanguageResourceFile.value = findResourceFile(
     status,
-    panel.language.code,
+    resourceFiles[panel.language.code!],
   );
 
   isApproved.value =
