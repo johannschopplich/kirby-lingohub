@@ -751,14 +751,37 @@ final class ContentTest extends AppTestCase
     }
 
     #[Test]
-    public function falls_back_to_the_default_language_when_no_translation_arrives(): void
+    public function keeps_the_target_translation_of_segments_missing_from_the_download(): void
     {
         $content = new Content('test');
 
         $deserialized = $content->deserializeContent([], 'de');
 
-        // Text should come from the default language (EN in this test setup).
-        $this->assertSame('Hello world', $deserialized['text']);
+        $this->assertSame('Testseite', $deserialized['title']);
+        $this->assertSame('Hallo Welt', $deserialized['text']);
+    }
+
+    #[Test]
+    public function keeps_the_target_translation_of_segments_empty_in_the_download(): void
+    {
+        $content = self::testPageContent();
+
+        $deserialized = $content->deserializeContent([
+            'text' => ''
+        ], 'de');
+
+        $this->assertSame('Hallo Welt', $deserialized['text']);
+    }
+
+    #[Test]
+    public function falls_back_to_the_default_language_for_segments_the_target_lacks(): void
+    {
+        $content = new Content('test');
+
+        $deserialized = $content->deserializeContent([], 'de');
+
+        // The German fixture has no `object` field.
+        $this->assertSame('Object title', Yaml::decode($deserialized['object'])['title']);
     }
 
     #[Test]

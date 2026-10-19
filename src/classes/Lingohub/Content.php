@@ -65,7 +65,7 @@ final class Content
 
             $this->model = $this->model->update($mergedContent, $languageCode);
 
-            if (isset($serializedContent['title']) && method_exists($this->model, 'changeTitle')) {
+            if (($serializedContent['title'] ?? '') !== '' && method_exists($this->model, 'changeTitle')) {
                 $this->model = $this->model->changeTitle($serializedContent['title'], $languageCode);
             }
         });
@@ -101,6 +101,10 @@ final class Content
 
     /**
      * Merges a Lingohub key-value map back into the model's content structure.
+     *
+     * A segment missing from the map or empty in it – e.g. one not approved
+     * yet – keeps the target language's existing value, else the default
+     * language's.
      */
     public function deserializeContent(array $serializedContent, string $languageCode): array
     {
@@ -108,15 +112,12 @@ final class Content
         $targetContent = $this->model->content($languageCode)->toArray();
         $fields = $this->resolveFields();
 
-        $kirbyOnlyValues = [];
+        $targetValues = [];
         $this->walk(
             $targetContent,
             $fields,
-            function (string $key, mixed $value, bool $isKirbyOnly) use (&$kirbyOnlyValues) {
-                if ($isKirbyOnly) {
-                    $kirbyOnlyValues[$key] = $value;
-                }
-
+            function (string $key, mixed $value) use (&$targetValues) {
+                $targetValues[$key] = $value;
                 return $value;
             }
         );
@@ -126,14 +127,22 @@ final class Content
         $mergedContent = $this->walk(
             $this->model->content($defaultLanguageCode)->toArray(),
             $fields,
-            fn (string $key, mixed $value, bool $isKirbyOnly) => $isKirbyOnly
-                ? (array_key_exists($key, $kirbyOnlyValues) ? $kirbyOnlyValues[$key] : $value)
-                : ($serializedContent[$key] ?? $value)
+            function (string $key, mixed $value, bool $isKirbyOnly) use ($serializedContent, $targetValues) {
+                // Lingohub may send an untranslated segment as an empty string.
+                if (!$isKirbyOnly && ($serializedContent[$key] ?? '') !== '') {
+                    return $serializedContent[$key];
+                }
+
+                return array_key_exists($key, $targetValues) ? $targetValues[$key] : $value;
+            }
         );
 
-        // The base carries the default slug, so the target language's own slug has to survive the merge.
-        if (isset($targetContent['slug'])) {
-            $mergedContent['slug'] = $targetContent['slug'];
+        // The base carries the default title and slug. A downloaded title is
+        // written through `changeTitle()` in `downloadTranslation()` instead.
+        foreach (['title', 'slug'] as $name) {
+            if (isset($targetContent[$name])) {
+                $mergedContent[$name] = $targetContent[$name];
+            }
         }
 
         return $mergedContent;
