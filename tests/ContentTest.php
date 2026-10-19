@@ -504,6 +504,15 @@ final class ContentTest extends AppTestCase
     }
 
     #[Test]
+    public function serializes_the_title_in_the_requested_language(): void
+    {
+        $content = new Content('test');
+
+        $this->assertSame('Test Page', $content->serializeContent('en')['title']);
+        $this->assertSame('Testseite', $content->serializeContent('de')['title']);
+    }
+
+    #[Test]
     public function omits_a_field_marked_translate_false_from_the_export(): void
     {
         $content = new Content('test');

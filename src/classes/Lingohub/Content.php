@@ -91,8 +91,10 @@ final class Content
         );
 
         // `FieldResolver::resolveModelFields()` strips `title` and `slug`, so the title has to be added back by hand.
-        if (method_exists($this->model, 'title')) {
-            $title = $this->model->title($languageCode)->value();
+        // Read it from the language's content: `Page::title()` only knows the request language.
+        $title = $this->model->content($languageCode)->get('title')->value();
+
+        if (!$this->model instanceof File && $title !== null) {
             $segments['title'] = $title;
         }
 
