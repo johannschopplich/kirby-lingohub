@@ -5,6 +5,7 @@ declare(strict_types = 1);
 use JohannSchopplich\Lingohub\Lingohub;
 use Kirby\Exception\AuthException;
 use Kirby\Exception\InvalidArgumentException;
+use Kirby\Exception\LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -61,5 +62,30 @@ final class LingohubTest extends ApiRouteTestCase
         $this->expectExceptionMessage('Missing required option "johannschopplich.lingohub.' . $option . '"');
 
         new Lingohub();
+    }
+
+    #[Test]
+    public function reports_the_descriptions_of_a_lingohub_error_response(): void
+    {
+        $exception = self::requestFailure(
+            401,
+            '{"error":null,"validationErrors":[{"errors":[{"code":"invalid","description":"Invalid API key","parameters":{}}],"field":"token"}]}'
+        );
+
+        $this->assertSame('Lingohub API request failed: Invalid API key', $exception->getMessage());
+        $this->assertSame(401, $exception->getHttpCode());
+    }
+
+    #[Test]
+    public function keeps_the_braces_of_an_unrecognized_response_body(): void
+    {
+        $exception = self::requestFailure(502, "<html><body>\n  Bad gateway {\"retry\":true}\n</body></html>");
+
+        $this->assertSame('Lingohub API request failed: Bad gateway {"retry":true}', $exception->getMessage());
+    }
+
+    private static function requestFailure(int $code, string $body): LogicException
+    {
+        return (new ReflectionMethod(Lingohub::class, 'requestFailure'))->invoke(null, $code, $body);
     }
 }

@@ -12,6 +12,7 @@ use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Kirby\Http\Remote;
 use Kirby\Toolkit\A;
+use Kirby\Toolkit\Str;
 
 final class Lingohub
 {
@@ -147,13 +148,42 @@ final class Lingohub
         ], $options));
 
         if ($response->code() < 200 || $response->code() >= 300) {
-            // TODO: Drop K4 compat in v2 – use named args (`fallback:`, `httpCode:`) once Kirby 5 is the floor.
-            throw new LogicException([
-                'fallback' => "Lingohub API request failed: {$response->content()}",
-                'httpCode' => $response->code()
-            ]);
+            throw self::requestFailure($response->code(), $response->content());
         }
 
         return $response->json();
+    }
+
+    private static function requestFailure(int|null $code, string|null $body): LogicException
+    {
+        $error = json_decode($body ?? '', true);
+        $reasons = [];
+
+        if (is_array($error)) {
+            if (is_string($error['error'] ?? null) && $error['error'] !== '') {
+                $reasons[] = $error['error'];
+            }
+
+            foreach ($error['validationErrors'] ?? [] as $validationError) {
+                foreach ($validationError['errors'] ?? [] as $fieldError) {
+                    if (is_string($fieldError['description'] ?? null) && $fieldError['description'] !== '') {
+                        $reasons[] = $fieldError['description'];
+                    }
+                }
+            }
+        }
+
+        $reason = $reasons !== []
+            ? implode('; ', array_unique($reasons))
+            : Str::short(trim(preg_replace('/\s+/', ' ', strip_tags($body ?? ''))), 200);
+
+        // The reason goes in as data: Kirby resolves `{…}` in the message as placeholders,
+        // and a substituted value isn't parsed again.
+        // TODO: Drop K4 compat in v2 – use named args (`fallback:`, `data:`, `httpCode:`) once Kirby 5 is the floor.
+        return new LogicException([
+            'fallback' => 'Lingohub API request failed: { reason }',
+            'data' => ['reason' => $reason !== '' ? $reason : "HTTP {$code}"],
+            'httpCode' => $code
+        ]);
     }
 }
