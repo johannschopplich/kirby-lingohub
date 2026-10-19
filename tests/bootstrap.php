@@ -8,8 +8,4 @@ ini_set('display_startup_errors', 'on');
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../index.php';
-require_once __DIR__ . '/AppTestCase.php';
 require_once __DIR__ . '/ApiRouteTestCase.php';
-
-// Whoops registers global error handlers on every `new App()`, which PHPUnit flags as risky.
-Kirby\Cms\App::$enableWhoops = false;

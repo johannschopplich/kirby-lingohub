@@ -3,8 +3,12 @@
 declare(strict_types = 1);
 
 use Kirby\Exception\NotFoundException;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class ModelContextRouteTest extends ApiRouteTestCase
 {
     private function callModelContextRoute(string $path): mixed
@@ -34,9 +38,7 @@ final class ModelContextRouteTest extends ApiRouteTestCase
             ]
         ]);
 
-        $kirby->impersonate('kirby');
-
-        return $this->callRoute($kirby, '__lingohub__/model-context');
+        return $this->callRoute($kirby, '__lingohub__/model-context', 'POST');
     }
 
     #[Test]

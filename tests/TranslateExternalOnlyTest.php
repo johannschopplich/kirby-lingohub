@@ -4,9 +4,13 @@ declare(strict_types = 1);
 
 use Kirby\Cms\App;
 use Kirby\Exception\PermissionException;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
 
-final class TranslateExternalOnlyTest extends AppTestCase
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
+final class TranslateExternalOnlyTest extends ApiRouteTestCase
 {
     private const FIELDS = [
         'teaser' => [
@@ -37,6 +41,8 @@ final class TranslateExternalOnlyTest extends AppTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         self::bootApp([
             'languages' => [
                 ['code' => 'en', 'name' => 'English', 'default' => true],

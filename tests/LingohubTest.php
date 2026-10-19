@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
-final class LingohubTest extends AppTestCase
+final class LingohubTest extends ApiRouteTestCase
 {
     private static function bootAppWith(string $option, mixed $value): void
     {

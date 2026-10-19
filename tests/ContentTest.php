@@ -8,12 +8,18 @@ use Kirby\Data\Json;
 use Kirby\Data\Yaml;
 use Kirby\Exception\LogicException;
 use Kirby\Exception\PermissionException;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
 
-final class ContentTest extends AppTestCase
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
+final class ContentTest extends ApiRouteTestCase
 {
     protected function setUp(): void
     {
+        parent::setUp();
+
         self::bootApp([
             'languages' => [
                 [
