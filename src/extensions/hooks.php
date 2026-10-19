@@ -1,33 +1,18 @@
 <?php
 
+use JohannSchopplich\Lingohub\TranslateExternalOnly;
+use Kirby\Cms\File;
 use Kirby\Cms\Page;
-use Kirby\Exception\PermissionException;
+use Kirby\Cms\Site;
 
 return [
-    'page.update:before' => function (Page $page, array $values, array $strings) {
-        /** @var \Kirby\Cms\App $this */
-        if (!$this->multilang()) {
-            return;
-        }
-        if ($this->currentLanguage()?->code() === $this->defaultLanguage()?->code()) {
-            return;
-        }
-        if ($this->user()->role()->isAdmin()) {
-            return;
-        }
-
-        $fields = $page->blueprint()->fields();
-
-        foreach ($fields as $field) {
-            if (!isset($field['translateExternalOnly']) || !$field['translateExternalOnly']) {
-                continue;
-            }
-
-            if ($page->content()->get($field['name'])->value() === $strings[$field['name']]) {
-                continue;
-            }
-
-            throw new PermissionException('Field "' . $field['label'] . '" is only allowed to be translated externally.');
-        }
+    'page.update:before' => function (Page $page, array $strings, string|null $languageCode = null) {
+        TranslateExternalOnly::guard($page, $strings, $languageCode);
+    },
+    'site.update:before' => function (Site $site, array $strings, string|null $languageCode = null) {
+        TranslateExternalOnly::guard($site, $strings, $languageCode);
+    },
+    'file.update:before' => function (File $file, array $strings, string|null $languageCode = null) {
+        TranslateExternalOnly::guard($file, $strings, $languageCode);
     }
 ];

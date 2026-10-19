@@ -15,6 +15,7 @@ return [
         'johannschopplich.lingohub.status.inTranslation' => 'In Translation',
         'johannschopplich.lingohub.status.notUploaded' => 'Not Uploaded',
         'johannschopplich.lingohub.success.upload' => 'Upload successful',
+        'johannschopplich.lingohub.error.translateExternalOnly' => 'The field "{label}" can only be translated in Lingohub.',
         'johannschopplich.lingohub.success.download' => 'Download successful'
     ],
     'de' => [
@@ -31,6 +32,7 @@ return [
         'johannschopplich.lingohub.status.inTranslation' => 'In Übersetzung',
         'johannschopplich.lingohub.status.notUploaded' => 'Nicht hochgeladen',
         'johannschopplich.lingohub.success.upload' => 'Hochladen erfolgreich',
+        'johannschopplich.lingohub.error.translateExternalOnly' => 'Das Feld "{label}" kann nur in Lingohub übersetzt werden.',
         'johannschopplich.lingohub.success.download' => 'Herunterladen erfolgreich'
     ],
     'fr' => [
@@ -47,6 +49,7 @@ return [
         'johannschopplich.lingohub.status.inTranslation' => 'En traduction',
         'johannschopplich.lingohub.status.notUploaded' => 'Non téléchargé',
         'johannschopplich.lingohub.success.upload' => 'Téléchargement réussi',
+        'johannschopplich.lingohub.error.translateExternalOnly' => 'Le champ "{label}" ne peut être traduit que dans Lingohub.',
         'johannschopplich.lingohub.success.download' => 'Téléchargement réussi'
     ],
     'nl' => [
@@ -63,6 +66,7 @@ return [
         'johannschopplich.lingohub.status.inTranslation' => 'In Vertaling',
         'johannschopplich.lingohub.status.notUploaded' => 'Niet geüpload',
         'johannschopplich.lingohub.success.upload' => 'Uploaden gelukt',
+        'johannschopplich.lingohub.error.translateExternalOnly' => 'Het veld "{label}" kan alleen in Lingohub worden vertaald.',
         'johannschopplich.lingohub.success.download' => 'Downloaden gelukt'
     ]
 ];
