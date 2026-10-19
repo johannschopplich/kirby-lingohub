@@ -34,8 +34,8 @@
       "Composer\\Config::disableProcessTimeout",
       "@php -S localhost:8000 -t playground/public vendor/getkirby/cms/router.php"
     ],
-    "test": "phpunit",
     "csfix": "@php tools/phpcs/vendor/bin/php-cs-fixer fix",
+    "test": "phpunit",
     "dist": "composer install --no-dev --optimize-autoloader"
   },
   "autoload": {
