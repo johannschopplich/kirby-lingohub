@@ -165,15 +165,17 @@ async function downloadTranslations() {
         options: [
           {
             value: "ALL",
-            text: "All",
+            text: panel.t("johannschopplich.lingohub.status.all"),
           },
           {
             value: "TRANSLATED_AND_APPROVED",
-            text: "Translated and approved",
+            text: panel.t(
+              "johannschopplich.lingohub.status.translatedAndApproved",
+            ),
           },
           {
             value: "APPROVED",
-            text: "Approved",
+            text: panel.t("johannschopplich.lingohub.status.approved"),
           },
         ],
       },

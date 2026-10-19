@@ -114,32 +114,29 @@ export function useLingohub() {
 
   async function validateLingohubConfig() {
     const { config } = await usePluginContext();
+    const optionStates = {
+      apiKey: config.hasApiKey,
+      workspaceId: config.hasWorkspaceId,
+      projectId: config.hasProjectId,
+    };
+    const missingOption = Object.entries(optionStates).find(
+      ([, isSet]) => !isSet,
+    )?.[0];
 
-    try {
-      if (!panel.multilang) {
-        throw new Error(
-          "The Lingohub plugin requires a multi-language Kirby installation.",
-        );
-      } else if (!config.hasApiKey) {
-        throw new Error(
-          'Missing API key in the "johannschopplich.lingohub.apiKey" plugin option.',
-        );
-      } else if (!config.hasWorkspaceId) {
-        throw new Error(
-          'Missing "johannschopplich.lingohub.workspaceId" plugin option.',
-        );
-      } else if (!config.hasProjectId) {
-        throw new Error(
-          'Missing "johannschopplich.lingohub.projectId" plugin option.',
-        );
-      }
+    const message = !panel.multilang
+      ? panel.t("johannschopplich.lingohub.error.multilang")
+      : missingOption
+        ? panel.t("johannschopplich.lingohub.error.missingOption", {
+            option: `johannschopplich.lingohub.${missingOption}`,
+          })
+        : undefined;
 
-      return true;
-    } catch (error) {
-      console.error(error);
-      panel.notification.error((error as Error).message);
+    if (message) {
+      panel.notification.error(message);
       return false;
     }
+
+    return true;
   }
 
   return {

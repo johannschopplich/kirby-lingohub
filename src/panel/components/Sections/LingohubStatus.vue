@@ -28,13 +28,34 @@ const label = ref<string>();
 const languageFiles = ref<LingohubResourceFile[]>();
 
 const tableColumns = {
-  languageCode: { label: "Language Code", type: "text" },
-  approved: { label: "Approved", type: "number" },
-  draft: { label: "Draft", type: "number" },
-  notTranslated: { label: "Not translated", type: "number" },
-  translated: { label: "Translated", type: "number" },
-  failedChecks: { label: "Failed Quality Checks", type: "number" },
-  lastUpdated: { label: "Last updated at", type: "date" },
+  languageCode: {
+    label: panel.t("johannschopplich.lingohub.languageCode"),
+    type: "text",
+  },
+  approved: {
+    label: panel.t("johannschopplich.lingohub.status.approved"),
+    type: "number",
+  },
+  draft: {
+    label: panel.t("johannschopplich.lingohub.status.draft"),
+    type: "number",
+  },
+  notTranslated: {
+    label: panel.t("johannschopplich.lingohub.status.notTranslated"),
+    type: "number",
+  },
+  translated: {
+    label: panel.t("johannschopplich.lingohub.status.translated"),
+    type: "number",
+  },
+  failedChecks: {
+    label: panel.t("johannschopplich.lingohub.failedChecks"),
+    type: "number",
+  },
+  lastUpdated: {
+    label: panel.t("johannschopplich.lingohub.lastUpdated"),
+    type: "date",
+  },
 };
 const tableRows = computed(() =>
   (languageFiles.value ?? []).map((item) => ({
