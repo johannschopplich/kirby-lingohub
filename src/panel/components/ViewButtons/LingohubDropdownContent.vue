@@ -9,6 +9,10 @@ export default {
 </script>
 
 <script setup lang="ts">
+defineProps<{
+  editorUrl?: string;
+}>();
+
 const panel = usePanel();
 const { openFieldsDialog } = useDialog();
 const {
@@ -237,5 +241,11 @@ async function downloadTranslations() {
     >
       {{ panel.t("johannschopplich.lingohub.download") }}
     </k-dropdown-item>
+    <template v-if="editorUrl">
+      <hr />
+      <k-dropdown-item icon="open" :link="editorUrl" target="_blank">
+        {{ panel.t("johannschopplich.lingohub.openInLingohub") }}
+      </k-dropdown-item>
+    </template>
   </div>
 </template>

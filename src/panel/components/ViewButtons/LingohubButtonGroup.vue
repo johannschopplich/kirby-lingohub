@@ -24,6 +24,7 @@ const {
 const isLoading = ref(true);
 const dropdownContent = ref<{ toggle: () => void }>();
 const currentLanguageResourceFile = ref<LingohubResourceFile>();
+const editorUrl = ref<string>();
 const statusError = ref<string>();
 
 const statusButton = computed(() => {
@@ -78,10 +79,15 @@ async function loadLingohubData() {
   isLoading.value = true;
 
   try {
-    const [status, { resourceFiles }] = await Promise.all([
-      getTranslationStatus(),
+    // A failed status request settles as its error, so the editor link, which
+    // needs no API key, still loads.
+    const [status, { resourceFiles, editorUrls }] = await Promise.all([
+      getTranslationStatus().catch((error: Error) => error),
       getModelContext(),
     ]);
+
+    editorUrl.value = editorUrls[panel.language.code!] ?? undefined;
+    if (status instanceof Error) throw status;
 
     currentLanguageResourceFile.value = findResourceFile(
       status,
@@ -181,7 +187,7 @@ function openStatusDialog() {
     >
     </k-button>
     <k-dropdown-content ref="dropdownContent">
-      <LingohubDropdownContent />
+      <LingohubDropdownContent :editor-url="editorUrl" />
     </k-dropdown-content>
   </k-button-group>
 </template>

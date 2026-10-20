@@ -17,6 +17,7 @@ use Kirby\Toolkit\Str;
 final class Lingohub
 {
     public const API_URL = 'https://api.lingohub.com/v1';
+    public const APP_URL = 'https://app.lingohub.com';
 
     private const OPTION_PREFIX = 'johannschopplich.lingohub.';
 
@@ -56,17 +57,7 @@ final class Lingohub
 
     public static function resolveResourceFilename(ModelWithContent $model, string $languageCode): string
     {
-        $kirby = App::instance();
-        /** @var \Kirby\Cms\Language|null */
-        $language = $kirby->languages()->find($languageCode);
-
-        $localeCode = $language?->locale(LC_ALL) ?? $languageCode;
-        // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
-        // (1) Convert locale code to IETF language tag format (e.g. `en_US` to `en-US`).
-        $localeCode = str_replace('_', '-', $localeCode);
-        // (2) Remove UTF-8 suffix for consistency.
-        $localeCode = preg_replace('/\.utf-?8$/i', '', $localeCode);
-
+        $localeCode = self::resolveLocaleCode($languageCode);
         $blueprintName = $model->blueprint()->name();
 
         if (str_starts_with($blueprintName, 'pages/') || str_starts_with($blueprintName, 'files/')) {
@@ -74,6 +65,50 @@ final class Lingohub
         }
 
         return "{$blueprintName}_{$localeCode}.json";
+    }
+
+    /**
+     * Links Lingohub's translation editor to the project, with the default
+     * language as the source and the given language as the target. Lingohub
+     * doesn't document the URL; this is the one its app links to.
+     */
+    public static function editorUrl(string $languageCode): string|null
+    {
+        $kirby = App::instance();
+        $workspaceId = $kirby->option(self::OPTION_PREFIX . 'workspaceId');
+        $projectId = $kirby->option(self::OPTION_PREFIX . 'projectId');
+
+        if (!self::isUsableOption($workspaceId) || !self::isUsableOption($projectId)) {
+            return null;
+        }
+
+        $defaultLanguageCode = $kirby->defaultLanguage()->code();
+        $query = [
+            'filter' => json_encode([
+                'where' => ['_and' => [['project[id]' => ['_eq' => $projectId]]]],
+                'sort' => []
+            ]),
+            'sourceLanguage' => self::resolveLocaleCode($defaultLanguageCode)
+        ];
+
+        if ($languageCode !== $defaultLanguageCode) {
+            $query['targetLanguage'] = self::resolveLocaleCode($languageCode);
+        }
+
+        return self::APP_URL . '/workspace/' . rawurlencode($workspaceId) . '/editor/translations?' . http_build_query($query);
+    }
+
+    private static function resolveLocaleCode(string $languageCode): string
+    {
+        /** @var \Kirby\Cms\Language|null */
+        $language = App::instance()->languages()->find($languageCode);
+
+        $localeCode = $language?->locale(LC_ALL) ?? $languageCode;
+        // Support ISO 3166-1 Alpha-2 and ISO 639-1 codes:
+        // (1) Convert locale code to IETF language tag format (e.g. `en_US` to `en-US`).
+        $localeCode = str_replace('_', '-', $localeCode);
+        // (2) Remove UTF-8 suffix for consistency.
+        return preg_replace('/\.utf-?8$/i', '', $localeCode);
     }
 
     public function getTranslationStatus(): array

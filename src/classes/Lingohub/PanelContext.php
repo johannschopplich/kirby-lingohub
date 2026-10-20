@@ -7,8 +7,8 @@ namespace JohannSchopplich\Lingohub;
 final class PanelContext
 {
     /**
-     * Builds the plugin configuration the Panel receives. The Panel only ever
-     * needs to know these options are set, never their values.
+     * Reports which options are set, without their values, so the API key
+     * never reaches the Panel.
      *
      * @return array<string, bool>
      */

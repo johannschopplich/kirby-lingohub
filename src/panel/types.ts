@@ -29,4 +29,6 @@ export interface ModelContext {
   resourceFiles: Record<string, string>;
   /** Secondary languages the model has content in. */
   translatedLanguageCodes: string[];
+  /** Each language's link to the Lingohub editor, `null` without workspace and project. */
+  editorUrls: Record<string, string | null>;
 }

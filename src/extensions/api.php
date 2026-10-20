@@ -20,9 +20,16 @@ return [
             'action' => function () use ($kirby) {
                 $content = Content::fromPath($kirby->request()->body()->get('path', ''));
 
+                $editorUrls = [];
+
+                foreach ($kirby->languages() as $language) {
+                    $editorUrls[$language->code()] = Lingohub::editorUrl($language->code());
+                }
+
                 return [
                     'resourceFiles' => $content->resourceFiles(),
-                    'translatedLanguageCodes' => $content->translatedLanguageCodes()
+                    'translatedLanguageCodes' => $content->translatedLanguageCodes(),
+                    'editorUrls' => $editorUrls
                 ];
             }
         ],

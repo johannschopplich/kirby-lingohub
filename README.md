@@ -26,7 +26,7 @@ Kirby Lingohub is a plugin for [Kirby CMS](https://getkirby.com) that syncs cont
 
 ### ☁️ Upload and Download
 
-The `lingohub` view button opens a dropdown with **Upload** and **Download Translations**. Add it to the `buttons` of a page, Site, or file blueprint:
+The `lingohub` view button opens a dropdown with **Upload**, **Download Translations**, and **Open in Lingohub**. Add it to the `buttons` of a page, Site, or file blueprint:
 
 ```yml
 buttons:
@@ -40,6 +40,8 @@ buttons:
 **Upload** sends the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub. Lingohub imports an upload in the background, and the status updates once it has, usually after a few seconds.
 
 **Download Translations** fetches the segments of the chosen status – **All**, **Translated and Approved**, or **Approved** (the default) – and writes them into each selected language. Languages whose segments are all approved are preselected. A segment the download doesn't include keeps the language's current text, or the default language's if it has none. Only users who may update the page, Site, or file can download into it. A download that changes the title also needs the `changeTitle` permission.
+
+**Open in Lingohub** opens the project in Lingohub's translation editor, with the default language as the source and the current language as the target.
 
 > [!NOTE]
 > Kirby 4 has no custom view buttons. The plugin backports the `lingohub` button to page views and places it before the languages dropdown.

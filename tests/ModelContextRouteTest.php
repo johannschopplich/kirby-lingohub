@@ -11,9 +11,10 @@ use PHPUnit\Framework\Attributes\Test;
 #[PreserveGlobalState(false)]
 final class ModelContextRouteTest extends ApiRouteTestCase
 {
-    private function callModelContextRoute(string $path): mixed
+    private function callModelContextRoute(string $path, array $options = []): mixed
     {
         $kirby = self::bootApp([
+            'options' => ['johannschopplich.lingohub' => $options],
             'languages' => [
                 ['code' => 'en', 'name' => 'English', 'default' => true, 'locale' => 'en_US.UTF-8'],
                 ['code' => 'de', 'name' => 'Deutsch', 'locale' => 'de_DE'],
@@ -75,6 +76,32 @@ final class ModelContextRouteTest extends ApiRouteTestCase
         $response = $this->callModelContextRoute('pages/a-note');
 
         $this->assertSame(['de'], $response['translatedLanguageCodes']);
+    }
+
+    #[Test]
+    public function links_each_language_to_the_lingohub_editor(): void
+    {
+        $response = $this->callModelContextRoute('pages/a-note', [
+            'workspaceId' => 'space_test',
+            'projectId' => 'pr_test'
+        ]);
+
+        $filter = urlencode('{"where":{"_and":[{"project[id]":{"_eq":"pr_test"}}]},"sort":[]}');
+        $baseUrl = "https://app.lingohub.com/workspace/space_test/editor/translations?filter={$filter}&sourceLanguage=en-US";
+
+        $this->assertSame([
+            'en' => $baseUrl,
+            'de' => "{$baseUrl}&targetLanguage=de-DE",
+            'fr' => "{$baseUrl}&targetLanguage=fr-FR"
+        ], $response['editorUrls']);
+    }
+
+    #[Test]
+    public function links_no_editor_without_workspace_and_project(): void
+    {
+        $response = $this->callModelContextRoute('pages/a-note');
+
+        $this->assertSame(['en' => null, 'de' => null, 'fr' => null], $response['editorUrls']);
     }
 
     #[Test]
