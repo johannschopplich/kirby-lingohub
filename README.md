@@ -37,7 +37,7 @@ buttons:
   - status
 ```
 
-**Upload** sends the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub.
+**Upload** sends the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub. Lingohub imports an upload in the background, and the status updates once it has, usually after a few seconds.
 
 **Download Translations** fetches the segments of the chosen status – **All**, **Translated and Approved**, or **Approved** (the default) – and writes them into each selected language. Languages whose segments are all approved are preselected. A segment the download doesn't include keeps the language's current text, or the default language's if it has none. Only users who may update the page, Site, or file can download into it. A download that changes the title also needs the `changeTitle` permission.
 

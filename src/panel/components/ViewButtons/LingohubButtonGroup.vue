@@ -60,24 +60,15 @@ const statusButton = computed(() => {
   };
 });
 
-let reloadTimeout: ReturnType<typeof setTimeout> | undefined;
-
 watch(() => [panel.view.path, panel.language.code], loadLingohubData, {
   immediate: true,
 });
 
-panel.events.on(TRANSLATION_UPDATE_EVENT, scheduleReload);
+panel.events.on(TRANSLATION_UPDATE_EVENT, loadLingohubData);
 
 onBeforeUnmount(() => {
-  panel.events.off(TRANSLATION_UPDATE_EVENT, scheduleReload);
-  clearTimeout(reloadTimeout);
+  panel.events.off(TRANSLATION_UPDATE_EVENT, loadLingohubData);
 });
-
-function scheduleReload() {
-  clearTimeout(reloadTimeout);
-  // Lingohub needs some time to process the updated translation.
-  reloadTimeout = setTimeout(loadLingohubData, 2000);
-}
 
 function toggle() {
   dropdownContent.value?.toggle();

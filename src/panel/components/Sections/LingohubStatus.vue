@@ -1,8 +1,16 @@
 <script lang="ts">
 import type { LingohubResourceFile } from "../../types";
-import { computed, ref, useI18n, usePanel, useSection } from "kirbyuse";
+import {
+  computed,
+  onBeforeUnmount,
+  ref,
+  useI18n,
+  usePanel,
+  useSection,
+} from "kirbyuse";
 import { section } from "kirbyuse/props";
 import { useLingohub } from "../../composables/lingohub";
+import { TRANSLATION_UPDATE_EVENT } from "../../constants";
 
 const propsDefinition = {
   ...section,
@@ -77,7 +85,17 @@ const tableRows = computed(() =>
 
   label.value =
     t(sectionProps.label) || panel.t("johannschopplich.lingohub.statusLabel");
+})();
 
+loadStatus();
+
+panel.events.on(TRANSLATION_UPDATE_EVENT, loadStatus);
+
+onBeforeUnmount(() => {
+  panel.events.off(TRANSLATION_UPDATE_EVENT, loadStatus);
+});
+
+async function loadStatus() {
   try {
     const [status, { resourceFiles }] = await Promise.all([
       getTranslationStatus(),
@@ -88,11 +106,12 @@ const tableRows = computed(() =>
       status,
       resourceFiles[panel.language.code!],
     );
+    statusError.value = undefined;
   } catch (error) {
     console.error(error);
     statusError.value = (error as Error).message;
   }
-})();
+}
 </script>
 
 <template>

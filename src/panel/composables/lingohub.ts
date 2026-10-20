@@ -96,6 +96,34 @@ export function useLingohub() {
     );
   }
 
+  /**
+   * Lingohub imports an upload in the background, without a job to wait on.
+   * Resolves once every given file has segments newer than in `previousStatus`,
+   * so the status reflects the upload – or after about 30 seconds, or at the
+   * first failed status request, which the refresh after the upload reports.
+   */
+  async function waitForImport(
+    previousStatus: LingohubTranslationStatus,
+    resourceFiles: string[],
+  ) {
+    const previousUpdates = resourceFiles.map(
+      (name) => findResourceFile(previousStatus, name)?.segmentsUpdatedAt,
+    );
+
+    for (let attempt = 0; attempt < 15; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const status = await getTranslationStatus().catch(() => undefined);
+      if (!status) return;
+
+      const isImported = resourceFiles.every((name, index) => {
+        const updatedAt = findResourceFile(status, name)?.segmentsUpdatedAt;
+        return updatedAt && updatedAt !== previousUpdates[index];
+      });
+
+      if (isImported) return;
+    }
+  }
+
   async function downloadTranslation(
     languageCode: string,
     targetStatus: string,
@@ -137,6 +165,7 @@ export function useLingohub() {
     findResourceFile,
     isFullyApproved,
     uploadTranslation,
+    waitForImport,
     downloadTranslation,
   };
 }

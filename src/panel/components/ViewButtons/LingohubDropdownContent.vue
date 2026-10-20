@@ -17,6 +17,7 @@ const {
   findResourceFile,
   isFullyApproved,
   uploadTranslation,
+  waitForImport,
   downloadTranslation,
 } = useLingohub();
 
@@ -112,17 +113,14 @@ async function uploadTranslations() {
 
   if (!options) return;
 
+  const languageCodes = [...options.sourceLanguage, ...options.targetLanguages];
+
   panel.view.isLoading = true;
 
   try {
-    for (const languageCode of [
-      ...options.sourceLanguage,
-      ...options.targetLanguages,
-    ]) {
+    for (const languageCode of languageCodes) {
       await uploadTranslation(languageCode);
     }
-
-    panel.events.emit(TRANSLATION_UPDATE_EVENT);
 
     panel.notification.success(
       panel.t("johannschopplich.lingohub.success.upload"),
@@ -130,9 +128,18 @@ async function uploadTranslations() {
   } catch (error) {
     console.error(error);
     panel.notification.error((error as Error).message);
+    return;
   } finally {
     panel.view.isLoading = false;
   }
+
+  // Outside the loading state, so the editor keeps working while Lingohub imports.
+  await waitForImport(
+    status,
+    languageCodes.map((languageCode) => resourceFiles[languageCode]!),
+  );
+
+  panel.events.emit(TRANSLATION_UPDATE_EVENT);
 }
 
 async function downloadTranslations() {
