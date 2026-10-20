@@ -23,5 +23,3 @@ pnpm run build         # build the Panel bundle (index.js)
 - `Content::walk` – the traversal both upload and download build keys with
 - `Content::fromPath` – resolves the Panel view path the model-bound `__lingohub__/` routes receive
 - `__lingohub__/` – the plugin's API routes
-- `TranslateExternalOnly::guard` – the `translateExternalOnly` check in the `*.update:before` hooks
-- `legacyViewButtonMixin` – the Kirby 4 backport of the `lingohub` view button
