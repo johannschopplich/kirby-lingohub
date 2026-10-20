@@ -7,12 +7,14 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'JohannSchopplich\\KirbyTools\\FieldNormalizer' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/FieldNormalizer.php',
     'JohannSchopplich\\KirbyTools\\FieldResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
     'JohannSchopplich\\KirbyTools\\ModelResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
+    'JohannSchopplich\\KirbyTools\\QueryResolver' => $vendorDir . '/johannschopplich/kirby-tools-utils/src/QueryResolver.php',
     'JohannSchopplich\\Lingohub\\Content' => $baseDir . '/src/classes/Lingohub/Content.php',
-    'JohannSchopplich\\Lingohub\\FieldTypeResolver' => $baseDir . '/src/classes/Lingohub/FieldTypeResolver.php',
     'JohannSchopplich\\Lingohub\\Lingohub' => $baseDir . '/src/classes/Lingohub/Lingohub.php',
-    'JohannSchopplich\\Lingohub\\Multipart' => $baseDir . '/src/classes/Lingohub/Multipart.php',
+    'JohannSchopplich\\Lingohub\\PanelContext' => $baseDir . '/src/classes/Lingohub/PanelContext.php',
+    'JohannSchopplich\\Lingohub\\TranslateExternalOnly' => $baseDir . '/src/classes/Lingohub/TranslateExternalOnly.php',
     'Kirby\\ComposerInstaller\\CmsInstaller' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',
     'Kirby\\ComposerInstaller\\Installer' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/Installer.php',
     'Kirby\\ComposerInstaller\\Plugin' => $vendorDir . '/getkirby/composer-installer/src/ComposerInstaller/Plugin.php',

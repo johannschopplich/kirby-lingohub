@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
+class ComposerStaticInit1ef190ecccbc64a3e27e00f07de897a3
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
@@ -35,12 +35,14 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'JohannSchopplich\\KirbyTools\\FieldNormalizer' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/FieldNormalizer.php',
         'JohannSchopplich\\KirbyTools\\FieldResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/FieldResolver.php',
         'JohannSchopplich\\KirbyTools\\ModelResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/ModelResolver.php',
+        'JohannSchopplich\\KirbyTools\\QueryResolver' => __DIR__ . '/..' . '/johannschopplich/kirby-tools-utils/src/QueryResolver.php',
         'JohannSchopplich\\Lingohub\\Content' => __DIR__ . '/../..' . '/src/classes/Lingohub/Content.php',
-        'JohannSchopplich\\Lingohub\\FieldTypeResolver' => __DIR__ . '/../..' . '/src/classes/Lingohub/FieldTypeResolver.php',
         'JohannSchopplich\\Lingohub\\Lingohub' => __DIR__ . '/../..' . '/src/classes/Lingohub/Lingohub.php',
-        'JohannSchopplich\\Lingohub\\Multipart' => __DIR__ . '/../..' . '/src/classes/Lingohub/Multipart.php',
+        'JohannSchopplich\\Lingohub\\PanelContext' => __DIR__ . '/../..' . '/src/classes/Lingohub/PanelContext.php',
+        'JohannSchopplich\\Lingohub\\TranslateExternalOnly' => __DIR__ . '/../..' . '/src/classes/Lingohub/TranslateExternalOnly.php',
         'Kirby\\ComposerInstaller\\CmsInstaller' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/CmsInstaller.php',
         'Kirby\\ComposerInstaller\\Installer' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/Installer.php',
         'Kirby\\ComposerInstaller\\Plugin' => __DIR__ . '/..' . '/getkirby/composer-installer/src/ComposerInstaller/Plugin.php',
@@ -50,9 +52,9 @@ class ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7621e6c56e8af2bb6e4b9df891dca530::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1ef190ecccbc64a3e27e00f07de897a3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1ef190ecccbc64a3e27e00f07de897a3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1ef190ecccbc64a3e27e00f07de897a3::$classMap;
 
         }, null, ClassLoader::class);
     }

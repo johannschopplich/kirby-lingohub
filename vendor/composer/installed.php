@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'johannschopplich/kirby-lingohub',
-        'pretty_version' => '1.3.1',
-        'version' => '1.3.1.0',
+        'pretty_version' => '2.0.0',
+        'version' => '2.0.0.0',
         'reference' => null,
         'type' => 'kirby-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -20,8 +20,8 @@
             'dev_requirement' => false,
         ),
         'johannschopplich/kirby-lingohub' => array(
-            'pretty_version' => '1.3.1',
-            'version' => '1.3.1.0',
+            'pretty_version' => '2.0.0',
+            'version' => '2.0.0.0',
             'reference' => null,
             'type' => 'kirby-plugin',
             'install_path' => __DIR__ . '/../../',
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'johannschopplich/kirby-tools-utils' => array(
-            'pretty_version' => '0.1.0',
-            'version' => '0.1.0.0',
-            'reference' => 'f4664f75663c45bc8ae121eab6f652052bb872ef',
+            'pretty_version' => '0.1.4',
+            'version' => '0.1.4.0',
+            'reference' => '71b4b67f466c6c99b5fbe5a21a2e40d63d3e7b5d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../johannschopplich/kirby-tools-utils',
             'aliases' => array(),
