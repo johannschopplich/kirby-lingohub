@@ -20,10 +20,7 @@ export function useLingohub() {
     return panel.api.post(
       PLUGIN_MODEL_CONTEXT_API_ROUTE,
       { path: panel.view.path },
-      undefined,
-      "POST",
-      // Avoid showing the Panel loading indicator.
-      true,
+      { silent: true },
     );
   }
 
@@ -38,9 +35,7 @@ export function useLingohub() {
     const { translationStatus } = await panel.api.get(
       PLUGIN_STATUS_API_ROUTE,
       undefined,
-      undefined,
-      // Avoid showing the Panel loading indicator.
-      true,
+      { silent: true },
     );
 
     return translationStatus;
@@ -89,10 +84,7 @@ export function useLingohub() {
     await panel.api.post(
       PLUGIN_SEND_API_ROUTE,
       { path: panel.view.path, languageCode },
-      undefined,
-      "POST",
-      // Avoid showing the Panel loading indicator.
-      true,
+      { silent: true },
     );
   }
 
@@ -131,10 +123,7 @@ export function useLingohub() {
     await panel.api.post(
       PLUGIN_RECEIVE_API_ROUTE,
       { path: panel.view.path, languageCode, targetStatus },
-      undefined,
-      "POST",
-      // Avoid showing the Panel loading indicator.
-      true,
+      { silent: true },
     );
   }
 

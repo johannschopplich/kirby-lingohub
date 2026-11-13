@@ -9,13 +9,7 @@ export function usePluginContext(): Promise<PluginContext> {
   if (pendingPromise) return pendingPromise;
 
   pendingPromise = window.panel.api
-    .get(
-      PLUGIN_CONTEXT_API_ROUTE,
-      undefined,
-      undefined,
-      // Avoid showing the Panel loading indicator.
-      true,
-    )
+    .get(PLUGIN_CONTEXT_API_ROUTE, undefined, { silent: true })
     .then((response: PluginContext) => {
       context = response;
       return context;
