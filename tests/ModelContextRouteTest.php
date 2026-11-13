@@ -111,4 +111,16 @@ final class ModelContextRouteTest extends ApiRouteTestCase
 
         $this->callModelContextRoute('pages/missing');
     }
+
+    #[Test]
+    public function lists_no_secondary_languages_on_a_single_language_site(): void
+    {
+        $response = $this->callRoute(
+            self::bootApp(['request' => ['body' => ['path' => 'site']]]),
+            '__lingohub__/model-context',
+            'POST'
+        );
+
+        $this->assertSame([], $response['translatedLanguageCodes']);
+    }
 }

@@ -74,7 +74,11 @@ final class Content
     /** @return list<string> */
     public function translatedLanguageCodes(): array
     {
-        $defaultLanguageCode = App::instance()->defaultLanguage()->code();
+        $defaultLanguageCode = App::instance()->defaultLanguage()?->code();
+
+        if ($defaultLanguageCode === null) {
+            return [];
+        }
 
         return array_values($this->model
             ->translations()
