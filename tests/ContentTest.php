@@ -978,6 +978,29 @@ final class ContentTest extends ApiRouteTestCase
 
     // #endregion
 
+    // #region Upload permission
+
+    #[Test]
+    public function upload_translation_throws_for_a_user_who_may_not_update_the_page_before_calling_lingohub(): void
+    {
+        App::instance()->clone([
+            'options' => [
+                'johannschopplich.lingohub' => [
+                    'apiKey' => 'test-key',
+                    'workspaceId' => 'test-workspace',
+                    'projectId' => 'test-project'
+                ],
+                'remote' => ['test' => true]
+            ]
+        ])->impersonate('editor@example.com');
+
+        $this->expectException(PermissionException::class);
+
+        self::testPageContent()->uploadTranslation('en');
+    }
+
+    // #endregion
+
     // #region Download permission
 
     #[Test]

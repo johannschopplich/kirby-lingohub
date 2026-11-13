@@ -47,7 +47,7 @@ The list replaces Kirby's default buttons, so it names them too.
 > [!WARNING]
 > A download rebuilds each selected language from the default language's content, and only [text-like fields](#field-options) keep their translation. Every other value – a toggle, a date, a URL, selected files, a heading block's level – is replaced by the default language's, and blocks and structure rows that exist only in the selected language are deleted. A field with `translateInKirbyOnly` keeps its own value.
 
-Only users who may update the page, Site, or file can download into it. A download that changes the title also needs the `changeTitle` permission.
+Only users who may update the page, Site, or file can upload it or download into it. A download that changes the title also needs the `changeTitle` permission.
 
 **Open in Lingohub** opens the project in Lingohub's translation editor, with the default language as the source and the current language as the target.
 

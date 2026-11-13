@@ -82,8 +82,13 @@ final class Content
             ->pluck('code'));
     }
 
+    /**
+     * @throws \Kirby\Exception\PermissionException When the user may not update the model
+     */
     public function uploadTranslation(string $languageCode): array
     {
+        $this->assertCanUpdate();
+
         $lingohub = Lingohub::instance();
         $filename = Lingohub::resolveResourceFilename($this->model, $languageCode);
 
