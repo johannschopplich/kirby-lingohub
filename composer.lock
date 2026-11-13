@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ef190ecccbc64a3e27e00f07de897a3",
+    "content-hash": "71d2662a985dabfc83612bd81164fdfb",
     "packages": [
         {
             "name": "getkirby/composer-installer",
@@ -3410,5 +3410,5 @@
         "php": ">=8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

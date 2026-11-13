@@ -69,11 +69,6 @@ final class TranslateExternalOnly
      */
     private static function storedStrings(Site|Page|File $model, string $languageCode): array
     {
-        // TODO: Drop K4 compat in v2 – keep only the `toStoredValues()` branch once Kirby 5 is the floor.
-        if (!method_exists(Form::class, 'toStoredValues')) {
-            return Form::for($model, ['language' => $languageCode])->strings();
-        }
-
         return Form::for($model, language: $languageCode)->toStoredValues();
     }
 }

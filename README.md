@@ -51,9 +51,6 @@ Only users who may update the page, Site, or file can upload it or download into
 
 **Open in Lingohub** opens the project in Lingohub's translation editor, with the default language as the source and the current language as the target.
 
-> [!NOTE]
-> Kirby 4 has no custom view buttons. The plugin backports the `lingohub` button to page views and places it before the languages dropdown.
-
 ### 🚦 Translation Status
 
 Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update.
@@ -83,7 +80,7 @@ Fields with `translateInKirbyOnly` never leave Kirby: uploads skip them, and dow
 
 ## Requirements
 
-- Kirby 4 or Kirby 5
+- Kirby 5.6 or a later Kirby 5 release
 - PHP 8.2 or later
 
 ## Installation
