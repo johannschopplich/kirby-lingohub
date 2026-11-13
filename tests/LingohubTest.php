@@ -3,7 +3,6 @@
 declare(strict_types = 1);
 
 use JohannSchopplich\Lingohub\Lingohub;
-use Kirby\Exception\AuthException;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,7 +33,7 @@ final class LingohubTest extends ApiRouteTestCase
     {
         self::bootAppWith('apiKey', null);
 
-        $this->expectException(AuthException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing Lingohub API key');
 
         new Lingohub();

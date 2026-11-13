@@ -7,7 +7,6 @@ namespace JohannSchopplich\Lingohub;
 use Kirby\Cms\App;
 use Kirby\Cms\ModelWithContent;
 use Kirby\Cms\Site;
-use Kirby\Exception\AuthException;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Kirby\Http\Remote;
@@ -32,7 +31,7 @@ final class Lingohub
         $apiKey = $kirby->option(self::OPTION_PREFIX . 'apiKey');
 
         if (!self::isUsableOption($apiKey)) {
-            throw new AuthException('Missing Lingohub API key');
+            throw new InvalidArgumentException(message: 'Missing Lingohub API key');
         }
 
         $this->apiKey = $apiKey;
