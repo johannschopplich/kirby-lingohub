@@ -48,7 +48,7 @@ final class Content
             !($model instanceof Site || $model instanceof Page || $model instanceof File) ||
             !$model->isAccessible()
         ) {
-            throw new NotFoundException('No content found for "' . $path . '"');
+            throw new NotFoundException(message: 'No content found for "' . $path . '"');
         }
 
         return new self($model);
@@ -143,7 +143,7 @@ final class Content
 
         // Checked before the update, so a refused title change writes nothing.
         if ($changesTitle && !$this->model->permissions()->can('changeTitle')) {
-            throw new PermissionException('You are not allowed to change the title');
+            throw new PermissionException(message: 'You are not allowed to change the title');
         }
 
         $mergedContent = $this->deserializeContent($serializedContent, $languageCode);
@@ -352,7 +352,7 @@ final class Content
     private function assertCanUpdate(): void
     {
         if (!$this->model->permissions()->can('update')) {
-            throw new PermissionException('You are not allowed to update this content');
+            throw new PermissionException(message: 'You are not allowed to update this content');
         }
     }
 

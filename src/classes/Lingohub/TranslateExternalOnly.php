@@ -53,7 +53,7 @@ final class TranslateExternalOnly
 
             $label = $field['label'] ?? null;
 
-            throw new PermissionException(I18n::template(
+            throw new PermissionException(message: I18n::template(
                 'johannschopplich.lingohub.error.translateExternalOnly',
                 null,
                 ['label' => I18n::translate($label, $label) ?? $name]
