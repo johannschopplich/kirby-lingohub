@@ -26,10 +26,11 @@ Kirby Lingohub is a plugin for [Kirby CMS](https://getkirby.com) that syncs cont
 
 ### ☁️ Upload and Download
 
-The `lingohub` view button opens a dropdown with **Upload**, **Download Translations**, and **Open in Lingohub**. Add it to the `buttons` of a page, Site, or file blueprint:
+The `lingohub` view button opens a dropdown with **Upload**, **Download Translations**, and **Open in Lingohub**. Add it to the `buttons` of a page, Site, or file blueprint – here a page's:
 
 ```yml
 buttons:
+  - open
   - preview
   - settings
   - lingohub
@@ -37,9 +38,16 @@ buttons:
   - status
 ```
 
-**Upload** sends the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub. Lingohub imports an upload in the background, and the status updates once it has, usually after a few seconds.
+The list replaces Kirby's default buttons, so it names them too.
 
-**Download Translations** fetches the segments of the chosen status – **All**, **Translated and Approved**, or **Approved** (the default) – and writes them into each selected language. Languages whose segments are all approved are preselected. A segment the download doesn't include keeps the language's current text, or the default language's if it has none. Only users who may update the page, Site, or file can download into it. A download that changes the title also needs the `changeTitle` permission.
+**Upload** sends the page, Site, or file in view in the languages you pick: the default language, preselected, and the translations that already exist in Kirby. Its children and files are not included. Translations with no translated, draft, or approved segments in Lingohub yet are preselected too – handy when you move an existing site to Lingohub. Lingohub imports an upload in the background, and the status updates once it has, usually after a few seconds.
+
+**Download Translations** fetches the segments of the chosen status – **All**, **Translated and Approved**, or **Approved** (the default) – and writes them into each selected language. Languages whose segments are all approved are preselected. A segment the download doesn't include keeps the language's current text, or the default language's if it has none.
+
+> [!WARNING]
+> A download rebuilds each selected language from the default language's content, and only [text-like fields](#field-options) keep their translation. Every other value – a toggle, a date, a URL, selected files, a heading block's level – is replaced by the default language's, and blocks and structure rows that exist only in the selected language are deleted. A field with `translateInKirbyOnly` keeps its own value.
+
+Only users who may update the page, Site, or file can download into it. A download that changes the title also needs the `changeTitle` permission.
 
 **Open in Lingohub** opens the project in Lingohub's translation editor, with the default language as the source and the current language as the target.
 
@@ -48,11 +56,11 @@ buttons:
 
 ### 🚦 Translation Status
 
-Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update. If the status can't be loaded, e.g. because Lingohub rejects the API key, the button reads **Unavailable** and a click shows the error.
+Next to the dropdown, a status button shows the current language's [status in Lingohub](https://help.lingohub.com/en/articles/6683154-how-to-manage-your-translation-workflow-using-statuses): **Approved** once all its segments are approved, **In Translation** while some aren't, and **Not Uploaded** before the first upload. Click it for the segment counts per status, the failed quality checks, and the date of the last update.
 
 ![Lingohub status dialog](./.github/kirby-lingohub-status-dialog.png)
 
-The `lingohub-status` section lists the same counts for every language of the page, Site, or file that Lingohub holds, or the error if the status can't be loaded:
+The `lingohub-status` section lists the same counts for every language of the page, Site, or file that Lingohub holds. Its `label` defaults to **Lingohub Translation Status**:
 
 ```yml
 sections:
@@ -62,6 +70,8 @@ sections:
 ```
 
 ![Lingohub status section](./.github/kirby-lingohub-status-section.png)
+
+If the status can't be loaded, e.g. because Lingohub rejects the API key, the button reads **Unavailable** and shows the error on click, and the section shows it in place of the counts.
 
 ### 🔒 Translate Only in Lingohub
 
@@ -74,6 +84,7 @@ Fields with `translateInKirbyOnly` never leave Kirby: uploads skip them, and dow
 ## Requirements
 
 - Kirby 4 or Kirby 5
+- PHP 8.2 or later
 
 ## Installation
 
@@ -85,7 +96,7 @@ composer require johannschopplich/kirby-lingohub
 
 ### Manual Installation
 
-Download and copy this repository to `/site/plugins/kirby-lingohub`.
+Download a [release](https://github.com/johannschopplich/kirby-lingohub/releases) and extract it to `/site/plugins/kirby-lingohub`.
 
 ## Setup
 
@@ -105,7 +116,7 @@ return [
 
 ### 2. Lingohub Project
 
-Create a project in your Lingohub workspace and choose **File import**. Lingohub won't continue without a first file, so upload a JSON file named after the default language's code, e.g. `en-US.json` with `{"title": "Home"}`. Then pick the project type **JSON**:
+Create a project in your Lingohub workspace and choose **File import**. Lingohub won't continue without a first file, so upload a JSON file named after the default language's Lingohub code from step 1, e.g. `en-US.json` with `{"title": "Home"}`. Then pick the project type **JSON**:
 
 ![Lingohub project type](./.github/lingohub-project-type.png)
 
@@ -139,12 +150,14 @@ return [
     'languages' => true,
 
     'johannschopplich.lingohub' => [
-        'apiKey' => env('LINGOHUB_API_KEY'),
+        'apiKey' => getenv('LINGOHUB_API_KEY'),
         'workspaceId' => 'space_16kPs3bRIpXi-29323',
         'projectId' => 'pr_18JCETCbT9NW-31003'
     ]
 ];
 ```
+
+To read the key from a `.env` file, use a plugin with an `env()` helper, such as [Kirby Helpers](https://kirby.tools/docs/helpers/environment-variables).
 
 ## Field Options
 
@@ -177,6 +190,7 @@ Lingohub's **JSON (Standard)** format is a flat key–value map, and a segment k
 
 | Field           | Key                                        |
 | --------------- | ------------------------------------------ |
+| Title           | `title`                                    |
 | Text-like field | `{field}`                                  |
 | Structure       | `{field}_{rowIndex}_{subfield}`            |
 | Object          | `{field}_{subfield}`                       |
@@ -185,7 +199,9 @@ Lingohub's **JSON (Standard)** format is a flat key–value map, and a segment k
 
 Nested fields continue the chain, e.g. blocks inside a custom block: `{field}_{blockId}_{blockType}_{subfield}_{nestedBlockId}_{nestedBlockType}_{nestedSubfield}`. Layout and column IDs are not part of a key.
 
-Each model is one Lingohub resource per language. Its path is the page or file ID (`site` for the Site), its file name `{blueprint}_{locale}.json`, e.g. `notes/my-note/note_de-DE.json`. The ID holds neither the draft status nor the sorting number, so publishing or sorting a page keeps its resource. Changing a page's slug, moving it, or renaming a file changes the path, and changing a model's template or a language's locale changes the file name, so Lingohub treats it as a new resource.
+`{rowIndex}` is the row's position, so a row that moves – sorted, or shifted by a row added or deleted above it – gets another row's key, and with it that row's translations.
+
+Each page, each file, and the Site is one Lingohub resource per language. Its path is the page or file ID (`site` for the Site), its file name `{blueprint}_{locale}.json`, e.g. `notes/my-note/note_de-DE.json`. The ID holds neither the draft status nor the sorting number, so publishing or sorting a page keeps its resource. Changing a page's slug, moving it, or renaming a file changes the path, and changing a page's or file's template or a language's locale changes the file name, so Lingohub treats it as a new resource.
 
 ## License
 
