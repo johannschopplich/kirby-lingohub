@@ -58,6 +58,16 @@ final class ContentTest extends ApiRouteTestCase
                         ]
                     ]
                 ],
+                'files/image' => [
+                    'fields' => [
+                        'alt' => [
+                            'type' => 'text'
+                        ],
+                        'title' => [
+                            'type' => 'text'
+                        ]
+                    ]
+                ],
                 'pages/default' => [
                     'fields' => [
                         'text' => [
@@ -266,6 +276,22 @@ final class ContentTest extends ApiRouteTestCase
                     [
                         'slug' => 'test',
                         'template' => 'default',
+                        'files' => [
+                            [
+                                'filename' => 'image.jpg',
+                                'template' => 'image',
+                                'translations' => [
+                                    [
+                                        'code' => 'en',
+                                        'content' => ['alt' => 'Alt EN', 'title' => 'Title EN']
+                                    ],
+                                    [
+                                        'code' => 'de',
+                                        'content' => ['alt' => 'Alt DE', 'title' => 'Titel DE alt']
+                                    ]
+                                ]
+                            ]
+                        ],
                         'translations' => [
                             [
                                 'code' => 'en',
@@ -549,6 +575,14 @@ final class ContentTest extends ApiRouteTestCase
     }
 
     #[Test]
+    public function serializes_the_title_field_of_a_file_blueprint(): void
+    {
+        $content = new Content(App::instance()->file('test/image.jpg'));
+
+        $this->assertSame('Title EN', $content->serializeContent('en')['title'] ?? null);
+    }
+
+    #[Test]
     public function serializes_the_title_in_the_requested_language(): void
     {
         $content = self::testPageContent();
@@ -646,6 +680,14 @@ final class ContentTest extends ApiRouteTestCase
         ], 'de');
 
         $this->assertSame('Hallo Welt', $deserialized['text']);
+    }
+
+    #[Test]
+    public function deserializes_the_title_field_of_a_file_blueprint(): void
+    {
+        $content = new Content(App::instance()->file('test/image.jpg'));
+
+        $this->assertSame('Titel DE', $content->deserializeContent(['title' => 'Titel DE'], 'de')['title']);
     }
 
     #[Test]

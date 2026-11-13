@@ -222,10 +222,10 @@ final class Content
             }
         );
 
-        // The base carries the default title and slug. A downloaded title is
-        // written through `changeTitle()` in `writeTranslation()` instead.
+        // The base carries the default title and slug. A page's downloaded
+        // title goes through `changeTitle()` instead.
         foreach (['title', 'slug'] as $name) {
-            if (isset($targetContent[$name])) {
+            if (isset($targetContent[$name]) && !isset($fields[$name])) {
                 $mergedContent[$name] = $targetContent[$name];
             }
         }
@@ -353,7 +353,15 @@ final class Content
 
     private function resolveFields(): array
     {
-        return FieldNormalizer::normalizeFields(FieldResolver::resolveModelFields($this->model));
+        $fields = FieldResolver::resolveModelFields($this->model);
+        $titleField = $this->model instanceof File ? $this->model->blueprint()->field('title') : null;
+
+        // The resolver strips a page's title, which is no blueprint field, but a file's `title` is one.
+        if ($titleField !== null) {
+            $fields['title'] = $titleField;
+        }
+
+        return FieldNormalizer::normalizeFields($fields);
     }
 
     private function isTextLikeField(array $field): bool
