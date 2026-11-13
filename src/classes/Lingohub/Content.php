@@ -305,6 +305,7 @@ final class Content
         foreach ($blocks as $index => $block) {
             if (
                 !isset($block['id'], $block['type'], $fieldsets[$block['type']]) ||
+                !($fieldsets[$block['type']]['translate'] ?? true) ||
                 !is_array($block['content'] ?? null) ||
                 !A::isAssociative($block['content'])
             ) {

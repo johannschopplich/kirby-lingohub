@@ -124,6 +124,18 @@ final class ContentTest extends ApiRouteTestCase
                                         ]
                                     ]
                                 ],
+                                'promo' => [
+                                    'translate' => false,
+                                    'tabs' => [
+                                        'content' => [
+                                            'fields' => [
+                                                'text' => [
+                                                    'type' => 'text'
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ],
                                 'container' => [
                                     'tabs' => [
                                         'content' => [
@@ -369,6 +381,13 @@ final class ContentTest extends ApiRouteTestCase
                                             'content' => [
                                                 'text' => 'Block EN'
                                             ]
+                                        ],
+                                        [
+                                            'type' => 'promo',
+                                            'id' => 'promo1',
+                                            'content' => [
+                                                'text' => 'Promo EN'
+                                            ]
                                         ]
                                     ]),
                                     'structure' => Yaml::encode([
@@ -607,6 +626,14 @@ final class ContentTest extends ApiRouteTestCase
         $serialized = $content->serializeContent('en');
 
         $this->assertArrayNotHasKey('blocks_block3_text_text', $serialized);
+    }
+
+    #[Test]
+    public function omits_blocks_of_a_fieldset_marked_translate_false_from_the_export(): void
+    {
+        $content = self::testPageContent();
+
+        $this->assertArrayNotHasKey('blocks_promo1_promo_text', $content->serializeContent('en'));
     }
 
     #[Test]
