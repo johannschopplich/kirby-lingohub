@@ -137,11 +137,11 @@ Add them and the API key to your `config.php`, see [Options](#options). Then add
 
 All options are namespaced under `johannschopplich.lingohub`. Each is required, and the Panel shows an error while one is missing.
 
-| Option        | Default | Description                                           |
-| ------------- | ------- | ----------------------------------------------------- |
-| `apiKey`      | –       | Lingohub API key with full **Resources** permissions. |
-| `workspaceId` | –       | ID of the Lingohub workspace.                         |
-| `projectId`   | –       | ID of the Lingohub project.                           |
+| Option        | Description                                           |
+| ------------- | ----------------------------------------------------- |
+| `apiKey`      | Lingohub API key with full **Resources** permissions. |
+| `workspaceId` | ID of the Lingohub workspace.                         |
+| `projectId`   | ID of the Lingohub project.                           |
 
 Example `config.php`:
 
