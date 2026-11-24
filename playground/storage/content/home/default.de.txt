@@ -8,14 +8,10 @@ Blocks01: [{"content":{"level":"h2","text":"Wofür verwendet man Blindtexte?"},"
 
 Object01:
 
-text: >
-  Dieses Objektfeld enthält eine
-  geschachtelte Struktur.
+text: 'Dieses Objektfeld enthält eine geschachtelte Struktur.'
 structure:
-  - 
-    text: >
-      Dies ist ein Strukturelement innerhalb
-      eines Objektfeldes.
+  -
+    text: 'Dies ist ein Strukturelement innerhalb eines Objektfeldes.'
 
 ----
 

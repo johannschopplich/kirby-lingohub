@@ -15,6 +15,10 @@ return [
         ]
     ],
 
+    'yaml' => [
+        'handler' => 'symfony'
+    ],
+
     'johannschopplich.lingohub' => [
         'apiKey' => env('LINGOHUB_API_KEY'),
         'workspaceId' => env('LINGOHUB_WORKSPACE_ID'),
